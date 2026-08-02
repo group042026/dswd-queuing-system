@@ -24,6 +24,14 @@
                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('admin.dashboard') ? 'bg-gray-700' : '' }}">
                             Dashboard
                         </a>
+                        <a href="{{ route('admin.users.list') }}"
+                           class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('admin.users.*') ? 'bg-gray-700' : '' }}">
+                            User List
+                        </a>
+                        <a href="{{ route('admin.queue.monitor') }}"
+                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('admin.queue.*') ? 'bg-gray-700' : '' }}">
+                            Queue Status
+                        </a>
                     </nav>
                 </aside>
 

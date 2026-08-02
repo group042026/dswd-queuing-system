@@ -15,7 +15,12 @@ class Queue extends Model
         'priority',
         'queue_status',
     ];
+    
+    protected $casts = [
+        'priority' => 'boolean',
+        'date_issued' => 'datetime',
 
+    ];
     public function client(): BelongsTo{
         return $this->belongsTo(Client::class);
     }

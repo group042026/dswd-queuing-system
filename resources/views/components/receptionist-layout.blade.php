@@ -24,6 +24,10 @@
                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.dashboard') ? 'bg-gray-700' : '' }}">
                             Dashboard
                         </a>
+                        <a href="{{ route('receptionist.clients.create') }}"
+                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.clients.*') ? 'bg-gray-700' : '' }}">
+                            Add Client
+                        </a>
                     </nav>
                 </aside>
 

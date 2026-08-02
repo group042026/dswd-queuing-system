@@ -18,15 +18,21 @@ Route::get('/', function () {
 
 Route::middleware('auth', 'prevent-back', 'can:access-admin')->controller(AdminController::class)->group(function (){
     Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
+    Route::get('/admin/users', 'userList')->name('admin.users.list');
+
     Route::post('/admin/users', 'storeUser')->name('admin.users.store');
     Route::put('/admin/users/{user}', 'update')->name('admin.users.update');
     // Route::get('/admin/users/{user}', 'showUser')->name('admin.users.show');
     Route::delete('/admin/users/{user}', 'destroy')->name('admin.users.destroy');
+    Route::get('/admin/queue', 'monitor')->name('admin.queue.monitor');
+
 
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->controller(ReceptionistController::class)->group(function (){
     Route::get('/receptionist/dashboard', 'index')->name('receptionist.dashboard');
+    Route::get('/receptionist/clients/create', 'create')->name('receptionist.clients.create');
+    Route::post('/receptionist/clients', 'store')->name('receptionist.clients.store');
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->controller(SocialWorkerController::class)->group(function (){

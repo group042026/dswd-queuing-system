@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Queue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -12,15 +13,25 @@ use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
-    public function index(){
+    public function index()
+    {
+        Gate::authorize('access-admin');
 
+        return view('admin.dashboard');
+    }
+
+    public function userList()
+    {
         Gate::authorize('access-admin');
 
         $users = User::with('roles')->orderBy('first_name', 'asc')->paginate(5);
         $roles = Role::all();
 
-        return view('admin.dashboard', ["users" => $users, "roles" => $roles]);
+        return view('admin.userList', ["users" => $users, "roles" => $roles]);
     }
+
+    
+
 
     public function storeUser(Request $request){
         $validated = $request->validate([
@@ -117,5 +128,16 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully.');
+    }
+    public function monitor()
+    {
+        Gate::authorize('access-admin');
+
+        $queues = Queue::with('client')
+                        ->orderBy('priority', 'desc')
+                        ->orderBy('date_issued', 'asc')
+                        ->paginate(10);
+
+        return view('admin.queueMonitor', ['queues' => $queues]);
     }
 }
