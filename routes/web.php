@@ -20,6 +20,9 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->controller(AdminC
     Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
     Route::post('/admin/users', 'storeUser')->name('admin.users.store');
     Route::put('/admin/users/{user}', 'update')->name('admin.users.update');
+    // Route::get('/admin/users/{user}', 'showUser')->name('admin.users.show');
+    Route::delete('/admin/users/{user}', 'destroy')->name('admin.users.destroy');
+
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->controller(ReceptionistController::class)->group(function (){

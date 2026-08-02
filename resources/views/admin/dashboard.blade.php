@@ -45,14 +45,18 @@
                                 <td class="p-3">{{ $user->first_name }} {{ $user->last_name }}</td>
                                 <td class="p-3">{{ $user->email }}</td>
                                 <td class="p-3">{{ $user->username }}</td>
-                                <td class="p-3">{{ $user->status ?? 'Active' }}</td>
-                                                                {{-- // User → Roles: belongsToMany (Many-to-Many, dahil may pivot table) --}}
+                                <td class="p-3">
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full
+                                        {{ $user->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ ucfirst($user->status ?? 'active') }}
+                                    </span>
+                                </td>                           {{-- // User → Roles: belongsToMany (Many-to-Many, dahil may pivot table) --}}
                                                                 {{-- kaya need gumamit ng first() para maaccess yung name dahil collection sya and marami kase belongstomany --}}
                                 <td class="p-3">{{ $user->roles->first()->role_name }}</td> 
                                 <td class="p-3">
                                     <div class="flex items-center gap-2">
                                         {{-- VIEW --}}
-                                        <x-icon-button color="blue" x-on:click="$dispatch('open-modal', 'view-user-modal-{{ $user->id }}')" title="View">
+                                        <x-icon-button color="blue" x-data="" x-on:click="$dispatch('open-modal', 'view-user-modal-{{ $user->id }}')" title="View">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -68,7 +72,7 @@
                                         </x-icon-button>
 
                                         {{-- DELETE --}}
-                                        <x-icon-button color="red" x-on:click="$dispatch('open-modal', 'delete-user-modal-{{ $user->id }}')" title="Delete">
+                                        <x-icon-button color="red" x-data="" x-on:click="$dispatch('open-modal', 'delete-user-modal-{{ $user->id }}')" title="Delete">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -89,7 +93,7 @@
     </div>
 
     {{-- Modal — form para mag-add ng user --}}
-    <x-modal name="add-user-modal" focusable :show="$errors->any()" >
+    <x-modal name="add-user-modal" focusable :show="$errors->any() && !old('editing_user_id')">
         <form method="POST" action="{{ route('admin.users.store') }}" class="p-6" enctype="multipart/form-data">
             @csrf
 
@@ -211,16 +215,13 @@
     </x-modal>
 
     @foreach($users as $user)
-
-        @php
-            $isThisUserEditing = old('editing_user_id') == $user->id;
-        @endphp
-
         {{-- Modal — form para mag-edit ng user --}}
         <x-modal name="edit-user-modal-{{ $user->id }}" focusable :show="$errors->any() && old('editing_user_id') == $user->id">            
             <form method="POST" action="{{ route('admin.users.update', $user->id) }}" class="p-6" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                            <input type="hidden" name="editing_user_id" value="{{ $user->id }}">
+
                 <h2 class="text-lg font-medium text-gray-900 mb-4">
                     {{ __('Edit User') }}
                 </h2>
@@ -338,5 +339,114 @@
                 </div>
             </form>
         </x-modal>
+
+    {{-- Modal — view --}}
+    <x-modal name="view-user-modal-{{ $user->id }}" focusable>
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">
+                {{ __('User Details') }}
+            </h2>
+
+            {{-- Profile Image --}}
+            <div class="flex justify-center mb-6">
+                <img src="{{ $user->profile_image ? asset('storage/'.$user->profile_image) : asset('storage/profile-images/defaultImage.png') }}"
+                    class="h-24 w-24 rounded-full object-cover border">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('First Name') }}</p>
+                    <p class="text-gray-900">{{ $user->first_name }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Middle Name') }}</p>
+                    <p class="text-gray-900">{{ $user->middle_name ?? '—' }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Last Name') }}</p>
+                    <p class="text-gray-900">{{ $user->last_name }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Email') }}</p>
+                    <p class="text-gray-900">{{ $user->email }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Username') }}</p>
+                    <p class="text-gray-900">{{ $user->username }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('License Number') }}</p>
+                    <p class="text-gray-900">{{ $user->license_number }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Contact Number') }}</p>
+                    <p class="text-gray-900">{{ $user->contact_number }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Role') }}</p>
+                    <p class="text-gray-900">{{ $user->roles->first()->role_name ?? '—' }}</p>
+                </div>
+
+                <div class="mb-2">
+                    <p class="text-sm font-medium text-gray-500">{{ __('Status') }}</p>
+                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full
+                        {{ $user->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+
+                        {{ ucfirst($user->status ?? 'active') }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <x-secondary-button x-on:click="$dispatch('close-modal', 'view-user-modal-{{ $user->id }}')">
+                    {{ __('Close') }}
+                </x-secondary-button>
+            </div>
+        </div>
+    </x-modal>
+
+    {{-- Modal — delete --}}
+    <x-modal name="delete-user-modal-{{ $user->id }}" focusable>
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('Delete User') }}
+                </h2>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-6">
+                {{ __('Are you sure you want to delete') }}
+                <span class="font-semibold">{{ $user->first_name }} {{ $user->last_name }}</span>?
+                {{ __('This action cannot be undone.') }}
+            </p>
+
+            <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}">
+                @csrf
+                @method('DELETE')
+
+                <div class="flex justify-end gap-3">
+                    <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'delete-user-modal-{{ $user->id }}')">
+                        {{ __('Cancel') }}
+                    </x-secondary-button>
+                    <x-primary-button type="submit" class="bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-800 focus:ring-red-500">
+                        {{ __('Delete') }}
+                    </x-primary-button>
+                </div>
+            </form>
+        </div>
+    </x-modal>
     @endforeach
+
 </x-admin-layout>

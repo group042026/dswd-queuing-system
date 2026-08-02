@@ -6,6 +6,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -95,5 +97,25 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'User updated successfully.');
 
+    }
+
+    // public function showUser(User $user)
+    // {
+    //     Gate::authorize('access-admin');
+    //     return response()->json($user->load('roles'));
+    // }
+    public function destroy(User $user)
+    {
+        Gate::authorize('access-admin');
+
+        // Optional: burahin din yung profile image sa storage kung meron
+        if ($user->profile_image) {
+            Storage::disk('public')->delete($user->profile_image);
+        }
+
+        $user->roles()->detach(); // tanggalin muna sa pivot table bago i-delete yung user
+        $user->delete();
+
+        return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully.');
     }
 }
