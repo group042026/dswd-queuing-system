@@ -13,12 +13,13 @@ class ClientProcessing extends Model
         'client_id',
         'user_id',
         'queue_id',
-        'current_setup',
+        'current_step',
         'current_status',
         'start_time',
         'end_time',
     ];
 
+    
     public function client(): BelongsTo{
         return $this->belongsTo(Client::class);
     }

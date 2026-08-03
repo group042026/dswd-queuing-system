@@ -28,6 +28,11 @@
                             class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.clients.*') ? 'bg-gray-700' : '' }}">
                             Add Client
                         </a>
+                        <a href="{{ route('receptionist.validation') }}"
+                        class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.validation*') ? 'bg-gray-700' : '' }}">
+                            Validation
+                        </a>
+                        
                     </nav>
                 </aside>
 

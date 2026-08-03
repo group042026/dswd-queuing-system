@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Dom\Document;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -18,7 +17,6 @@ class Client extends Model
         'birthdate',
         'age',
         'civil_status',
-        'address',
         'barangay',
         'municipality',
         'province',
@@ -36,19 +34,23 @@ class Client extends Model
 
     public $timestamps = false;
 
-    public function assessment(): HasMany{
+    public function assessment(): HasMany
+    {
         return $this->hasMany(Assessment::class);
     }
 
-    public function documents(): HasMany{
-        return $this->hasMany(Document::class);
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Documents::class);
     }
 
-    public function smsNotification(): HasMany{
+    public function smsNotification(): HasMany
+    {
         return $this->hasMany(SMSNotification::class);
     }
 
-    public function queue(): HasMany{
+    public function queue(): HasMany
+    {
         return $this->hasMany(Queue::class);
     }
 }

@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ClientProcessing;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+
+class ValidationController extends Controller
+{
+    public function index()
+    {
+        Gate::authorize('access-receptionist');
+
+        $pendingValidation = ClientProcessing::with(['client', 'queue'])
+            ->where('current_step', 'Validation')
+            ->where('current_status', 'Waiting')
+            ->orderBy('start_time', 'asc')
+            ->paginate(10);
+
+        return view('receptionist.validation', ['pendingValidation' => $pendingValidation]);
+    }
+
+    public function proceed(ClientProcessing $clientProcessing)
+    {
+         Gate::authorize('access-receptionist');
+
+        $client = $clientProcessing->client;
+
+        if ($client->documents->isEmpty()) {
+            return back()->withErrors(['documents' => 'Kailangan pang mag-upload ng requirements bago mag-proceed.']);
+        }
+
+        if ($client->documents->contains('verified', false)) {
+            return back()->withErrors(['documents' => 'May mga documents pang hindi verified.']);
+        }
+        
+        $clientProcessing->update([
+            'current_status' => 'Completed',
+            'end_time' => now(),
+        ]);
+
+        ClientProcessing::create([
+            'client_id' => $clientProcessing->client_id,
+            'user_id' => auth()->id(),
+            'queue_id' => $clientProcessing->queue_id,
+            'current_step' => 'Assessment',
+            'current_status' => 'Waiting',
+            'start_time' => now(),
+        ]);
+
+        return redirect()->route('receptionist.validation')->with('success', 'Client moved to Assessment stage.');
+    }
+}
