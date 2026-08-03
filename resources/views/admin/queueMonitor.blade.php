@@ -7,15 +7,44 @@
 
     <div class="py-6">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+
+            {{-- Date filter --}}
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 mb-4">
+                <form method="GET" action="{{ route('admin.queue.monitor') }}" class="flex items-end gap-3">
+                    <div>
+                        <x-input-label for="date" :value="__('Select Date')" />
+                        <x-text-input id="date" name="date" type="date" class="mt-1 block"
+                            value="{{ $selectedDate }}" />
+                    </div>
+
+                    <x-primary-button type="submit">
+                        {{ __('Filter') }}
+                    </x-primary-button>
+
+                    @if($selectedDate !== now()->format('Y-m-d'))
+                        <a href="{{ route('admin.queue.monitor') }}">
+                            <x-secondary-button type="button">
+                                {{ __('Back to Today') }}
+                            </x-secondary-button>
+                        </a>
+                    @endif
+                </form>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="mb-4 text-sm text-gray-500">
+                    {{ __('Showing queue for:') }}
+                    <span class="font-semibold text-gray-700">
+                        {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}
+                    </span>
+                </div>
+
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b bg-gray-50">
                             <th class="p-3">Queue Number</th>
                             <th class="p-3">Client Name</th>
                             <th class="p-3">Priority</th>
-                            <th class="p-3">Client Category</th>
-
                             <th class="p-3">Status</th>
                             <th class="p-3">Date Issued</th>
                         </tr>
@@ -27,12 +56,13 @@
                                 <td class="p-3">{{ $queue->client->first_name }} {{ $queue->client->last_name }}</td>
                                 <td class="p-3">
                                     @if($queue->priority)
-                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Priority</span>
+                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            {{ $queue->client->client_category }}
+                                        </span>
                                     @else
                                         <span class="text-gray-400 text-sm">Regular</span>
                                     @endif
                                 </td>
-                                <td class="p-3 text-sm text-gray-600">{{ $queue->client->client_category }}</td>
                                 <td class="p-3">
                                     <span @class([
                                         'inline-block px-2 py-1 text-xs font-semibold rounded-full',
@@ -48,7 +78,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="p-3 text-center text-gray-500">No queue entries yet.</td>
+                                <td colspan="5" class="p-3 text-center text-gray-500">
+                                    {{ __('No queue entries for this date.') }}
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
