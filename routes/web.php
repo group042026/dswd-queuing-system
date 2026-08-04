@@ -63,8 +63,14 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
     });
 });
 
-Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->controller(SocialWorkerController::class)->group(function (){
-    Route::get('/social-worker/dashboard', 'index')->name('social-worker.dashboard');
+Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(function (){
+    Route::controller(SocialWorkerController::class)->group(function () {
+        Route::get('/social-worker/dashboard', 'index')->name('social-worker.dashboard');
+        Route::get('/social-worker/assessment', 'pendingAssessment')->name('social-worker.assessment');
+        Route::post('/social-worker/assessment/{clientProcessing}', 'storeAssessment')->name('social-worker.assessment.store');
+
+    });
+    
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->controller(ApprovingOfficerController::class)->group(function (){

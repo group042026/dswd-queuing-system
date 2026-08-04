@@ -24,6 +24,10 @@
                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('social-worker.dashboard') ? 'bg-gray-700' : '' }}">
                             Dashboard
                         </a>
+                        <a href="{{ route('social-worker.assessment') }}"
+                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('social-worker.assessment') ? 'bg-gray-700' : '' }}">
+                            Assessment
+                        </a>
                     </nav>
                 </aside>
 

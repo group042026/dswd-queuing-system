@@ -8,17 +8,21 @@ use Illuminate\Support\Facades\Gate;
 
 class ValidationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('access-receptionist');
+
+        $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
         $pendingValidation = ClientProcessing::with(['client', 'queue'])
             ->where('current_step', 'Validation')
             ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $selectedDate)
             ->orderBy('start_time', 'asc')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends(['date' => $selectedDate]);
 
-        return view('receptionist.validation', ['pendingValidation' => $pendingValidation]);
+        return view('receptionist.validation', ['pendingValidation' => $pendingValidation, 'selectedDate' => $selectedDate]);
     }
 
     public function proceed(ClientProcessing $clientProcessing)

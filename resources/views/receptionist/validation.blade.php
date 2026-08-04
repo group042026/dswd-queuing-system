@@ -14,7 +14,37 @@
                 </div>
             @endif
 
+            {{-- Date filter --}}
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 mb-4">
+                <form method="GET" action="{{ route('receptionist.validation') }}" class="flex items-end gap-3">
+                    <div>
+                        <x-input-label for="date" :value="__('Select Date')" />
+                        <x-text-input id="date" name="date" type="date" class="mt-1 block"
+                            value="{{ $selectedDate }}" />
+                    </div>
+
+                    <x-primary-button type="submit">
+                        {{ __('Filter') }}
+                    </x-primary-button>
+
+                    @if($selectedDate !== now()->format('Y-m-d'))
+                        <a href="{{ route('receptionist.validation') }}">
+                            <x-secondary-button type="button">
+                                {{ __('Back to Today') }}
+                            </x-secondary-button>
+                        </a>
+                    @endif
+                </form>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="mb-4 text-sm text-gray-500">
+                    {{ __('Showing pending validation for:') }}
+                    <span class="font-semibold text-gray-700">
+                        {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}
+                    </span>
+                </div>
+                
                 <h3 class="text-lg font-semibold mb-4 pb-2 border-b">{{ __('Pending Validation') }}</h3>
 
                 <table class="w-full text-left border-collapse">

@@ -56,7 +56,7 @@ class ClientController extends Controller
                 'queue_number'  => $this->generateQueueNumber(),
                 'client_id'     => $client->id,
                 'priority'      => in_array($client->client_category, ['Senior', 'PWD', 'Solo Parent']),
-                'queue_status'  => 'Waiting',
+                'queue_status'  => 'Serving',
                 'date_issued'   => now(),
             ]);
 
