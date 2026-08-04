@@ -83,6 +83,73 @@
                                         <p>{{ __('Reason for Assistance') }}: <strong>{{ $item->client->reason_for_assistance }}</strong></p>
                                     </div>
 
+                                    {{-- Supporting Documents section --}}
+                                    <div class="mb-4 border-t pt-4">
+                                        <h4 class="font-semibold text-sm mb-2">{{ __('Uploaded Valid ID') }}</h4>
+
+                                        @forelse($item->client->documents as $document)
+                                            <div class="flex justify-between items-center py-2 text-sm">
+                                                <div>
+                                                    <span>{{ $document->document_name }}</span>
+                                                    <a href="{{ Storage::url($document->file_path) }}" target="_blank" class="text-blue-600 text-xs ml-2 hover:underline">
+                                                        {{ __('View File') }}
+                                                    </a>
+                                                </div>
+
+                                                @if($document->verified)
+                                                    <span class="text-green-600 text-xs font-semibold">✓ {{ __('Verified') }}</span>
+                                                @else
+                                                    <form method="POST" action="{{ route('social-worker.documents.verify', $document->id) }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="reopen_id" value="{{ $item->id }}">
+                                                        <button type="submit" class="text-yellow-600 text-xs font-semibold hover:underline">
+                                                            {{ __('Mark as Verified') }}
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        @empty
+                                            <p class="text-sm text-gray-400 mb-3">{{ __('No documents uploaded yet.') }}</p>
+                                        @endforelse
+
+                                        <form method="POST" action="{{ route('social-worker.documents.store') }}" enctype="multipart/form-data" class="mt-4 pt-4 border-t">
+                                            @csrf
+                                            <input type="hidden" name="client_id" value="{{ $item->client_id }}">
+                                            <input type="hidden" name="reopen_id" value="{{ $item->id }}">
+
+                                            <div class="grid grid-cols-2 gap-3">
+
+                                                <h4 class="font-semibold text-sm mb-2">{{ __('Supporting Documents') }}</h4>
+
+                                                <div>
+                                                    <x-input-label for="doc_type_{{ $item->id }}" :value="__('Document Type')" />
+                                                    <select id="doc_type_{{ $item->id }}" name="document_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
+                                                        <option value="">-- {{ __('Select') }} --</option>
+                                                        <option value="Medical Certificate">Medical Certificate</option>
+                                                        <option value="School Enrollment Certificate">School Enrollment Certificate</option>
+                                                        <option value="Birth Certificate">Birth Certificate</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    <x-input-label for="doc_file_{{ $item->id }}" :value="__('File')" />
+                                                    <input type="file" id="doc_file_{{ $item->id }}" name="file" class="mt-1 block w-full text-sm" required>
+                                                </div>
+                                            </div>
+
+                                            <x-input-error :messages="$errors->get('file')" class="mt-2" />
+                                            <x-input-error :messages="$errors->get('document_name')" class="mt-2" />
+
+                                            <div class="flex justify-end mt-3">
+                                                <x-secondary-button type="submit">
+                                                    {{ __('Upload Document') }}
+                                                </x-secondary-button>
+                                            </div>
+                                        </form>
+                                    </div>
+
                                     <form method="POST" action="{{ route('social-worker.assessment.store', $item->id) }}">
                                         @csrf
 

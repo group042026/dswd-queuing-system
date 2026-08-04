@@ -36,5 +36,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('access-approving-officer', function (User $user) {
             return $user->hasRole('approving officer');
         });
+
+        Gate::define('manage-documents', function ($user) {
+            return $user->hasRole('receptionist') || $user->hasRole('social worker');
+        });
     }
 }

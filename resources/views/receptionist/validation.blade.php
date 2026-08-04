@@ -100,6 +100,7 @@
                                     <div class="mb-4 border-t pt-4">
                                         <h4 class="font-semibold text-sm mb-2">{{ __('Submitted Documents') }}</h4>
 
+                                        {{-- Listahan ng existing documents --}}
                                         @forelse($item->client->documents as $document)
                                             <div class="flex justify-between items-center py-2 border-b text-sm">
                                                 <div>
@@ -115,6 +116,7 @@
                                                     <form method="POST" action="{{ route('receptionist.documents.verify', $document->id) }}">
                                                         @csrf
                                                         @method('PATCH')
+                                                        <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
                                                         <button type="submit" class="text-yellow-600 text-xs font-semibold hover:underline">
                                                             {{ __('Mark as Verified') }}
                                                         </button>
@@ -125,38 +127,46 @@
                                             <p class="text-sm text-gray-400 mb-3">{{ __('No documents uploaded yet.') }}</p>
                                         @endforelse
 
-                                        {{-- Upload form --}}
-                                        <form method="POST" action="{{ route('receptionist.documents.store') }}" enctype="multipart/form-data" class="mt-4 pt-4 border-t">
-                                            @csrf
-                                            <input type="hidden" name="client_id" value="{{ $item->client_id }}">
+                                        {{-- Upload section para sa Valid ID — HIWALAY, gamit ang totoong type mula Registration --}}
+                                        <div class="mt-4 mb-3 p-3 bg-gray-50 rounded-lg">
+                                            <p class="text-sm font-medium mb-2">
+                                                {{ __('Upload scan of') }}: <strong>{{ $item->client->valid_id_type }}</strong>
+                                                <span class="text-gray-500 text-xs">({{ __('ID No.') }}: {{ $item->client->valid_id_number }})</span>
+                                            </p>
 
-                                            <div class="grid grid-cols-2 gap-3">
-                                                <div>
-                                                    <x-input-label for="document_name_{{ $item->id }}" :value="__('Document Type')" />
-                                                    <select id="document_name_{{ $item->id }}" name="document_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
+                                            <form method="POST" action="{{ route('receptionist.documents.store') }}" enctype="multipart/form-data">
+                                                @csrf
+                                                <input type="hidden" name="client_id" value="{{ $item->client_id }}">
+                                                <input type="hidden" name="document_name" value="{{ $item->client->valid_id_type }}">
+                                                <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
+
+                                                <div class="flex gap-2 items-center">
+                                                    <input type="file" name="file" class="block w-full text-sm" required>
+                                                    <x-secondary-button type="submit">{{ __('Upload') }}</x-secondary-button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        {{-- Upload section para sa IBANG requirements — dito lang manatili yung generic dropdown --}}
+                                        <div class="mb-3 pt-3 border-t">
+                                            <p class="text-sm font-medium mb-2">{{ __('Other Requirements') }}</p>
+                                            <form method="POST" action="{{ route('receptionist.documents.store') }}" enctype="multipart/form-data">
+                                                @csrf
+                                                <input type="hidden" name="client_id" value="{{ $item->client_id }}">
+                                                <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
+
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <select name="document_name" class="border-gray-300 rounded-md text-sm" required>
                                                         <option value="">-- {{ __('Select') }} --</option>
-                                                        <option value="Valid ID">Valid ID</option>
                                                         <option value="Barangay Certificate">Barangay Certificate</option>
                                                         <option value="Income Certificate">Income Certificate</option>
                                                         <option value="Other">Other</option>
                                                     </select>
+                                                    <input type="file" name="file" class="text-sm" required>
                                                 </div>
-
-                                                <div>
-                                                    <x-input-label for="file_{{ $item->id }}" :value="__('File')" />
-                                                    <input type="file" id="file_{{ $item->id }}" name="file" class="mt-1 block w-full text-sm" required>
-                                                </div>
-                                            </div>
-
-                                            <x-input-error :messages="$errors->get('file')" class="mt-2" />
-                                            <x-input-error :messages="$errors->get('document_name')" class="mt-2" />
-
-                                            <div class="flex justify-end mt-3">
-                                                <x-secondary-button type="submit">
-                                                    {{ __('Upload Document') }}
-                                                </x-secondary-button>
-                                            </div>
-                                        </form>
+                                                <x-secondary-button type="submit" class="mt-2">{{ __('Upload') }}</x-secondary-button>
+                                            </form>
+                                        </div>
                                     </div>
 
                                     @php

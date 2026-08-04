@@ -70,6 +70,11 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
         Route::post('/social-worker/assessment/{clientProcessing}', 'storeAssessment')->name('social-worker.assessment.store');
 
     });
+
+    Route::controller(DocumentController::class)->group(function (){
+        Route::post('/social-worker/documents', 'store')->name('social-worker.documents.store');
+        Route::patch('/social-worker/documents/{document}/verify', 'verify')->name('social-worker.documents.verify');
+    });
     
 });
 

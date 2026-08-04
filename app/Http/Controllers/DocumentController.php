@@ -11,7 +11,7 @@ class DocumentController extends Controller
 {
     public function store(Request $request)
     {
-        Gate::authorize('access-receptionist');
+        Gate::authorize('manage-documents'); 
 
         $validated = $request->validate([
             'client_id' => ['required', 'exists:clients,id'],
@@ -29,16 +29,18 @@ class DocumentController extends Controller
         ]);
 
         return back()->with('success', 'Document uploaded successfully.')
-                    ->with('reopen_client_id', $validated['client_id']); 
+                    ->with('reopen_processing_id', $request->input('reopen_id'))
+                    ->with('reopen_client_id', $validated['client_id']);
     }
 
     public function verify(Documents $document)
     {
-        Gate::authorize('access-receptionist');
+        Gate::authorize('manage-documents');
 
         $document->update(['verified' => true]);
 
         return back()->with('success', 'Document marked as verified.')
+                    ->with('reopen_processing_id', request()->input('reopen_id'))
                     ->with('reopen_client_id', $document->client_id);
     }
 }
