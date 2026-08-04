@@ -32,11 +32,11 @@ class ValidationController extends Controller
         $client = $clientProcessing->client;
 
         if ($client->documents->isEmpty()) {
-            return back()->withErrors(['documents' => 'Kailangan pang mag-upload ng requirements bago mag-proceed.']);
+            return back()->withErrors(['documents' => 'Upload requirements first']);
         }
 
         if ($client->documents->contains('verified', false)) {
-            return back()->withErrors(['documents' => 'May mga documents pang hindi verified.']);
+            return back()->withErrors(['documents' => 'Not all documents are verified']);
         }
         
         $clientProcessing->update([

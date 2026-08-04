@@ -80,9 +80,19 @@
                                     @endif
                                 </td>
                                 <td class="p-3">
-                                    <x-primary-button x-on:click="$dispatch('open-modal', 'validate-modal-{{ $item->id }}')">
-                                        {{ __('Validate') }}
-                                    </x-primary-button>
+                                    @php
+                                        $isToday = $selectedDate === now()->format('Y-m-d');
+                                    @endphp
+
+                                    @if($isToday)
+                                        <x-primary-button x-on:click="$dispatch('open-modal', 'validate-modal-{{ $item->id }}')">
+                                            {{ __('Validate') }}
+                                        </x-primary-button>
+                                    @else
+                                        <x-secondary-button type="button" disabled class="opacity-50 cursor-not-allowed">
+                                            {{ __('View Only') }}
+                                        </x-secondary-button>
+                                    @endif
                                 </td>
                             </tr>
 

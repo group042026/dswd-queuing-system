@@ -65,9 +65,19 @@
                                 <td class="p-3">{{ $item->client->client_category }}</td>
                                 <td class="p-3">{{ $item->client->program_requested }}</td>
                                 <td class="p-3">
-                                    <x-primary-button x-on:click="$dispatch('open-modal', 'assess-modal-{{ $item->id }}')">
-                                        {{ __('Assess') }}
-                                    </x-primary-button>
+                                    @php
+                                        $isToday = $selectedDate === now()->format('Y-m-d');
+                                    @endphp
+
+                                    @if($isToday)
+                                        <x-primary-button x-on:click="$dispatch('open-modal', 'assess-modal-{{ $item->id }}')">
+                                            {{ __('Assess') }}
+                                        </x-primary-button>
+                                    @else
+                                        <x-secondary-button type="button" disabled class="opacity-50 cursor-not-allowed">
+                                            {{ __('View Only') }}
+                                        </x-secondary-button>
+                                    @endif
                                 </td>
                             </tr>
 

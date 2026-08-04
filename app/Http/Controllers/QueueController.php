@@ -14,7 +14,7 @@ class QueueController extends Controller
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
-        $queues = Queue::with('client')
+        $queues = Queue::with('client', 'latestProcessing')
                         ->whereDate('date_issued', $selectedDate)
                         ->orderBy('priority', 'desc')
                         ->orderBy('date_issued', 'asc')
@@ -25,5 +25,19 @@ class QueueController extends Controller
             'queues' => $queues,
             'selectedDate' => $selectedDate,
         ]);
+    }
+
+    public function cancelQueue(Queue $queue)
+    {
+        Gate::authorize('access-admin');
+
+        $queue->update(['queue_status' => 'Cancelled']);
+
+        $queue->latestProcessing?->update([
+            'current_status' => 'Cancelled',
+            'end_time' => now(),
+        ]);
+
+        return back()->with('success', 'Queue entry cancelled.');
     }
 }

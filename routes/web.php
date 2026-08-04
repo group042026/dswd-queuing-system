@@ -36,6 +36,8 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
 
     Route::controller(QueueController::class)->group(function () {
         Route::get('/admin/queue', 'monitor')->name('admin.queue.monitor');
+        Route::patch('/admin/queue/{queue}/cancel', 'cancelQueue')->name('admin.queue.cancel');
+
     });
 
 });

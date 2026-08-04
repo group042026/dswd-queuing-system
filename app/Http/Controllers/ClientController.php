@@ -65,7 +65,7 @@ class ClientController extends Controller
                 'user_id'        => auth()->id(),
                 'queue_id'       => $queue->id,
                 'current_step'   => 'Validation',
-                'current_status' => 'Waiting',
+                'current_status' => 'Processing',
                 'start_time'     => now(),
             ]);
         });

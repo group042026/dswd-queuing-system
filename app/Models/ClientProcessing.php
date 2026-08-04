@@ -18,7 +18,10 @@ class ClientProcessing extends Model
         'start_time',
         'end_time',
     ];
-
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+    ];
     
     public function client(): BelongsTo{
         return $this->belongsTo(Client::class);
