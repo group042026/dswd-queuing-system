@@ -16,7 +16,7 @@ class ValidationController extends Controller
 
         $pendingValidation = ClientProcessing::with(['client', 'queue'])
             ->where('current_step', 'Validation')
-            ->where('current_status', 'Waiting')
+            ->where('current_status', 'Processing')
             ->whereDate('start_time', $selectedDate)
             ->orderBy('start_time', 'asc')
             ->paginate(10)

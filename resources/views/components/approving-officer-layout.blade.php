@@ -24,6 +24,9 @@
                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('approving-officer.dashboard') ? 'bg-gray-700' : '' }}">
                             Dashboard
                         </a>
+                        <a href="{{ route('approving-officer.review') }}" class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('approving-officer.review') ? 'bg-gray-700' : '' }}">
+                            Review
+                        </a>
                     </nav>
                 </aside>
 

@@ -18,7 +18,20 @@ class Assessment extends Model
         'recommendation',
         'assessment_status',
         'remarks',
+        'approving_officer_id',
+        'approval_status',
+        'approval_remarks',
+        'approved_at',
     ];
+
+    protected $casts = [
+        'approved_at' => 'datetime',
+    ];
+
+    public function approvingOfficer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approving_officer_id');
+    }
 
     public function socialWorker(): BelongsTo{
         return $this->belongsTo(User::class, 'social_worker_id');

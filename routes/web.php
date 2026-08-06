@@ -66,11 +66,13 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(function (){
+
     Route::controller(SocialWorkerController::class)->group(function () {
         Route::get('/social-worker/dashboard', 'index')->name('social-worker.dashboard');
         Route::get('/social-worker/assessment', 'pendingAssessment')->name('social-worker.assessment');
         Route::post('/social-worker/assessment/{clientProcessing}', 'storeAssessment')->name('social-worker.assessment.store');
-
+        Route::get('/social-worker/returned', 'returnedAssessments')->name('social-worker.returned');
+        Route::post('/social-worker/returned/{clientProcessing}/resume', 'resumeAssessment')->name('social-worker.returned.resume');
     });
 
     Route::controller(DocumentController::class)->group(function (){
@@ -80,8 +82,14 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
     
 });
 
-Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->controller(ApprovingOfficerController::class)->group(function (){
-    Route::get('/approving-officer/dashboard', 'index')->name('approving-officer.dashboard');
+Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group(function (){
+    
+    Route::controller(ApprovingOfficerController::class)->group(function (){
+        Route::get('/approving-officer/dashboard', 'index')->name('approving-officer.dashboard');
+        Route::get('/approving-officer/review', 'pendingReview')->name('approving-officer.review');
+        Route::post('/approving-officer/review/{clientProcessing}/decide', 'decide')->name('approving-officer.review.decide');
+    });
+
 });
 
 Route::middleware('auth')->group(function () {

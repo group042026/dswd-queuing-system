@@ -28,6 +28,9 @@
                             class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('social-worker.assessment') ? 'bg-gray-700' : '' }}">
                             Assessment
                         </a>
+                        <a href="{{ route('social-worker.returned') }}" class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('social-worker.returned') ? 'bg-gray-700' : '' }}">
+                            Returned Applications
+                        </a>
                     </nav>
                 </aside>
 

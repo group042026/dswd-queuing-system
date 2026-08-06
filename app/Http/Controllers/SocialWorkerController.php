@@ -12,7 +12,6 @@ class SocialWorkerController extends Controller
     public function index()
     {
         Gate::authorize('access-social-worker');
-
         return view('social-worker.dashboard');
     }
 
@@ -52,7 +51,7 @@ class SocialWorkerController extends Controller
         $validated['social_worker_id'] = auth()->id();
         $validated['assessment_status'] = 'Completed';
 
-        $assessment = Assessment::create($validated);
+        Assessment::create($validated);
 
         $clientProcessing->update([
             'current_status' => 'Completed',
@@ -69,5 +68,40 @@ class SocialWorkerController extends Controller
         ]);
 
         return redirect()->route('social-worker.assessment')->with('success', 'Assessment completed. Client moved to Review stage.');
+    }
+
+    public function returnedAssessments()
+    {
+        Gate::authorize('access-social-worker');
+
+        $returned = ClientProcessing::with(['client', 'queue'])
+            ->where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) {
+                $q->where('approval_status', 'Returned');
+            })
+            ->orderBy('end_time', 'desc')
+            ->paginate(10);
+
+        return view('social-worker.returned', ['returned' => $returned]);
+    }
+
+    public function resumeAssessment(ClientProcessing $clientProcessing)
+    {
+        Gate::authorize('access-social-worker');
+
+        $assessment = $clientProcessing->client->assessment;
+        $assessment->update(['approval_status' => 'Resumed']);
+
+        ClientProcessing::create([
+            'client_id' => $clientProcessing->client_id,
+            'user_id' => auth()->id(),
+            'queue_id' => $clientProcessing->queue_id,
+            'current_step' => 'Assessment',
+            'current_status' => 'Waiting',
+            'start_time' => now(),
+        ]);
+
+        return redirect()->route('social-worker.returned')->with('success', 'Client moved back to Pending Assessment.');
     }
 }
