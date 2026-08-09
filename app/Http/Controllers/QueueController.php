@@ -14,7 +14,7 @@ class QueueController extends Controller
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
-        $queues = Queue::with('client', 'latestProcessing')
+        $queues = Queue::with('client', 'client.assessment','latestProcessing')
                         ->whereDate('date_issued', $selectedDate)
                         ->orderBy('priority', 'desc')
                         ->orderBy('date_issued', 'asc')

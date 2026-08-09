@@ -53,7 +53,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php $isToday = $selectedDate === now()->format('Y-m-d'); @endphp
+                        
                         @forelse($queues as $queue)
+                            @php
+                                $isReturned = $queue->latestProcessing
+                                    && $queue->latestProcessing->current_step === 'Review'
+                                    && $queue->latestProcessing->current_status === 'Completed'
+                                    && $queue->client->assessment?->approval_status === 'Returned';
+                            @endphp
+
                             <tr class="border-b">
                                 <td class="p-3 font-medium">{{ $queue->queue_number }}</td>
                                 <td class="p-3">{{ $queue->client->first_name }} {{ $queue->client->last_name }}</td>
@@ -68,21 +77,30 @@
                                 </td>
                                 <td class="p-3">
                                     @if($queue->latestProcessing)
-                                        <span class="text-sm font-medium">{{ $queue->latestProcessing->current_step }}</span>
+                                        <span class="text-sm font-medium">
+                                            {{ $isReturned ? 'Returned to Assessment' : $queue->latestProcessing->current_step }}
+                                        </span>
                                     @else
                                         <span class="text-gray-400 text-sm">—</span>
                                     @endif
                                 </td>
                                 <td class="p-3">
                                     @if($queue->latestProcessing)
-                                        <span @class([
-                                            'inline-block px-2 py-1 text-xs font-semibold rounded-full',
-                                            'bg-blue-100 text-blue-800'     => $queue->latestProcessing->current_status === 'Serving',
-                                            'bg-yellow-100 text-yellow-800' => $queue->latestProcessing->current_status === 'Waiting',
-                                            'bg-green-100 text-green-800'   => $queue->latestProcessing->current_status === 'Completed',
-                                        ])>
-                                            {{ $queue->latestProcessing->current_status }}
-                                        </span>
+                                        @if($isReturned)
+                                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                Returned
+                                            </span>
+                                        @else
+                                            <span @class([
+                                                'inline-block px-2 py-1 text-xs font-semibold rounded-full',
+                                                'bg-blue-100 text-blue-800'     => $queue->latestProcessing->current_status === 'Serving',
+                                                'bg-yellow-100 text-yellow-800' => $queue->latestProcessing->current_status === 'Waiting',
+                                                'bg-purple-100 text-purple-800' => $queue->latestProcessing->current_status === 'Processing',
+                                                'bg-green-100 text-green-800'   => $queue->latestProcessing->current_status === 'Completed',
+                                            ])>
+                                                {{ $queue->latestProcessing->current_status }}
+                                            </span>
+                                        @endif
                                     @else
                                         <span class="text-gray-400 text-sm">—</span>
                                     @endif
@@ -100,7 +118,7 @@
                                 </td>
                                 <td class="p-3 text-sm text-gray-500">{{ $queue->date_issued->format('M d, Y h:i A') }}</td>
                                 <td class="p-3">
-                                    @if(!in_array($queue->queue_status, ['Completed', 'Cancelled']))
+                                    @if($isToday && !in_array($queue->queue_status, ['Completed', 'Cancelled']))
                                         <x-danger-button type="button" x-data="" x-on:click="$dispatch('open-modal', 'cancel-queue-modal-{{ $queue->id }}')"
                                             class="inline-flex items-center gap-1.5">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
