@@ -11,7 +11,48 @@ class ApprovingOfficerController extends Controller
     public function index()
     {
         Gate::authorize('access-approving-officer');
-        return view('approving-officer.dashboard');
+
+        $today = now()->toDateString();
+
+        // Pending Reviews
+        $pendingReviewCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->count();
+
+        // Approved Today
+        $approvedTodayCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) use ($today) {
+                $q->where('approval_status', 'Approved')
+                    ->whereDate('approved_at', $today);
+            })
+            ->count();
+
+        // Returned Today
+        $returnedTodayCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) use ($today) {
+                $q->where('approval_status', 'Returned')
+                    ->whereDate('approved_at', $today);
+            })
+            ->count();
+
+        // Live Review Queue (limit to 5)
+        $liveQueue = ClientProcessing::with(['client', 'queue', 'client.assessment'])
+            ->where('current_step', 'Review')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->orderBy('start_time', 'asc')
+            ->paginate(5);
+
+
+        return view('approving-officer.dashboard', [
+            'pendingReviewCount' => $pendingReviewCount,
+            'approvedTodayCount' => $approvedTodayCount,
+            'returnedTodayCount' => $returnedTodayCount,
+            'liveQueue' => $liveQueue,
+        ]);
     }
 
     public function pendingReview(Request $request)
