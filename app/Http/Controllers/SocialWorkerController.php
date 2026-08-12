@@ -12,7 +12,46 @@ class SocialWorkerController extends Controller
     public function index()
     {
         Gate::authorize('access-social-worker');
-        return view('social-worker.dashboard');
+
+        $today = now()->toDateString();
+
+        // Pending Assessments
+        $pendingAssessmentCount = ClientProcessing::where('current_step', 'Assessment')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+
+            ->count();
+
+        // Completed Assessments Today
+        $completedAssessmentCount = ClientProcessing::where('current_step', 'Assessment')
+            ->where('current_status', 'Completed')
+            ->whereDate('end_time', $today)
+            ->count();
+
+        // Returned Assessments Count (all active returned assessments in Review step)
+        $returnedAssessmentCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) {
+                $q->where('approval_status', 'Returned');
+            })
+            ->count();
+
+        // Live Assessment Queue (limit to 5)
+        $liveQueue = ClientProcessing::with(['client', 'queue'])
+            ->where('current_step', 'Assessment')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->orderBy('start_time', 'asc')
+            ->paginate(4);
+            // ->take(5)
+            // ->get();
+
+        return view('social-worker.dashboard', [
+            'pendingAssessmentCount' => $pendingAssessmentCount,
+            'completedAssessmentCount' => $completedAssessmentCount,
+            'returnedAssessmentCount' => $returnedAssessmentCount,
+            'liveQueue' => $liveQueue,
+        ]);
     }
 
     public function pendingAssessment(Request $request)

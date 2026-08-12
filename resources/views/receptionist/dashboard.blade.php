@@ -550,7 +550,7 @@
                                     @endforeach
                                 </div>
                                 <div class="user-pagination">
-                                    {{ $recentProcessings->links() }}
+                                    {{ $liveQueue->links() }}
                                 </div>
                             @endif
                         </div>
