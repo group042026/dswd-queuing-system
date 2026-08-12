@@ -7,6 +7,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ReceptionistController;
+use App\Http\Controllers\ReleasingController;
 use App\Http\Controllers\SocialWorkerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidationController;
@@ -62,6 +63,11 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
         Route::post('/receptionist/documents', 'store')->name('receptionist.documents.store');
         Route::patch('/receptionist/documents/{document}/verify', 'verify')->name('receptionist.documents.verify');
 
+    });
+
+    Route::controller(ReleasingController::class)->group(function (){
+        Route::get('/receptionist/releasing', 'index')->name('receptionist.releasing');
+        Route::post('/receptionist/releasing/{clientProcessing}/release', 'release')->name('receptionist.releasing.release');
     });
 });
 

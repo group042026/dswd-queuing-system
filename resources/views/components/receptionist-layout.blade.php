@@ -32,7 +32,10 @@
                             class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.validation*') ? 'bg-gray-700' : '' }}">
                             Validation
                         </a>
-                        
+                        <a href="{{ route('receptionist.releasing') }}" 
+                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.releasing*') ? 'bg-gray-700' : '' }}">
+                            Releasing
+                        </a>
                     </nav>
                 </aside>
 

@@ -17,6 +17,7 @@ class ClientProcessing extends Model
         'current_status',
         'start_time',
         'end_time',
+        'remarks',
     ];
     protected $casts = [
         'start_time' => 'datetime',
