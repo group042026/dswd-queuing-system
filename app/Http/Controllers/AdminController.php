@@ -22,8 +22,9 @@ class AdminController extends Controller
         $cancelledQueuesToday = Queue::whereDate('date_issued', $today)->where('queue_status', 'Cancelled')->count();
 
         // Count completed step processing today
-        $completedTodayCount = ClientProcessing::whereDate('end_time', $today)
+        $completedTodayCount = ClientProcessing::where('current_step', 'Releasing')
             ->where('current_status', 'Completed')
+            ->whereDate('end_time', $today)
             ->count();
 
         // 2. Client Categories Today
@@ -51,8 +52,14 @@ class AdminController extends Controller
         $recentProcessings = ClientProcessing::with(['client', 'queue'])
             ->whereDate('start_time', $today)
             ->orderBy('start_time', 'desc')
-            ->limit(5)
-            ->get();
+            ->paginate(5);
+
+        // // 4. Recent Processings
+        // $recentProcessings = ClientProcessing::with(['client', 'queue'])
+        //     ->whereDate('start_time', $today)
+        //     ->orderBy('start_time', 'desc')
+        //     ->limit(5)
+        //     ->get();
 
         return view('admin.dashboard', compact(
             'totalQueuesToday',

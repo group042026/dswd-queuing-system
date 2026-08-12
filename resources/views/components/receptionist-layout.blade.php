@@ -9,50 +9,24 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+    <body class="font-sans antialiased bg-gray-100 text-gray-900 transition-colors duration-150">
+        <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-gray-100 flex">
+            @include('layouts.sidebar')
 
-            <div class="flex">
-                <!-- Sidebar -->
-                <aside class="w-64 min-h-screen bg-gray-800 text-white">
-                    <div class="p-4 text-lg font-semibold border-b border-gray-700">
-                        Receptionist Panel
-                    </div>
-                    <nav class="mt-4">
-                        <a href="{{ route('receptionist.dashboard') }}"
-                           class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.dashboard') ? 'bg-gray-700' : '' }}">
-                            Dashboard
-                        </a>
-                        <a href="{{ route('receptionist.clients.create') }}"
-                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.clients.*') ? 'bg-gray-700' : '' }}">
-                            Add Client
-                        </a>
-                        <a href="{{ route('receptionist.validation') }}"
-                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.validation*') ? 'bg-gray-700' : '' }}">
-                            Validation
-                        </a>
-                        <a href="{{ route('receptionist.releasing') }}" 
-                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('receptionist.releasing*') ? 'bg-gray-700' : '' }}">
-                            Releasing
-                        </a>
-                    </nav>
-                </aside>
+            <div class="flex-1 flex flex-col min-w-0">
+                @include('layouts.navigation')
 
-                <!-- Main Content -->
-                <div class="flex-1">
-                    @isset($header)
-                        <header class="bg-white shadow">
-                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endisset
+                @isset($header)
+                    <header class="bg-white shadow">
+                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
 
-                    <main class="p-6">
-                        {{ $slot }}
-                    </main>
-                </div>
+                <main class="flex-1">
+                    {{ $slot }}
+                </main>
             </div>
         </div>
     </body>

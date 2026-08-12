@@ -979,6 +979,11 @@
                                         </div>
                                     </div>
                                 @endforeach
+
+                                {{-- {{ $recentProcessings->links() }} --}}
+                            </div>
+                            <div class="user-pagination">
+                                {{ $recentProcessings->links() }}
                             </div>
                         @endif
                     </div>
