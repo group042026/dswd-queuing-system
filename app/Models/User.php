@@ -87,4 +87,14 @@ class User extends Authenticatable
     public function hasRole(string $roleName): bool{
         return $this->roles->contains('role_name', $roleName);
     }
+
+    public function dashboardRoute(): string
+    {
+        if ($this->hasRole('admin')) return route('admin.dashboard');
+        if ($this->hasRole('receptionist')) return route('receptionist.dashboard');
+        if ($this->hasRole('social worker')) return route('social-worker.dashboard');
+        if ($this->hasRole('approving officer')) return route('approving-officer.dashboard');
+
+        return route('login');
+    }
 }

@@ -1,183 +1,585 @@
 <x-admin-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Queue Monitoring') }}
-        </h2>
-    </x-slot>
+    <style>
+        /* ==========================================================================
+           1. Theme Variable Configuration
+           ========================================================================== */
+        :root {
+            /* DSWD Palette */
+            --dswd-blue: #0038a8;
+            --dswd-blue-hover: #002878;
+            --dswd-blue-light: rgba(0, 56, 168, 0.06);
+            --dswd-blue-border: rgba(0, 56, 168, 0.12);
 
-    <div class="py-6">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            --dswd-red: #ce1126;
+            --dswd-red-hover: #b00e1f;
+            --dswd-red-light: rgba(206, 17, 38, 0.06);
+            --dswd-red-border: rgba(206, 17, 38, 0.12);
 
-            {{-- Date filter --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 mb-4">
-                <form method="GET" action="{{ route('admin.queue.monitor') }}" class="flex items-end gap-3">
-                    <div>
-                        <x-input-label for="date" :value="__('Select Date')" />
-                        <x-text-input id="date" name="date" type="date" class="mt-1 block"
-                            value="{{ $selectedDate }}" />
+            --dswd-yellow: #fcd116;
+            --dswd-yellow-hover: #e0b800;
+            --dswd-yellow-light: rgba(252, 209, 22, 0.12);
+
+            --emerald-green: #047857;
+            --emerald-light: #ecfdf5;
+            --emerald-border: #a7f3d0;
+
+            --bg-gray: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --text-white: #ffffff;
+
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark {
+            --bg-gray: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+
+            --dswd-blue-light: rgba(30, 64, 175, 0.2);
+            --dswd-blue-border: rgba(30, 64, 175, 0.35);
+
+            --dswd-red-light: rgba(220, 38, 38, 0.2);
+            --dswd-red-border: rgba(220, 38, 38, 0.35);
+
+            --dswd-yellow-light: rgba(252, 209, 22, 0.15);
+
+            --emerald-green: #34d399;
+            --emerald-light: rgba(52, 211, 153, 0.1);
+            --emerald-border: rgba(52, 211, 153, 0.25);
+        }
+
+        .dark .filter-card {
+            border-color: #334155;
+        }
+
+        .dark .filter-form__label {
+            color: #94a3b8;
+        }
+
+        .dark .filter-form__input {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #f1f5f9;
+        }
+
+        .dark .btn-today {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #cbd5e1;
+        }
+
+        .dark .btn-today:hover {
+            background-color: #334155;
+            border-color: #64748b;
+        }
+
+        .dark .monitor-card {
+            border-color: #334155;
+        }
+
+        .dark .monitor-card__header {
+            border-bottom-color: #334155;
+        }
+
+        .dark .monitor-card__date {
+            color: #f8fafc;
+        }
+
+        .dark .monitor-table th {
+            background-color: #1e293b;
+            border-bottom-color: #334155;
+        }
+
+        .dark .monitor-table td {
+            border-bottom-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .dark .monitor-table tr:hover td {
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+
+        .dark .badge-queue-no {
+            color: var(--dswd-yellow);
+        }
+
+        .dark .monitor-pagination {
+            border-top-color: #334155;
+        }
+
+        .monitor {
+            padding: 24px 0;
+            /* background-color: var(--bg-gray); */
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .monitor__container {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Component */
+        .monitor-header {
+            background: linear-gradient(135deg, var(--dswd-blue) 0%, #1e40af 50%, var(--dswd-red) 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            color: var(--text-white);
+            padding: 24px;
+            position: relative;
+        }
+
+        .monitor-header__bg-icon {
+            position: absolute;
+            right: 0;
+            top: 0;
+            opacity: 0.08;
+            transform: translate(24px, -24px);
+            pointer-events: none;
+        }
+
+        .monitor-header__badge {
+            color: var(--dswd-yellow);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .monitor-header__title {
+            font-size: 26px;
+            font-weight: 850;
+            margin: 0 0 6px 0;
+        }
+
+        .monitor-header__subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* Filter Panel */
+        .filter-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filter-form__group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-form__label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .filter-form__input {
+            border-radius: 8px;
+            border: 1.5px solid #cbd5e1;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-form__input:focus {
+            border-color: var(--dswd-blue);
+            box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.12);
+        }
+
+        .btn-filter {
+            background-color: var(--dswd-blue);
+            color: var(--text-white);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-filter:hover {
+            background-color: var(--dswd-blue-hover);
+        }
+
+        .btn-today {
+            background-color: var(--card-bg);
+            border: 1.5px solid #cbd5e1;
+            color: #475569;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 9px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-today:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        /* Monitor Panel */
+        .monitor-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+            border-top: 4px solid var(--dswd-blue);
+            overflow: hidden;
+        }
+
+        .monitor-card__header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .monitor-card__date {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Table Design */
+        .monitor-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .monitor-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .monitor-table th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 14px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .monitor-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        .monitor-table tr:hover td {
+            background-color: rgba(0, 56, 168, 0.015);
+        }
+
+        /* Badge Components */
+        .badge-queue-no {
+            font-family: monospace;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--dswd-blue);
+        }
+
+        .badge-priority {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid;
+            display: inline-block;
+        }
+
+        .badge-priority--senior {
+            color: var(--dswd-blue);
+            background-color: var(--dswd-blue-light);
+            border-color: var(--dswd-blue-border);
+        }
+
+        .badge-priority--pwd {
+            color: var(--dswd-red);
+            background-color: var(--dswd-red-light);
+            border-color: var(--dswd-red-border);
+        }
+
+        .badge-priority--solo {
+            color: #854d0e;
+            background-color: var(--dswd-yellow-light);
+            border-color: rgba(252, 209, 22, 0.3);
+        }
+
+        .badge-priority--regular {
+            color: #475569;
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 9999px;
+            border: 1px solid;
+        }
+
+        .badge-status--serving {
+            color: var(--dswd-blue);
+            background-color: var(--dswd-blue-light);
+            border-color: var(--dswd-blue-border);
+        }
+
+        .badge-status--waiting {
+            color: #b45309;
+            background-color: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .badge-status--completed {
+            color: var(--emerald-green);
+            background-color: var(--emerald-light);
+            border-color: var(--emerald-border);
+        }
+
+        .badge-status--cancelled {
+            color: var(--dswd-red);
+            background-color: var(--dswd-red-light);
+            border-color: var(--dswd-red-border);
+        }
+
+        /* Pagination container */
+        .monitor-pagination {
+            padding: 20px 24px;
+            border-top: 1px solid #f1f5f9;
+        }
+    </style>
+
+    <div class="monitor">
+        <div class="monitor__container">
+
+            <!-- Welcome Header Panel -->
+            <div class="monitor-header">
+                <!-- Subtle background logo mark -->
+                <div class="monitor-header__bg-icon">
+                    <svg width="240" height="240" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+                    </svg>
+                </div>
+                <div class="monitor-header__info">
+                    <p class="monitor-header__badge">DSWD Operations Control Hub</p>
+                    <h1 class="monitor-header__title">Queue Monitoring Panel</h1>
+                    <p class="monitor-header__subtitle">Track issuing times, steps status, and cancellations across all program desks</p>
+                </div>
+            </div>
+
+            {{-- Date Filter Section --}}
+            <div class="filter-card">
+                <form method="GET" action="{{ route('admin.queue.monitor') }}" class="filter-form">
+                    <div class="filter-form__group">
+                        <label for="date" class="filter-form__label">{{ __('Select Target Date') }}</label>
+                        <input id="date" name="date" type="date" class="filter-form__input" value="{{ $selectedDate }}" />
                     </div>
 
-                    <x-primary-button type="submit">
-                        {{ __('Filter') }}
-                    </x-primary-button>
+                    <button type="submit" class="btn-filter">
+                        {{ __('Filter Schedule') }}
+                    </button>
 
                     @if($selectedDate !== now()->format('Y-m-d'))
-                        <a href="{{ route('admin.queue.monitor') }}">
-                            <x-secondary-button type="button">
-                                {{ __('Back to Today') }}
-                            </x-secondary-button>
+                        <a href="{{ route('admin.queue.monitor') }}" class="btn-today">
+                            {{ __('Return to Today') }}
                         </a>
                     @endif
                 </form>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <div class="mb-4 text-sm text-gray-500">
-                    {{ __('Showing queue for:') }}
-                    <span class="font-semibold text-gray-700">
+            {{-- Queue List Card --}}
+            <div class="monitor-card">
+                <div class="monitor-card__header">
+                    {{ __('Showing queue details for:') }}
+                    <span class="monitor-card__date">
                         {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}
                     </span>
                 </div>
 
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b bg-gray-50">
-                            <th class="p-3">Queue Number</th>
-                            <th class="p-3">Client Name</th>
-                            <th class="p-3">Priority</th>
-                            <th class="p-3">Current Step</th>
-                            <th class="p-3">Step Status</th>
-                            <th class="p-3">Status</th>
-                            <th class="p-3">Date Issued</th>
-                            <th class="p-3">Actions</th> 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $isToday = $selectedDate === now()->format('Y-m-d'); @endphp
-                        
-                        @forelse($queues as $queue)
-                            @php
-                                $isReturned = $queue->latestProcessing
-                                    && $queue->latestProcessing->current_step === 'Review'
-                                    && $queue->latestProcessing->current_status === 'Completed'
-                                    && $queue->client->assessment?->approval_status === 'Returned';
-                            @endphp
-
-                            <tr class="border-b">
-                                <td class="p-3 font-medium">{{ $queue->queue_number }}</td>
-                                <td class="p-3">{{ $queue->client->first_name }} {{ $queue->client->last_name }}</td>
-                                <td class="p-3">
-                                    @if($queue->priority)
-                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            {{ $queue->client->client_category }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400 text-sm">Regular</span>
-                                    @endif
-                                </td>
-                                <td class="p-3">
-                                    @if($queue->latestProcessing)
-                                        <span class="text-sm font-medium">
-                                            {{ $isReturned ? 'Returned to Assessment' : $queue->latestProcessing->current_step }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400 text-sm">—</span>
-                                    @endif
-                                </td>
-                                <td class="p-3">
-                                    @if($queue->latestProcessing)
-                                        @if($isReturned)
-                                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                                Returned
+                <div class="monitor-table-wrapper">
+                    <table class="monitor-table">
+                        <thead>
+                            <tr>
+                                <th>Queue Number</th>
+                                <th>Client Name</th>
+                                <th>Category</th>
+                                <th>Current Step</th>
+                                <th>Step Status</th>
+                                <th>Ticket Status</th>
+                                <th>Date Issued</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($queues as $queue)
+                                <tr>
+                                    <td>
+                                        <span class="badge-queue-no">{{ $queue->queue_number }}</span>
+                                    </td>
+                                    <td>{{ $queue->client->first_name }} {{ $queue->client->last_name }}</td>
+                                    <td>
+                                        @if($queue->priority)
+                                            @php
+                                                $priorityModifier = match($queue->client->client_category) {
+                                                    'Senior'      => 'badge-priority--senior',
+                                                    'PWD'         => 'badge-priority--pwd',
+                                                    'Solo Parent' => 'badge-priority--solo',
+                                                    default       => 'badge-priority--regular'
+                                                };
+                                            @endphp
+                                            <span class="badge-priority {{ $priorityModifier }}">
+                                                {{ $queue->client->client_category }}
                                             </span>
                                         @else
-                                            <span @class([
-                                                'inline-block px-2 py-1 text-xs font-semibold rounded-full',
-                                                'bg-blue-100 text-blue-800'     => $queue->latestProcessing->current_status === 'Serving',
-                                                'bg-yellow-100 text-yellow-800' => $queue->latestProcessing->current_status === 'Waiting',
-                                                'bg-purple-100 text-purple-800' => $queue->latestProcessing->current_status === 'Processing',
-                                                'bg-green-100 text-green-800'   => $queue->latestProcessing->current_status === 'Completed',
-                                            ])>
-                                                {{ $queue->latestProcessing->current_status }}
-                                            </span>
+                                            <span class="badge-priority badge-priority--regular">Regular</span>
                                         @endif
-                                    @else
-                                        <span class="text-gray-400 text-sm">—</span>
-                                    @endif
-                                </td>
-                                <td class="p-3">
-                                    <span @class([
-                                        'inline-block px-2 py-1 text-xs font-semibold rounded-full',
-                                        'bg-blue-100 text-blue-800'     => $queue->queue_status === 'Serving',
-                                        'bg-yellow-100 text-yellow-800' => $queue->queue_status === 'Waiting',
-                                        'bg-green-100 text-green-800'   => $queue->queue_status === 'Completed',
-                                        'bg-red-100 text-red-800'       => $queue->queue_status === 'Cancelled',
-                                    ])>
-                                        {{ $queue->queue_status }}
-                                    </span>
-                                </td>
-                                <td class="p-3 text-sm text-gray-500">{{ $queue->date_issued->format('M d, Y h:i A') }}</td>
-                                <td class="p-3">
-                                    @if($isToday && !in_array($queue->queue_status, ['Completed', 'Cancelled']))
-                                        <x-danger-button type="button" x-data="" x-on:click="$dispatch('open-modal', 'cancel-queue-modal-{{ $queue->id }}')"
-                                            class="inline-flex items-center gap-1.5">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                            {{ __('Cancel') }}
-                                        </x-danger-button>
-                                    @else
-                                        <span class="text-gray-300 text-xs">—</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @if(!in_array($queue->queue_status, ['Completed', 'Cancelled']))
-                                <x-modal name="cancel-queue-modal-{{ $queue->id }}" focusable>
-                                    <div class="p-6">
-                                        <div class="flex items-center gap-3 mb-4">
-                                            <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
-                                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </td>
+                                    <td>
+                                        @if($queue->latestProcessing)
+                                            <span>{{ $queue->latestProcessing->current_step }}</span>
+                                        @else
+                                            <span class="text-gray-400 text-sm">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($queue->latestProcessing)
+                                            @php
+                                                $stepStatus = $queue->latestProcessing->current_status;
+                                                $stepClass = match($stepStatus) {
+                                                    'Serving'               => 'badge-status--serving',
+                                                    'Waiting'               => 'badge-status--waiting',
+                                                    'Completed', 'Approved' => 'badge-status--completed',
+                                                    'Cancelled'             => 'badge-status--cancelled',
+                                                    default                 => ''
+                                                };
+                                            @endphp
+                                            <span class="badge-status {{ $stepClass }}">
+                                                {{ $stepStatus }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400 text-sm">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php
+                                            $qStatus = $queue->queue_status;
+                                            $qClass = match($qStatus) {
+                                                'Serving'               => 'badge-status--serving',
+                                                'Waiting'               => 'badge-status--waiting',
+                                                'Completed'             => 'badge-status--completed',
+                                                'Cancelled', 'No Show'  => 'badge-status--cancelled',
+                                                default                 => ''
+                                            };
+                                        @endphp
+                                        <span class="badge-status {{ $qClass }}">
+                                            {{ $qStatus }}
+                                        </span>
+                                    </td>
+                                    <td class="text-sm text-gray-500">{{ $queue->date_issued->format('M d, Y h:i A') }}</td>
+                                    <td>
+                                        @if(!in_array($queue->queue_status, ['Completed', 'Cancelled']))
+                                            <x-danger-button type="button" x-data="" x-on:click="$dispatch('open-modal', 'cancel-queue-modal-{{ $queue->id }}')"
+                                                class="inline-flex items-center gap-1.5" style="border-radius: 8px;">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
+                                                {{ __('Cancel') }}
+                                            </x-danger-button>
+                                        @else
+                                            <span class="text-gray-300 text-xs">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+
+                                {{-- Modal — Cancel Confirm --}}
+                                @if(!in_array($queue->queue_status, ['Completed', 'Cancelled']))
+                                    <x-modal name="cancel-queue-modal-{{ $queue->id }}" focusable>
+                                        <div class="p-6">
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
+                                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                </div>
+                                                <h2 class="text-lg font-bold text-gray-900">
+                                                    {{ __('Cancel Queue Entry') }}
+                                                </h2>
                                             </div>
-                                            <h2 class="text-lg font-medium text-gray-900">
-                                                {{ __('Cancel Queue Entry') }}
-                                            </h2>
+
+                                            <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                                                Are you sure you want to cancel the queue entry for
+                                                <span class="font-bold text-gray-800">{{ $queue->client->first_name }} {{ $queue->client->last_name }}</span>
+                                                (<span class="font-mono text-gray-900 font-bold">Queue #{{ $queue->queue_number }}</span>)?
+                                                This action cannot be undone and will record the ticket as cancelled.
+                                            </p>
+
+                                            <form method="POST" action="{{ route('admin.queue.cancel', $queue->id) }}">
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                                                    <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'cancel-queue-modal-{{ $queue->id }}')">
+                                                        {{ __('Close') }}
+                                                    </x-secondary-button>
+                                                    <x-danger-button type="submit" style="border-radius: 8px;">
+                                                        {{ __('Cancel Queue') }}
+                                                    </x-danger-button>
+                                                </div>
+                                            </form>
                                         </div>
+                                    </x-modal>
+                                @endif
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="p-8 text-center text-gray-400 font-semibold">
+                                        No queuing tickets issued for this date.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-                                        <p class="text-sm text-gray-600 mb-6">
-                                            {{ __('Are you sure you want to cancel the queue entry for') }}
-                                            <span class="font-semibold">{{ $queue->client->first_name }} {{ $queue->client->last_name }}</span>
-                                            ({{ __('Queue') }} #{{ $queue->queue_number }})?
-                                            {{ __('This action cannot be undone.') }}
-                                        </p>
-
-                                        <form method="POST" action="{{ route('admin.queue.cancel', $queue->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-
-                                            <div class="flex justify-end gap-3">
-                                                <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'cancel-queue-modal-{{ $queue->id }}')">
-                                                    {{ __('Close') }}
-                                                </x-secondary-button>
-                                                <x-danger-button type="submit">
-                                                    {{ __('Cancel Queue') }}
-                                                </x-danger-button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </x-modal>
-                            @endif
-                        @empty
-                            <tr>
-                                <td colspan="7" class="p-3 text-center text-gray-500">
-                                    {{ __('No queue entries for this date.') }}
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                {{ $queues->links() }}
+                {{-- Pagination Links --}}
+                <div class="monitor-pagination">
+                    {{ $queues->links() }}
+                </div>
             </div>
         </div>
     </div>

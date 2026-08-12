@@ -4,51 +4,34 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+
         <title>{{ config('app.name', 'Laravel') }} - Admin</title>
+
+        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+    <body class="font-sans antialiased bg-gray-100 text-gray-900 transition-colors duration-150">
+        <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-gray-100 flex">
+            @include('layouts.sidebar')
 
-            <div class="flex">
-                <!-- Sidebar -->
-                <aside class="w-64 min-h-screen bg-gray-800 text-white">
-                    <div class="p-4 text-lg font-semibold border-b border-gray-700">
-                        Admin Panel
-                    </div>
-                    <nav class="mt-4">
-                        <a href="{{ route('admin.dashboard') }}"
-                           class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('admin.dashboard') ? 'bg-gray-700' : '' }}">
-                            Dashboard
-                        </a>
-                        <a href="{{ route('admin.users.list') }}"
-                           class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('admin.users.*') ? 'bg-gray-700' : '' }}">
-                            User List
-                        </a>
-                        <a href="{{ route('admin.queue.monitor') }}"
-                            class="block px-4 py-2 hover:bg-gray-700 {{ request()->routeIs('admin.queue.*') ? 'bg-gray-700' : '' }}">
-                            Queue Status
-                        </a>
-                    </nav>
-                </aside>
+            <div class="flex-1 flex flex-col min-w-0">
+                @include('layouts.navigation')
 
-                <!-- Main Content -->
-                <div class="flex-1">
-                    @isset($header)
-                        <header class="bg-white shadow">
-                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endisset
+                @isset($header)
+                    <header class="bg-white shadow">
+                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
 
-                    <main class="p-6">
-                        {{ $slot }}
-                    </main>
-                </div>
+                <main class="flex-1">
+                    {{ $slot }}
+                </main>
             </div>
         </div>
     </body>

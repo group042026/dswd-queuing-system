@@ -15,7 +15,10 @@ class UserController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $users = User::with('roles')->orderBy('first_name', 'asc')->paginate(5);
+        $users = User::with('roles')
+                ->where('id', '!=', auth()->id())
+                ->orderBy('first_name', 'asc')
+                ->paginate(5);
         $roles = Role::all();
 
         return view('admin.userList', ["users" => $users, "roles" => $roles]);
