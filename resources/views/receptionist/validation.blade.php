@@ -379,7 +379,7 @@
                                                                 @method('PATCH')
                                                                 <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
                                                                 <button type="submit" class="text-yellow-600 text-xs font-extrabold hover:underline">
-                                                                    {{ __('Verify Doc') }}
+                                                                    {{ __('Verify File') }}
                                                                 </button>
                                                             </form>
                                                         @endif

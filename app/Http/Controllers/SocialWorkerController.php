@@ -125,6 +125,13 @@ class SocialWorkerController extends Controller
             ->whereHas('client.assessment', function ($q) {
                 $q->where('approval_status', 'Returned');
             })
+            ->whereIn('id', function ($query) {
+            // Only return latest Review row per client
+                $query->selectRaw('MAX(id)')
+                    ->from('client_processings')
+                    ->where('current_step', 'Review')
+                    ->groupBy('client_id');
+            })
             ->orderBy('end_time', 'desc')
             ->paginate(10);
 
