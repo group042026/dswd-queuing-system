@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -85,7 +86,8 @@ class ApprovingOfficerController extends Controller
         ]);
 
         $assessment = $clientProcessing->client->assessment;
-
+        $client = $clientProcessing->client;
+        
         $assessment->update([
             'approving_officer_id' => auth()->id(),
             'approval_status' => $validated['decision'],
@@ -108,10 +110,21 @@ class ApprovingOfficerController extends Controller
                 'start_time' => now(),
             ]);
 
+            ActivityLog::record(
+                'Application Approved',
+                "Approved application for {$client->first_name} {$client->last_name} — moved to Releasing stage. Remarks: {$validated['approval_remarks']}"
+            );
+
             $message = 'Application approved. Client moved to Releasing stage.';
         } else {
             // WALANG bagong ClientProcessing dito — mananatili sa "Returned" state
             // hanggang i-resume ni Social Worker mismo
+
+            ActivityLog::record(
+                'Application Returned',
+                "Returned application for {$client->first_name} {$client->last_name} to Social Worker. Remarks: {$validated['approval_remarks']}"
+            );
+
             $message = 'Application returned to Social Worker.';
         }
 

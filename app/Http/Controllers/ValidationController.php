@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -52,6 +53,11 @@ class ValidationController extends Controller
             'current_status' => 'Waiting',
             'start_time' => now(),
         ]);
+
+        ActivityLog::record(
+            'Client Validated',
+            "Validated client {$client->first_name} {$client->last_name} — moved to Assessment stage"
+        );
 
         return redirect()->route('receptionist.validation')->with('success', 'Client moved to Assessment stage.');
     }

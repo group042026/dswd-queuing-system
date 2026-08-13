@@ -132,6 +132,58 @@
             gap: 24px;
         }
 
+        /* ==========================================================================
+           4. Header
+           ========================================================================== */
+
+        .activity-header {
+            background: linear-gradient(
+                135deg,
+                var(--dswd-blue) 0%,
+                #1e40af 50%,
+                var(--dswd-red) 100%
+            );
+
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+            color: var(--text-white);
+            padding: 24px;
+            position: relative;
+        }
+
+        .activity-header__bg-icon {
+            position: absolute;
+            right: 0;
+            top: 0;
+            opacity: 0.08;
+            transform: translate(24px, -24px);
+            pointer-events: none;
+        }
+
+        .activity-header__badge {
+            color: var(--dswd-yellow);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .activity-header__title {
+            font-size: 26px;
+            font-weight: 850;
+            margin: 0 0 6px 0;
+        }
+
+        .activity-header__subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            margin: 0;
+        }
+
+
         /* Success Alert Banner */
         .user-panel__alert {
             background-color: #ecfdf5;
@@ -399,10 +451,68 @@
             border-color: var(--dswd-blue) !important;
             box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.12) !important;
         }
+
+        @media (max-width: 640px) {
+
+            .user-panel__container {
+                padding: 0 16px;
+            }
+
+            .activity-header {
+                padding: 20px;
+            }
+
+            .activity-header__title {
+                font-size: 22px;
+            }
+        }
     </style>
 
     <div class="user-panel">
         <div class="user-panel__container">
+
+            <div class="activity-header">
+
+                {{-- Background Icon --}}
+                <div class="activity-header__bg-icon">
+
+                    <svg
+                        width="240"
+                        height="240"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+                            10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92
+                            C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1
+                            1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41
+                            0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76
+                            2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"
+                        />
+                    </svg>
+
+                </div>
+
+
+                <div>
+
+                    <p class="activity-header__badge">
+                        DSWD Operations Control Hub
+                    </p>
+
+                    <h1 class="activity-header__title">
+                        User List
+                    </h1>
+
+                    <p class="activity-header__subtitle">
+                        Review and monitor user actions and system activities across all program desks
+                        
+                    </p>
+
+                </div>
+
+            </div>
 
             {{-- Success Notification Banner --}}
             @if (session('success'))

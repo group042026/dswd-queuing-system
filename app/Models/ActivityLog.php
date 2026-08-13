@@ -15,8 +15,20 @@ class ActivityLog extends Model
         'details',
     ];
 
+    protected $casts = [
+        'time_committed' => 'datetime',
+    ];
+
     public function user(): BelongsTo{
         return $this->belongsTo(User::class);
     }
    
+    public static function record(string $actionType, string $details)
+    {
+        return self::create([
+            'user_id'     => auth()->id(),
+            'action_type' => $actionType,
+            'details'     => $details,
+        ]);
+    }
 }   

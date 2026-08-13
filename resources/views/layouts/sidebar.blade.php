@@ -69,6 +69,15 @@
                     <span>Queue Status</span>
                 </a>
 
+                <!-- Activity Logs -->
+                <a href="{{ route('admin.activitylogs') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.activitylogs') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('admin.activitylogs') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Activity Logs</span>
+                </a>
+
             @elseif (Auth::user()->hasRole('receptionist'))
                 <!-- Dashboard -->
                 <a href="{{ route('receptionist.dashboard') }}" 
@@ -97,7 +106,7 @@
                     <span>Validation</span>
                 </a>
 
-                <!-- Validation -->
+                <!-- Releasing -->
                 <a href="{{ route('receptionist.releasing') }}" 
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('receptionist.releasing*') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                     <svg class="h-5 w-5 {{ request()->routeIs('receptionist.releasing*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

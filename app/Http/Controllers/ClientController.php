@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\ClientProcessing;
 use App\Models\Queue;
@@ -68,6 +69,11 @@ class ClientController extends Controller
                 'current_status' => 'Processing',
                 'start_time'     => now(),
             ]);
+
+            ActivityLog::record(
+                'Client Registered',
+                "Registered client {$client->first_name} {$client->last_name} (Control #: {$client->control_number}, Queue #: {$queue->queue_number})"
+            );
         });
 
         return redirect()->route('receptionist.dashboard')->with('success', 'Client registered and added to queue successfully.');

@@ -581,7 +581,7 @@
 
     <div class="brand-text">
       <div class="brand-title-dept">Department of Social Welfare and Development</div>
-      <div class="brand-title-sys">Queuing System</div>
+      <div class="brand-title-sys">Smart Queueing System</div>
     </div>
 
     <!-- Tri-color Brand Stripe -->

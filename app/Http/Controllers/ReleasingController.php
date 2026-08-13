@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -43,6 +44,12 @@ class ReleasingController extends Controller
         ]);
 
         $clientProcessing->queue->update(['queue_status' => 'Completed']);
+
+        ActivityLog::record(
+            'Assistance Released',
+            "Released assistance to {$clientProcessing->client->first_name} {$clientProcessing->client->last_name}"
+            . ($validated['remarks'] ? " — Remarks: {$validated['remarks']}" : '')
+        );
 
         return redirect()->route('receptionist.releasing')->with('success', 'Assistance released successfully.');
     }

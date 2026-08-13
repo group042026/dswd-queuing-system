@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApprovingOfficerController;
 use App\Http\Controllers\ClientController;
@@ -39,6 +40,10 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
         Route::get('/admin/queue', 'monitor')->name('admin.queue.monitor');
         Route::patch('/admin/queue/{queue}/cancel', 'cancelQueue')->name('admin.queue.cancel');
 
+    });
+
+    Route::controller(ActivityLogController::class)->group(function () {
+        Route::get('/admin/activitylogs', 'index')->name('admin.activitylogs');
     });
 
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Assessment;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
@@ -106,6 +107,11 @@ class SocialWorkerController extends Controller
             'start_time' => now(),
         ]);
 
+        ActivityLog::record(
+            'Assessment Completed',
+            "Completed assessment for client — Recommendation: {$validated['recommendation']}"
+        );
+
         return redirect()->route('social-worker.assessment')->with('success', 'Assessment completed. Client moved to Review stage.');
     }
 
@@ -140,6 +146,12 @@ class SocialWorkerController extends Controller
             'current_status' => 'Waiting',
             'start_time' => now(),
         ]);
+
+        ActivityLog::record(
+            'Assessment Resumed',
+            "Resumed assessment for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name} — moved back to Pending Assessment"
+        );
+
 
         return redirect()->route('social-worker.returned')->with('success', 'Client moved back to Pending Assessment.');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Queue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,6 +38,12 @@ class QueueController extends Controller
             'current_status' => 'Cancelled',
             'end_time' => now(),
         ]);
+
+        ActivityLog::record(
+            'Queue Cancelled',
+            "Cancelled queue #{$queue->queue_number} for {$queue->client->first_name} {$queue->client->last_name}"
+        );
+
 
         return back()->with('success', 'Queue entry cancelled.');
     }
