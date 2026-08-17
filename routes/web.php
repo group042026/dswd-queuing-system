@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ReleasingController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SocialWorkerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidationController;
@@ -44,6 +45,11 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
 
     Route::controller(ActivityLogController::class)->group(function () {
         Route::get('/admin/activitylogs', 'index')->name('admin.activitylogs');
+    });
+
+    Route::controller(ReportController::class)->group(function (){
+        Route::get('/admin/daily-client', 'dailyClientReport')->name('admin.daily-client');
+        Route::get('/admin/daily-client/export', 'exportDailyClientReport')->name('admin.daily-client.export');
     });
 
 });
