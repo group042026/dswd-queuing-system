@@ -70,13 +70,32 @@
                 </a>
 
                 <!-- Reports -->
-                <a href="{{ route('admin.daily-client') }}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.daily-client') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                    <svg class="h-5 w-5 {{ request()->routeIs('admin.daily-client') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Reports</span>
-                </a>
+                <div x-data="{ open: {{ request()->routeIs('admin.daily-client*') || request()->routeIs('admin.monthly-transaction*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" type="button"
+                        class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>Reports</span>
+                        </div>
+                        <svg class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-collapse class="mt-1 ml-4 pl-4 border-l border-gray-200 space-y-1">
+                        <a href="{{ route('admin.daily-client') }}"
+                        class="block px-3 py-2 rounded-lg text-sm transition-all duration-200 {{ request()->routeIs('admin.daily-client') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            Daily Client Report
+                        </a>
+
+                        <a href="{{ route('admin.monthly-transaction') }}"
+                        class="block px-3 py-2 rounded-lg text-sm transition-all duration-200 {{ request()->routeIs('admin.monthly-transaction') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            Monthly Transaction Report
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Activity Logs -->
                 <a href="{{ route('admin.activitylogs') }}" 

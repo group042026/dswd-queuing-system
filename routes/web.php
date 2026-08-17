@@ -50,6 +50,9 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
     Route::controller(ReportController::class)->group(function (){
         Route::get('/admin/daily-client', 'dailyClientReport')->name('admin.daily-client');
         Route::get('/admin/daily-client/export', 'exportDailyClientReport')->name('admin.daily-client.export');
+
+        Route::get('/admin/monthly-transaction', 'monthlyTransactionReport')->name('admin.monthly-transaction');
+        Route::get('/admin/monthly-transaction/export', 'exportMonthlyTransactionReport')->name('admin.monthly-transaction.export');
     });
 
 });
