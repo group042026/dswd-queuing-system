@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
 
         ActivityLog::record(
             'User Logged In',
-            "{$user->name} logged in"
+            "{$user->name} Logged in"
         );
 
         if($user->hasRole('admin')){

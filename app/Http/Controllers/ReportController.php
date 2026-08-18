@@ -6,7 +6,9 @@ use App\Exports\DailyClientReportExport;
 use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Report;
+use App\Models\Queue;
 use App\Exports\MonthlyTransactionReportExport;
+use App\Exports\QueuePerformanceReportExport;
 use App\Models\ClientProcessing;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -126,6 +128,74 @@ class ReportController extends Controller
         return Excel::download(
             new MonthlyTransactionReportExport($selectedMonth),
             "monthly-transaction-report-{$selectedMonth}.xlsx"
+        );
+    }
+
+    //QUEUE PROCESSING REPORT
+    public function queuePerformanceReport(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+
+        // Average time per step (Validation, Assessment, Review, Releasing)
+        $avgTimePerStep = ClientProcessing::where('current_status', 'Completed')
+            ->whereNotNull('end_time')
+            ->whereDate('start_time', '>=', $dateFrom)
+            ->whereDate('end_time', '<=', $dateTo)
+            ->select('current_step', DB::raw('AVG(TIMESTAMPDIFF(MINUTE, start_time, end_time)) as avg_minutes'))
+            ->groupBy('current_step')
+            ->pluck('avg_minutes', 'current_step');
+
+        // Count ng na-serve per queue_status
+        $servedCount = Queue::whereDate('date_issued', '>=', $dateFrom)
+            ->whereDate('date_issued', '<=', $dateTo)
+            ->select('queue_status', DB::raw('count(*) as total'))
+            ->groupBy('queue_status')
+            ->pluck('total', 'queue_status');
+
+        $totalQueues = $servedCount->sum();
+
+        // Detailed list — per queue entry, kasama ang overall duration niya (registration to completion/cancellation)
+        $queues = Queue::with(['client', 'latestProcessing'])
+            ->whereDate('date_issued', '>=', $dateFrom)
+            ->whereDate('date_issued', '<=', $dateTo)
+            ->orderBy('date_issued', 'desc')
+            ->paginate(10)
+            ->appends(['date_from' => $dateFrom, 'date_to' => $dateTo]);
+
+        return view('admin.queue-performance', [
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'avgTimePerStep' => $avgTimePerStep,
+            'servedCount' => $servedCount,
+            'totalQueues' => $totalQueues,
+            'queues' => $queues,
+        ]);
+    }
+
+    public function exportQueuePerformanceReport(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+        $user = auth()->user();
+
+        Report::create([
+            'created_by' => $user->id,
+            'report_type' => 'Queue Performance Report',
+        ]);
+
+        ActivityLog::record(
+            'Report Generated',
+            "{$user->name} generated Queue Performance Report ({$dateFrom} to {$dateTo})"
+        );
+
+        return Excel::download(
+            new QueuePerformanceReportExport($dateFrom, $dateTo),
+            "queue-performance-report-{$dateFrom}-to-{$dateTo}.xlsx"
         );
     }
 }

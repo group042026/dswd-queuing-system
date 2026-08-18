@@ -53,6 +53,9 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
 
         Route::get('/admin/monthly-transaction', 'monthlyTransactionReport')->name('admin.monthly-transaction');
         Route::get('/admin/monthly-transaction/export', 'exportMonthlyTransactionReport')->name('admin.monthly-transaction.export');
+
+        Route::get('/admin/queue-performance', 'queuePerformanceReport')->name('admin.queue-performance');
+        Route::get('/admin/queue-performance/export', 'exportQueuePerformanceReport')->name('admin.queue-performance.export');
     });
 
 });
