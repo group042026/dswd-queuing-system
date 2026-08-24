@@ -513,7 +513,7 @@
                                     </td>
                                     <td class="text-sm text-gray-500">{{ $queue->date_issued->format('M d, Y h:i A') }}</td>
                                     <td>
-                                        @if(!in_array($queue->queue_status, ['Completed', 'Cancelled']))
+                                        @if(!in_array($queue->queue_status, ['Completed', 'Cancelled', 'Abondoned']))
                                             <x-danger-button type="button" x-data="" x-on:click="$dispatch('open-modal', 'cancel-queue-modal-{{ $queue->id }}')"
                                                 class="inline-flex items-center gap-1.5" style="border-radius: 8px;">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -528,7 +528,7 @@
                                 </tr>
 
                                 {{-- Modal — Cancel Confirm --}}
-                                @if(!in_array($queue->queue_status, ['Completed', 'Cancelled']))
+                                @if(!in_array($queue->queue_status, ['Completed', 'Cancelled', 'Abondoned']))
                                     <x-modal name="cancel-queue-modal-{{ $queue->id }}" focusable>
                                         <div class="p-6">
                                             <div class="flex items-center gap-3 mb-4">

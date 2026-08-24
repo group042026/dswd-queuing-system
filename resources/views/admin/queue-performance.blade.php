@@ -101,18 +101,21 @@
                                         'bg-yellow-100 text-yellow-800' => $queue->queue_status === 'Waiting',
                                         'bg-green-100 text-green-800' => $queue->queue_status === 'Completed',
                                         'bg-red-100 text-red-800'     => $queue->queue_status === 'Cancelled',
+                                        'bg-gray-200 text-gray-700'    => $queue->queue_status === 'Abandoned',
                                     ])>
                                         {{ $queue->queue_status }}
                                     </span>
                                 </td>
                                 <td class="p-3 text-sm">
-                                    @if(in_array($queue->queue_status, ['Completed', 'Cancelled']) && $queue->latestProcessing?->end_time)
+                                    @if($queue->queue_status === 'Abandoned')
+                                        <span class="text-gray-400 italic">{{ __('Abandoned') }}</span>
+                                    @elseif(in_array($queue->queue_status, ['Completed', 'Cancelled']) && $queue->latestProcessing?->end_time)
                                         @php
                                             $duration = \Carbon\Carbon::parse($queue->date_issued)->diffForHumans($queue->latestProcessing->end_time, true);
                                         @endphp
                                         {{ $duration }}
                                     @else
-                                        <span class="text-gray-400 italic">In Progress</span>
+                                        <span class="text-gray-400 italic">{{ __('In Progress') }}</span>
                                     @endif
                                 </td>
                                 <td class="p-3 text-sm">{{ $queue->latestProcessing->current_step ?? '—' }}</td>
