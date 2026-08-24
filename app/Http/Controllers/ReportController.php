@@ -198,4 +198,61 @@ class ReportController extends Controller
             "queue-performance-report-{$dateFrom}-to-{$dateTo}.xlsx"
         );
     }
+
+    //CLIENT PROCESSING REPORT
+    public function clientProcessingReport(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+
+        // Snapshot NGAYON — ilang naka-stuck sa bawat stage (hindi naka-date filter)
+        $stuckPerStage = ClientProcessing::whereIn('current_status', ['Waiting', 'Processing'])
+            ->select('current_step', DB::raw('count(*) as total'))
+            ->groupBy('current_step')
+            ->pluck('total', 'current_step');
+
+        $totalStuck = $stuckPerStage->sum();
+
+        // Historical list — buong processing history sa loob ng date range
+        $processingHistory = ClientProcessing::with(['client', 'queue', 'user'])
+            ->whereDate('start_time', '>=', $dateFrom)
+            ->whereDate('start_time', '<=', $dateTo)
+            ->orderBy('start_time', 'desc')
+            ->paginate(10)
+            ->appends(['date_from' => $dateFrom, 'date_to' => $dateTo]);
+
+        return view('admin.client-processing', [
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'stuckPerStage' => $stuckPerStage,
+            'totalStuck' => $totalStuck,
+            'processingHistory' => $processingHistory,
+        ]);
+    }
+
+    public function exportClientProcessingReport(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+        $user = auth()->user();
+
+        Report::create([
+            'created_by' => $user->id,
+            'report_type' => 'Client Processing Report',
+        ]);
+
+        ActivityLog::record(
+            'Report Generated',
+            "{$user->name} generated Client Processing Report ({$dateFrom} to {$dateTo})"
+        );
+
+        return Excel::download(
+            new ClientProcessingReportExport($dateFrom, $dateTo),
+            "client-processing-report-{$dateFrom}-to-{$dateTo}.xlsx"
+        );
+    }
 }

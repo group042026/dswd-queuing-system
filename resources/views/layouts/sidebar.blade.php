@@ -99,6 +99,11 @@
                         class="block px-3 py-2 rounded-lg text-sm transition-all duration-200 {{ request()->routeIs('admin.queue-performance') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             Queue Performance Report
                         </a>
+
+                        <a href="{{ route('admin.client-processing') }}"
+                        class="block px-3 py-2 rounded-lg text-sm transition-all duration-200 {{ request()->routeIs('admin.client-processing') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            Client Processing Report
+                        </a>
                     </div>
                 </div>
 

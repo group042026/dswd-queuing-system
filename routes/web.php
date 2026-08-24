@@ -56,6 +56,9 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
 
         Route::get('/admin/queue-performance', 'queuePerformanceReport')->name('admin.queue-performance');
         Route::get('/admin/queue-performance/export', 'exportQueuePerformanceReport')->name('admin.queue-performance.export');
+
+        Route::get('/admin/client-processing', 'clientProcessingReport')->name('admin.client-processing');
+        Route::get('/admin/client-processing/export', 'exportClientProcessingReport')->name('admin.client-processing.export');
     });
 
 });
