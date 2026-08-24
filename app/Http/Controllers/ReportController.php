@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ClientProcessingReportExport;
 use App\Exports\DailyClientReportExport;
 use App\Models\ActivityLog;
 use App\Models\Client;
