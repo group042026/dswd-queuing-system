@@ -833,7 +833,7 @@
                 <div class="stat-card stat-card--blue">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Total Queues Today</span>
-                        <div class="stat-card__value">{{ $totalQueuesToday }}</div>
+                        <div class="stat-card__value" data-stat="totalQueuesToday">{{ $totalQueuesToday }}</div>
                         <span class="stat-card__badge stat-card__badge--blue">Active Tickets</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--blue">
@@ -847,7 +847,7 @@
                 <div class="stat-card stat-card--yellow">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Currently Serving</span>
-                        <div class="stat-card__value">{{ $servingQueuesToday }}</div>
+                        <div class="stat-card__value" data-stat="servingQueuesToday">{{ $servingQueuesToday }}</div>
                         <span class="stat-card__badge stat-card__badge--yellow">At Counter Desk</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--yellow">
@@ -861,7 +861,7 @@
                 <div class="stat-card stat-card--emerald">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Completed Today</span>
-                        <div class="stat-card__value">{{ $completedTodayCount }}</div>
+                        <div class="stat-card__value" data-stat="completedTodayCount">{{ $completedTodayCount }}</div>
                         <span class="stat-card__badge stat-card__badge--emerald">Assessed & Closed</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--emerald">
@@ -875,7 +875,7 @@
                 <div class="stat-card stat-card--red">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Cancelled / No Show</span>
-                        <div class="stat-card__value">{{ $cancelledQueuesToday }}</div>
+                        <div class="stat-card__value" data-stat="cancelledQueuesToday">{{ $cancelledQueuesToday }}</div>
                         <span class="stat-card__badge stat-card__badge--red">Cancelled Tickets</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--red">
@@ -903,15 +903,15 @@
                     </div>
 
                     <div class="queue-card__body">
-                        @if ($recentProcessings->isEmpty())
-                            <div class="queue-card__empty-state">
-                                <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                                <span class="queue-card__empty-text">No active queue entries recorded today.</span>
-                            </div>
-                        @else
-                            <div class="queue-card__list">
+                        <div class="queue-card__list" data-recent-processings>
+                            @if ($recentProcessings->isEmpty())
+                                <div class="queue-card__empty-state">
+                                    <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                    <span class="queue-card__empty-text">No active queue entries recorded today.</span>
+                                </div>
+                            @else
                                 @foreach ($recentProcessings as $processing)
                                     <div class="queue-row">
                                         <!-- Left Side: Queue Number & Client Identity -->
@@ -979,9 +979,9 @@
                                         </div>
                                     </div>
                                 @endforeach
-
-                                {{-- {{ $recentProcessings->links() }} --}}
-                            </div>
+                            @endif
+                        </div>
+                        @if ($recentProcessings->isNotEmpty())
                             <div class="user-pagination">
                                 {{ $recentProcessings->links() }}
                             </div>
@@ -1007,7 +1007,7 @@
                                         <span class="demographics-card__label-dot demographics-card__label-dot--senior"></span>
                                         Seniors
                                     </span>
-                                    <span class="demographics-card__value">{{ $seniorsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="seniorsCount">{{ $seniorsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $senPercent = $totalQueuesToday > 0 ? ($seniorsCount / $totalQueuesToday) * 100 : 0; @endphp
@@ -1022,7 +1022,7 @@
                                         <span class="demographics-card__label-dot demographics-card__label-dot--pwd"></span>
                                         PWDs
                                     </span>
-                                    <span class="demographics-card__value">{{ $pwdsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="pwdsCount">{{ $pwdsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $pwdPercent = $totalQueuesToday > 0 ? ($pwdsCount / $totalQueuesToday) * 100 : 0; @endphp
@@ -1037,7 +1037,7 @@
                                         <span class="demographics-card__label-dot demographics-card__label-dot--solo"></span>
                                         Solo Parents
                                     </span>
-                                    <span class="demographics-card__value">{{ $soloParentsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="soloParentsCount">{{ $soloParentsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $soloPercent = $totalQueuesToday > 0 ? ($soloParentsCount / $totalQueuesToday) * 100 : 0; @endphp
@@ -1052,7 +1052,7 @@
                                         <span class="demographics-card__label-dot demographics-card__label-dot--regular"></span>
                                         Regulars
                                     </span>
-                                    <span class="demographics-card__value">{{ $regularsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="regularsCount">{{ $regularsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $regPercent = $totalQueuesToday > 0 ? ($regularsCount / $totalQueuesToday) * 100 : 0; @endphp
@@ -1110,4 +1110,67 @@
 
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Dashboard script loaded, attempting to subscribe...');
+
+            window.Echo.channel('admin-dashboard')
+                .listen('.dashboard.updated', () => {
+                    fetch("{{ route('admin.dashboard.data') }}")
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update stats cards
+                            document.querySelector('[data-stat="totalQueuesToday"]').textContent = data.stats.totalQueuesToday;
+                            document.querySelector('[data-stat="servingQueuesToday"]').textContent = data.stats.servingQueuesToday;
+                            document.querySelector('[data-stat="completedTodayCount"]').textContent = data.stats.completedTodayCount;
+                            document.querySelector('[data-stat="cancelledQueuesToday"]').textContent = data.stats.cancelledQueuesToday;
+
+                            // Update demographics
+                            document.querySelector('[data-stat="seniorsCount"]').textContent = data.stats.seniorsCount;
+                            document.querySelector('[data-stat="pwdsCount"]').textContent = data.stats.pwdsCount;
+                            document.querySelector('[data-stat="soloParentsCount"]').textContent = data.stats.soloParentsCount;
+                            document.querySelector('[data-stat="regularsCount"]').textContent = data.stats.regularsCount;
+
+                            // Update recent processings list
+                            const listContainer = document.querySelector('[data-recent-processings]');
+                            if (listContainer) {
+                                listContainer.innerHTML = data.recentProcessings.map(p => `
+                                    <div class="queue-row">
+                                        <div class="queue-row__left">
+                                            <div class="queue-row__badge">
+                                                <span class="queue-row__badge-label">Queue No</span>
+                                                <span class="queue-row__badge-number">${p.queue_number_short}</span>
+                                            </div>
+                                            <div class="queue-row__identity">
+                                                <h4 class="queue-row__name">${p.full_name}</h4>
+                                                <div class="queue-row__meta">
+                                                    <span class="queue-row__control-number">${p.control_number}</span>
+                                                    <span class="queue-row__divider">•</span>
+                                                    <span class="queue-row__category">${p.client_category}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="queue-row__right">
+                                            <div class="queue-row__program-details">
+                                                <div class="queue-row__program">Program: <span class="queue-row__program-value">${p.program_requested}</span></div>
+                                                <div class="queue-row__step">Step: ${p.current_step}</div>
+                                            </div>
+                                            <div class="queue-row__status-container">
+                                                <span class="queue-row__status-badge">${p.current_status}</span>
+                                                <span class="queue-row__time">${p.start_time ?? 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('');
+                            }
+                        });
+                });
+        });
+            
+    </script>
+    @endpush
 </x-admin-layout>
+
+

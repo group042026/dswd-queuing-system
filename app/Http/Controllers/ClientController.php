@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DashboardUpdated;
 use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\ClientProcessing;
@@ -74,6 +75,8 @@ class ClientController extends Controller
                 'Client Registered',
                 "Registered client {$client->first_name} {$client->last_name} (Control #: {$client->control_number}, Queue #: {$queue->queue_number})"
             );
+
+            event(new DashboardUpdated());
         });
 
         return redirect()->route('receptionist.dashboard')->with('success', 'Client registered and added to queue successfully.');

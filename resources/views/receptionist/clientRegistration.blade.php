@@ -456,7 +456,7 @@
                                 <option value="">-- {{ __('Select') }} --</option>
                                 <option value="Senior" {{ old('client_category') == 'Senior' ? 'selected' : '' }}>Senior Citizen</option>
                                 <option value="PWD" {{ old('client_category') == 'PWD' ? 'selected' : '' }}>PWD</option>
-                                <option value="Pregnant Woman" {{ old('client_category') == 'Pregnant Woman' ? 'selected' : '' }}>Pregnant Woman</option>
+                                <option value="Solo Parent" {{ old('client_category') == 'Solo Parent' ? 'selected' : '' }}>Solo Parent</option>
                                 <option value="Regular" {{ old('client_category') == 'Regular' ? 'selected' : '' }}>Regular</option>
                             </select>
                             <x-input-error :messages="$errors->get('client_category')" class="mt-2" />

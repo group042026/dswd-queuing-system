@@ -28,6 +28,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
 
     Route::controller(AdminController::class)->group(function () {
         Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
+        Route::get('/admin/dashboard-data', 'dashboardData')->name('admin.dashboard.data');
     });
 
     Route::controller(UserController::class)->group(function () {
