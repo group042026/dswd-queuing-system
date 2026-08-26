@@ -1116,6 +1116,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Dashboard script loaded, attempting to subscribe...');
 
+            function getStatusClass(status) {
+                const map = {
+                    'Processing': 'queue-row__status-badge--processing',
+                    'Completed': 'queue-row__status-badge--completed',
+                    'Waiting': 'queue-row__status-badge--waiting',
+                    'Approved': 'queue-row__status-badge--approved',
+                    'Disapproved': 'queue-row__status-badge--disapproved',
+                    'Cancelled': 'queue-row__status-badge--cancelled',
+                };
+                return map[status] || '';
+            }
+
             window.Echo.channel('admin-dashboard')
                 .listen('.dashboard.updated', () => {
                     fetch("{{ route('admin.dashboard.data') }}")
@@ -1158,7 +1170,7 @@
                                                 <div class="queue-row__step">Step: ${p.current_step}</div>
                                             </div>
                                             <div class="queue-row__status-container">
-                                                <span class="queue-row__status-badge">${p.current_status}</span>
+                                                <span class="queue-row__status-badge ${getStatusClass(p.current_status)}">${p.current_status}</span>
                                                 <span class="queue-row__time">${p.start_time ?? 'N/A'}</span>
                                             </div>
                                         </div>

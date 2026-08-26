@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DashboardUpdated;
 use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
@@ -50,6 +51,8 @@ class ReleasingController extends Controller
             "Released assistance to {$clientProcessing->client->first_name} {$clientProcessing->client->last_name}"
             . ($validated['remarks'] ? " — Remarks: {$validated['remarks']}" : '')
         );
+
+        event(new DashboardUpdated()); //for real time
 
         return redirect()->route('receptionist.releasing')->with('success', 'Assistance released successfully.');
     }

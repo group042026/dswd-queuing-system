@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DashboardUpdated;
 use App\Models\ActivityLog;
 use App\Models\Assessment;
 use App\Models\ClientProcessing;
@@ -112,6 +113,8 @@ class SocialWorkerController extends Controller
             "Completed assessment for client — Recommendation: {$validated['recommendation']}"
         );
 
+        event(new DashboardUpdated()); //for real time
+
         return redirect()->route('social-worker.assessment')->with('success', 'Assessment completed. Client moved to Review stage.');
     }
 
@@ -159,6 +162,7 @@ class SocialWorkerController extends Controller
             "Resumed assessment for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name} — moved back to Pending Assessment"
         );
 
+        event(new DashboardUpdated()); //for real time
 
         return redirect()->route('social-worker.returned')->with('success', 'Client moved back to Pending Assessment.');
     }

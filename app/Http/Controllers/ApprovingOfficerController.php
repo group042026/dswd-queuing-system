@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DashboardUpdated;
 use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
@@ -127,6 +128,8 @@ class ApprovingOfficerController extends Controller
 
             $message = 'Application returned to Social Worker.';
         }
+
+        event(new DashboardUpdated()); //for real time
 
         return redirect()->route('approving-officer.review')->with('success', $message);
     }

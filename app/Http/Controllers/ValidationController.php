@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DashboardUpdated;
 use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
@@ -58,6 +59,8 @@ class ValidationController extends Controller
             'Client Validated',
             "Validated client {$client->first_name} {$client->last_name} — moved to Assessment stage"
         );
+
+        event(new DashboardUpdated()); //for real time
 
         return redirect()->route('receptionist.validation')->with('success', 'Client moved to Assessment stage.');
     }
