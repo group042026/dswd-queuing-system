@@ -17,15 +17,33 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
+                Rule::unique(\App\Models\User::class)->ignore($this->user()->id),
             ],
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique(\App\Models\User::class)->ignore($this->user()->id),
+            ],
+            'license_number' => [
+                'required',
+                'string',
+                'alpha_num',
+                'min:5',
+                'max:20',
+                Rule::unique(\App\Models\User::class)->ignore($this->user()->id),
+            ],
+            'contact_number' => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],
+            'profile_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,gif', 'max:20480'],
         ];
     }
 }
