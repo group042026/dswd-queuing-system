@@ -369,21 +369,33 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <x-input-label for="barangay" :value="__('Barangay')" class="font-semibold text-gray-700" />
-                            <x-text-input id="barangay" name="barangay" type="text" class="mt-1.5 block w-full" :value="old('barangay')" required />
-                            <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
+                            <x-input-label for="province" :value="__('Province')" class="font-semibold text-gray-700" />
+                            <select id="province" name="province" class="mt-1.5 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                <option value="">-- {{ __('Select Province') }} --</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('province')" class="mt-2" />
                         </div>
 
                         <div>
-                            <x-input-label for="municipality" :value="__('Municipality')" class="font-semibold text-gray-700" />
-                            <x-text-input id="municipality" name="municipality" type="text" class="mt-1.5 block w-full" :value="old('municipality')" required />
+                            <x-input-label for="municipality" :value="__('Municipality/City')" class="font-semibold text-gray-700" />
+                            <select id="municipality" name="municipality" class="mt-1.5 block w-full border-gray-300 rounded-md shadow-sm" required disabled>
+                                <option value="">-- {{ __('Select Province First') }} --</option>
+                            </select>
                             <x-input-error :messages="$errors->get('municipality')" class="mt-2" />
                         </div>
 
                         <div>
-                            <x-input-label for="province" :value="__('Province')" class="font-semibold text-gray-700" />
-                            <x-text-input id="province" name="province" type="text" class="mt-1.5 block w-full" :value="old('province')" required />
-                            <x-input-error :messages="$errors->get('province')" class="mt-2" />
+                            <x-input-label for="barangay" :value="__('Barangay')" class="font-semibold text-gray-700" />
+                            <select id="barangay" name="barangay" class="mt-1.5 block w-full border-gray-300 rounded-md shadow-sm" required disabled>
+                                <option value="">-- {{ __('Select Municipality First') }} --</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="purok" :value="__('Purok (Optional)')" class="font-semibold text-gray-700" />
+                            <x-text-input id="purok" name="purok" type="text" class="mt-1.5 block w-full" :value="old('purok')" placeholder="e.g. Purok 3" />
+                            <x-input-error :messages="$errors->get('purok')" class="mt-2" />
                         </div>
                     </div>
                 </div>
@@ -492,4 +504,97 @@
             </form>
         </div>
     </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const provinceSelect = document.getElementById('province');
+        const municipalitySelect = document.getElementById('municipality');
+        const barangaySelect = document.getElementById('barangay');
+
+        let allCitiesMunicipalities = []; // cache — kunin lang isang beses
+
+        // Load provinces
+        fetch('https://psgc.cloud/api/provinces')
+            .then(res => res.json())
+            .then(provinces => {
+                provinces
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .forEach(province => {
+                        const option = document.createElement('option');
+                        option.value = province.name;
+                        option.dataset.code = province.code;
+                        option.textContent = province.name;
+                        provinceSelect.appendChild(option);
+                    });
+            })
+            .catch(err => console.error('Failed to load provinces:', err));
+
+        // I-cache lahat ng cities/municipalities isang beses (walang province filter sa server)
+        fetch('https://psgc.cloud/api/cities-municipalities')
+            .then(res => res.json())
+            .then(data => {
+                allCitiesMunicipalities = data;
+            })
+            .catch(err => console.error('Failed to load cities/municipalities:', err));
+
+        // Kapag napili ang Province — i-filter sa CACHE (client-side), hindi na mag-fetch ulit
+        provinceSelect.addEventListener('change', () => {
+            const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+            const provinceCode = selectedOption.dataset.code;
+
+            municipalitySelect.innerHTML = '<option value="">-- Select Municipality --</option>';
+            barangaySelect.innerHTML = '<option value="">-- Select Municipality First --</option>';
+            barangaySelect.disabled = true;
+
+            if (!provinceCode) {
+                municipalitySelect.disabled = true;
+                return;
+            }
+
+            const provincePrefix = provinceCode.substring(0, 6);
+
+            const matched = allCitiesMunicipalities
+                .filter(m => m.code.substring(0, 6) === provincePrefix)
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            matched.forEach(m => {
+                const option = document.createElement('option');
+                option.value = m.name;
+                option.dataset.code = m.code;
+                option.textContent = m.name;
+                municipalitySelect.appendChild(option);
+            });
+
+            municipalitySelect.disabled = false;
+        });
+
+        // Kapag napili ang Municipality — dito lang tayo mag-fefetch ulit (working endpoint naman ito)
+        municipalitySelect.addEventListener('change', () => {
+            const selectedOption = municipalitySelect.options[municipalitySelect.selectedIndex];
+            const municipalityCode = selectedOption.dataset.code;
+
+            barangaySelect.innerHTML = '<option value="">-- Loading... --</option>';
+            barangaySelect.disabled = true;
+
+            if (!municipalityCode) return;
+
+            fetch(`https://psgc.cloud/api/cities-municipalities/${municipalityCode}/barangays`)
+                .then(res => res.json())
+                .then(barangays => {
+                    barangaySelect.innerHTML = '<option value="">-- Select Barangay --</option>';
+                    barangays
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .forEach(b => {
+                            const option = document.createElement('option');
+                            option.value = b.name;
+                            option.textContent = b.name;
+                            barangaySelect.appendChild(option);
+                        });
+                    barangaySelect.disabled = false;
+                })
+                .catch(err => console.error('Failed to load barangays:', err));
+        });
+    });
+</script>
+@endpush
 </x-receptionist-layout>

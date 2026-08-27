@@ -19,6 +19,7 @@ class Client extends Model
         'age',
         'civil_status',
         'barangay',
+        'purok',
         'municipality',
         'province',
         'contact_number',

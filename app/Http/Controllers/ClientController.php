@@ -34,6 +34,7 @@ class ClientController extends Controller
             'age'                   => ['required', 'integer', 'min:0'],
             'civil_status'          => ['required', 'string'],
             'barangay'              => ['required', 'string', 'max:255'],
+            'purok'                 => ['nullable', 'string', 'max:255'],
             'municipality'          => ['required', 'string', 'max:255'],
             'province'              => ['required', 'string', 'max:255'],
             'email'                 => ['nullable', 'email', 'max:255'],
