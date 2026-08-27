@@ -57,6 +57,60 @@ class ApprovingOfficerController extends Controller
         ]);
     }
 
+    public function dashboardData()
+    {
+        Gate::authorize('access-approving-officer');
+
+        $today = now()->toDateString();
+
+        $pendingReviewCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->count();
+
+        $approvedTodayCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) use ($today) {
+                $q->where('approval_status', 'Approved')
+                    ->whereDate('approved_at', $today);
+            })
+            ->count();
+
+        $returnedTodayCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) use ($today) {
+                $q->where('approval_status', 'Returned')
+                    ->whereDate('approved_at', $today);
+            })
+            ->count();
+
+        $liveQueue = ClientProcessing::with(['client', 'queue', 'client.assessment'])
+            ->where('current_step', 'Review')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->orderBy('start_time', 'asc')
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'stats' => [
+                'pendingReviewCount' => $pendingReviewCount,
+                'approvedTodayCount' => $approvedTodayCount,
+                'returnedTodayCount' => $returnedTodayCount,
+            ],
+            'liveQueue' => $liveQueue->map(function ($item) {
+                return [
+                    'queue_number' => $item->queue->queue_number,
+                    'full_name' => "{$item->client->first_name} {$item->client->last_name}",
+                    'control_number' => $item->client->control_number,
+                    'client_category' => $item->client->client_category,
+                    'category_class' => strtolower(str_replace(' ', '', $item->client->client_category)),
+                    'program_requested' => $item->client->program_requested,
+                ];
+            }),
+        ]);
+    }
+    
     public function pendingReview(Request $request)
     {
         Gate::authorize('access-approving-officer');

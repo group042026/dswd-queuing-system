@@ -205,8 +205,12 @@ class ReportController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
-        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+        // $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
+        // $dateTo = $request->input('date_to', now()->startOfMonth()->addDay()->format('Y-m-d'));
+
+        $dateFrom = $request->input('date_from', now()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->addDay()->format('Y-m-d'));
+
 
         // Snapshot NGAYON — ilang naka-stuck sa bawat stage (hindi naka-date filter)
         $stuckPerStage = ClientProcessing::whereIn('current_status', ['Waiting', 'Processing'])

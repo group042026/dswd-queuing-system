@@ -69,6 +69,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
 
     Route::controller(ReceptionistController::class)->group(function () {
         Route::get('/receptionist/dashboard', 'index')->name('receptionist.dashboard');
+        Route::get('/receptionist/dashboard-data', 'dashboardData')->name('receptionist.dashboard.data');
     });
 
     Route::controller(ClientController::class)->group(function () {
@@ -97,6 +98,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
 
     Route::controller(SocialWorkerController::class)->group(function () {
         Route::get('/social-worker/dashboard', 'index')->name('social-worker.dashboard');
+        Route::get('/social-worker/dashboard-data', 'dashboardData')->name('social-worker.dashboard.data');
         Route::get('/social-worker/assessment', 'pendingAssessment')->name('social-worker.assessment');
         Route::post('/social-worker/assessment/{clientProcessing}', 'storeAssessment')->name('social-worker.assessment.store');
         Route::get('/social-worker/returned', 'returnedAssessments')->name('social-worker.returned');
@@ -114,6 +116,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group
     
     Route::controller(ApprovingOfficerController::class)->group(function (){
         Route::get('/approving-officer/dashboard', 'index')->name('approving-officer.dashboard');
+        Route::get('/approving-officer/dashboard-data', 'dashboardData')->name('approving-officer.dashboard.data');
         Route::get('/approving-officer/review', 'pendingReview')->name('approving-officer.review');
         Route::post('/approving-officer/review/{clientProcessing}/decide', 'decide')->name('approving-officer.review.decide');
     });

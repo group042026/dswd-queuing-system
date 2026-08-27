@@ -458,7 +458,7 @@
                 <div class="stat-card stat-card--yellow">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Pending Review</span>
-                        <span class="stat-card__value">{{ $pendingReviewCount }}</span>
+                        <span class="stat-card__value" data-stat="pendingReviewCount">{{ $pendingReviewCount }}</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--yellow">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -470,7 +470,7 @@
                 <div class="stat-card stat-card--emerald">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Approved Today</span>
-                        <span class="stat-card__value">{{ $approvedTodayCount }}</span>
+                        <span class="stat-card__value" data-stat="approvedTodayCount">{{ $approvedTodayCount }}</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--emerald">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -482,7 +482,7 @@
                 <div class="stat-card stat-card--red">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Returned Today</span>
-                        <span class="stat-card__value">{{ $returnedTodayCount }}</span>
+                        <span class="stat-card__value" data-stat="returnedTodayCount">{{ $returnedTodayCount }}</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--red">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,16 +508,16 @@
                         </div>
 
                         <div class="queue-card__body">
-                            @if($liveQueue->isEmpty())
-                                <div class="queue-card__empty-state">
-                                    <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
-                                    <h3 class="queue-card__empty-title">Queue is Empty</h3>
-                                    <p class="text-sm">There are no client files waiting for review today.</p>
-                                </div>
-                            @else
-                                <div class="queue-card__list">
+                            <div data-live-queue>
+                                @if($liveQueue->isEmpty())
+                                    <div class="queue-card__empty-state">
+                                        <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        <h3 class="queue-card__empty-title">Queue is Empty</h3>
+                                        <p class="text-sm">There are no client files waiting for review today.</p>
+                                    </div>
+                                @else
                                     @foreach($liveQueue as $item)
                                         <div class="queue-row">
                                             <div class="flex items-center gap-4">
@@ -548,9 +548,12 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                    <div class="user-pagination">
-                                        {{ $liveQueue->links() }}
-                                    </div>
+                                @endif
+                            </div>
+
+                            @if($liveQueue->isNotEmpty())
+                                <div class="user-pagination">
+                                    {{ $liveQueue->links() }}
                                 </div>
                             @endif
                         </div>
@@ -581,4 +584,65 @@
             </div>
         </div>
     </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function renderLiveQueue(queue) {
+            if (queue.length === 0) {
+                return `
+                    <div class="queue-card__empty-state">
+                        <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <h3 class="queue-card__empty-title">Queue is Empty</h3>
+                        <p class="text-sm">There are no client files waiting for review today.</p>
+                    </div>
+                `;
+            }
+
+            return queue.map(item => `
+                <div class="queue-row">
+                    <div class="flex items-center gap-4">
+                        <div class="queue-row__badge">
+                            <span class="queue-row__badge-label">Queue No</span>
+                            <span class="queue-row__badge-number">${item.queue_number}</span>
+                        </div>
+                        <div>
+                            <h3 class="queue-row__name">${item.full_name}</h3>
+                            <div class="queue-row__meta">
+                                <span class="font-mono text-xs">${item.control_number}</span>
+                                <span>•</span>
+                                <span class="queue-row__category queue-row__category--${item.category_class}">${item.client_category}</span>
+                                <span>•</span>
+                                <span>${item.program_requested}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="queue-row__right">
+                        <a href="{{ route('approving-officer.review') }}" class="queue-row__action-btn">
+                            <span>Review Case</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.Echo.channel('approving-officer-dashboard')
+            .listen('.dashboard.updated', () => {
+                fetch("{{ route('approving-officer.dashboard.data') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('[data-stat="pendingReviewCount"]').textContent = data.stats.pendingReviewCount;
+                        document.querySelector('[data-stat="approvedTodayCount"]').textContent = data.stats.approvedTodayCount;
+                        document.querySelector('[data-stat="returnedTodayCount"]').textContent = data.stats.returnedTodayCount;
+
+                        document.querySelector('[data-live-queue]').innerHTML = renderLiveQueue(data.liveQueue);
+                    });
+            });
+    });
+</script>
+@endpush
 </x-approving-officer-layout>

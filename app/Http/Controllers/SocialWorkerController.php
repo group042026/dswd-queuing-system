@@ -56,6 +56,56 @@ class SocialWorkerController extends Controller
         ]);
     }
 
+    public function dashboardData()
+    {
+        Gate::authorize('access-social-worker');
+
+        $today = now()->toDateString();
+
+        $pendingAssessmentCount = ClientProcessing::where('current_step', 'Assessment')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->count();
+
+        $completedAssessmentCount = ClientProcessing::where('current_step', 'Assessment')
+            ->where('current_status', 'Completed')
+            ->whereDate('end_time', $today)
+            ->count();
+
+        $returnedAssessmentCount = ClientProcessing::where('current_step', 'Review')
+            ->where('current_status', 'Completed')
+            ->whereHas('client.assessment', function ($q) {
+                $q->where('approval_status', 'Returned');
+            })
+            ->count();
+
+        $liveQueue = ClientProcessing::with(['client', 'queue'])
+            ->where('current_step', 'Assessment')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $today)
+            ->orderBy('start_time', 'asc')
+            ->limit(4)
+            ->get();
+
+        return response()->json([
+            'stats' => [
+                'pendingAssessmentCount' => $pendingAssessmentCount,
+                'completedAssessmentCount' => $completedAssessmentCount,
+                'returnedAssessmentCount' => $returnedAssessmentCount,
+            ],
+            'liveQueue' => $liveQueue->map(function ($item) {
+                return [
+                    'queue_number' => $item->queue->queue_number,
+                    'full_name' => "{$item->client->first_name} {$item->client->last_name}",
+                    'control_number' => $item->client->control_number,
+                    'client_category' => $item->client->client_category,
+                    'category_class' => strtolower(str_replace(' ', '', $item->client->client_category)),
+                    'program_requested' => $item->client->program_requested,
+                ];
+            }),
+        ]);
+    }
+
     public function pendingAssessment(Request $request)
     {
         Gate::authorize('access-social-worker');

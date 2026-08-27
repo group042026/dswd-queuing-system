@@ -128,6 +128,7 @@
         .stat-card--blue { border-bottom-color: var(--dswd-blue); }
         .stat-card--yellow { border-bottom-color: var(--dswd-yellow); }
         .stat-card--emerald { border-bottom-color: var(--emerald-green); }
+        .stat-card--red { border-bottom-color: var(--dswd-red); }
 
         .stat-card__content {
             display: flex;
@@ -417,6 +418,22 @@
             margin-top: 2px;
         }
 
+        .step-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .step-badge--validation {
+            background-color: #fef9c3; /* yellow-100 */
+            color: #854d0e; /* yellow-800 */
+        }
+        .step-badge--releasing {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+        }
+
         @keyframes pulseLive {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
@@ -458,7 +475,7 @@
                 <div class="stat-card stat-card--blue">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Registered Today</span>
-                        <span class="stat-card__value">{{ $registeredTodayCount }}</span>
+                        <span class="stat-card__value" data-stat="registeredTodayCount">{{ $registeredTodayCount }}</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--blue">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -470,7 +487,7 @@
                 <div class="stat-card stat-card--yellow">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Pending Validation</span>
-                        <span class="stat-card__value">{{ $pendingValidationCount }}</span>
+                        <span class="stat-card__value" data-stat="pendingValidationCount">{{ $pendingValidationCount }}</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--yellow">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -482,11 +499,23 @@
                 <div class="stat-card stat-card--emerald">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Validated Today</span>
-                        <span class="stat-card__value">{{ $completedValidationCount }}</span>
+                        <span class="stat-card__value" data-stat="completedValidationCount">{{ $completedValidationCount }}</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--emerald">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card--red">
+                    <div class="stat-card__content">
+                        <span class="stat-card__label">Pending Releasing</span>
+                        <span class="stat-card__value" data-stat="pendingReleasingCount">{{ $pendingReleasingCount }}</span>
+                    </div>
+                    <div class="stat-card__icon-container stat-card__icon-container--red">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4M20 12l-6-6M20 12l-6 6" />
                         </svg>
                     </div>
                 </div>
@@ -495,11 +524,12 @@
             <!-- Split Main/Sidebar Layout -->
             <div class="dashboard-layout">
                 <div class="dashboard-layout__main">
-                    <!-- Queue List Card -->
+
+                    <!-- Unified Live Queue Card -->
                     <div class="queue-card">
                         <div class="queue-card__header">
                             <div>
-                                <h2 class="queue-card__title">Pending Validation Queue</h2>
+                                <h2 class="queue-card__title">Pending Actions Queue</h2>
                             </div>
                             <div class="queue-card__live-badge">
                                 <span class="queue-card__live-dot"></span>
@@ -508,17 +538,20 @@
                         </div>
 
                         <div class="queue-card__body">
-                            @if($liveQueue->isEmpty())
-                                <div class="queue-card__empty-state">
-                                    <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
-                                    <h3 class="queue-card__empty-title">Queue is Empty</h3>
-                                    <p class="text-sm">There are no clients waiting for validation today.</p>
-                                </div>
-                            @else
-                                <div class="queue-card__list">
+                            <div data-live-queue>
+                                @if($liveQueue->isEmpty())
+                                    <div class="queue-card__empty-state">
+                                        <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        <h3 class="queue-card__empty-title">Queue is Empty</h3>
+                                        <p class="text-sm">There are no pending actions today.</p>
+                                    </div>
+                                @else
                                     @foreach($liveQueue as $item)
+                                        @php
+                                            $isValidation = $item->current_step === 'Validation';
+                                        @endphp
                                         <div class="queue-row">
                                             <div class="flex items-center gap-4">
                                                 <div class="queue-row__badge">
@@ -530,6 +563,10 @@
                                                     <div class="queue-row__meta">
                                                         <span class="font-mono text-xs">{{ $item->client->control_number }}</span>
                                                         <span>•</span>
+                                                        <span class="step-badge {{ $isValidation ? 'step-badge--validation' : 'step-badge--releasing' }}">
+                                                            {{ $item->current_step }}
+                                                        </span>
+                                                        <span>•</span>
                                                         <span class="queue-row__category queue-row__category--{{ strtolower(str_replace(' ', '', $item->client->client_category)) }}">
                                                             {{ $item->client->client_category }}
                                                         </span>
@@ -539,8 +576,8 @@
                                                 </div>
                                             </div>
                                             <div class="queue-row__right">
-                                                <a href="{{ route('receptionist.validation') }}" class="queue-row__action-btn">
-                                                    <span>Validate Docs</span>
+                                                <a href="{{ $isValidation ? route('receptionist.validation') : route('receptionist.releasing') }}" class="queue-row__action-btn">
+                                                    <span>{{ $isValidation ? 'Validate Docs' : 'Release' }}</span>
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                     </svg>
@@ -548,17 +585,20 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                </div>
+                                @endif
+                            </div>
+
+                            @if($liveQueue->isNotEmpty())
                                 <div class="user-pagination">
                                     {{ $liveQueue->links() }}
                                 </div>
                             @endif
                         </div>
                     </div>
+
                 </div>
 
                 <div class="dashboard-layout__sidebar">
-                    <!-- Quick Actions Card -->
                     <div class="actions-card">
                         <div class="actions-card__header">
                             <h2 class="actions-card__title">Quick Actions</h2>
@@ -593,4 +633,65 @@
             </div>
         </div>
     </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function renderQueueRow(item) {
+            return `
+                <div class="queue-row">
+                    <div class="flex items-center gap-4">
+                        <div class="queue-row__badge">
+                            <span class="queue-row__badge-label">Queue No</span>
+                            <span class="queue-row__badge-number">${item.queue_number}</span>
+                        </div>
+                        <div>
+                            <h3 class="queue-row__name">${item.full_name}</h3>
+                            <div class="queue-row__meta">
+                                <span class="font-mono text-xs">${item.control_number}</span>
+                                <span>•</span>
+                                <span class="step-badge ${item.step_class}">${item.step_label}</span>
+                                <span>•</span>
+                                <span class="queue-row__category queue-row__category--${item.category_class}">${item.client_category}</span>
+                                <span>•</span>
+                                <span>${item.program_requested}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="queue-row__right">
+                        <a href="${item.action_url}" class="queue-row__action-btn">
+                            <span>${item.action_label}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.Echo.channel('receptionist-dashboard')
+            .listen('.dashboard.updated', () => {
+                fetch("{{ route('receptionist.dashboard.data') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('[data-stat="registeredTodayCount"]').textContent = data.stats.registeredTodayCount;
+                        document.querySelector('[data-stat="pendingValidationCount"]').textContent = data.stats.pendingValidationCount;
+                        document.querySelector('[data-stat="completedValidationCount"]').textContent = data.stats.completedValidationCount;
+                        document.querySelector('[data-stat="pendingReleasingCount"]').textContent = data.stats.pendingReleasingCount;
+
+                        const queueEl = document.querySelector('[data-live-queue]');
+                        queueEl.innerHTML = data.liveQueue.length > 0
+                            ? data.liveQueue.map(renderQueueRow).join('')
+                            : `<div class="queue-card__empty-state">
+                                <svg class="queue-card__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <h3 class="queue-card__empty-title">Queue is Empty</h3>
+                                <p class="text-sm">There are no pending actions today.</p>
+                               </div>`;
+                    });
+            });
+    });
+</script>
+@endpush
 </x-receptionist-layout>

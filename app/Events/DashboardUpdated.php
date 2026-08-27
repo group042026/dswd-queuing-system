@@ -22,6 +22,9 @@ class DashboardUpdated implements ShouldBroadcast
     {
         return [
             new Channel('admin-dashboard'),
+            new Channel('social-worker-dashboard'),
+            new Channel('approving-officer-dashboard'),
+            new Channel('receptionist-dashboard'),
         ];
     }
 
