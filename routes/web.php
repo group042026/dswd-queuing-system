@@ -24,6 +24,9 @@ Route::get('/', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/public/queue-board', [QueueController::class, 'publicQueue'])->name('public.public-queue');
+Route::get('/public/queue-board/data', [QueueController::class, 'liveQueueData'])->name('public.public-queue.data');
+
 Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function () {
 
     Route::controller(AdminController::class)->group(function () {

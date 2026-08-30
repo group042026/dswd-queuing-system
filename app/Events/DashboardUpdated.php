@@ -25,6 +25,7 @@ class DashboardUpdated implements ShouldBroadcast
             new Channel('social-worker-dashboard'),
             new Channel('approving-officer-dashboard'),
             new Channel('receptionist-dashboard'),
+            new Channel('public-queue-board'),
         ];
     }
 
