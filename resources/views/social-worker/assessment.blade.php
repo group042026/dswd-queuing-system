@@ -403,7 +403,7 @@
                                             </form>
                                         </div>
 
-                                        <form method="POST" action="{{ route('social-worker.assessment.store', $item->id) }}" class="border-t pt-4">
+                                        <form method="POST" action="{{ route('social-worker.assessment.store', $item->id) }}" enctype="multipart/form-data">
                                             @csrf
 
                                             <div class="mb-4">
@@ -413,8 +413,11 @@
                                             </div>
 
                                             <div class="mb-4">
-                                                <x-input-label for="means_verification_{{ $item->id }}" :value="__('Means of Verification')" class="font-bold text-gray-700" />
-                                                <textarea id="means_verification_{{ $item->id }}" name="means_verification" rows="2" class="mt-1.5 block w-full" required>{{ old('means_verification') }}</textarea>
+                                                <x-input-label for="means_verification_{{ $item->id }}" :value="__('Means Verification (Proof of Appearance Photo)')" />
+                                                <input type="file" id="means_verification_{{ $item->id }}" name="means_verification"
+                                                    accept=".jpg,.jpeg,.png" capture="environment"
+                                                    class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 file:cursor-pointer hover:file:bg-blue-100"
+                                                    required>
                                                 <x-input-error :messages="$errors->get('means_verification')" class="mt-2" />
                                             </div>
 

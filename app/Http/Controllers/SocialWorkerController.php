@@ -132,12 +132,13 @@ class SocialWorkerController extends Controller
 
         $validated = $request->validate([
             'interview_date' => ['required', 'date'],
-            'means_verification' => ['required', 'string'],
+            'means_verification' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
             'assessment_findings' => ['required', 'string'],
             'recommendation' => ['required', 'string'],
             'remarks' => ['nullable', 'string'],
         ]);
 
+        $validated['means_verification'] = $request->file('means_verification')->store('assessment-photos', 'public');
         $validated['client_id'] = $clientProcessing->client_id;
         $validated['social_worker_id'] = auth()->id();
         $validated['assessment_status'] = 'Completed';

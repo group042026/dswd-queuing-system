@@ -367,11 +367,19 @@
                         {{ __('Address Details') }}
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <x-input-label for="region" :value="__('Region')" class="font-semibold text-gray-700" />
+                            <select id="region" name="region" class="mt-1.5 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                <option value="">-- {{ __('Select Region') }} --</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('region')" class="mt-2" />
+                        </div>
+
                         <div>
                             <x-input-label for="province" :value="__('Province')" class="font-semibold text-gray-700" />
-                            <select id="province" name="province" class="mt-1.5 block w-full border-gray-300 rounded-md shadow-sm" required>
-                                <option value="">-- {{ __('Select Province') }} --</option>
+                            <select id="province" name="province" class="mt-1.5 block w-full border-gray-300 rounded-md shadow-sm" required disabled>
+                                <option value="">-- {{ __('Select Region First') }} --</option>
                             </select>
                             <x-input-error :messages="$errors->get('province')" class="mt-2" />
                         </div>
@@ -390,12 +398,6 @@
                                 <option value="">-- {{ __('Select Municipality First') }} --</option>
                             </select>
                             <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="purok" :value="__('Purok (Optional)')" class="font-semibold text-gray-700" />
-                            <x-text-input id="purok" name="purok" type="text" class="mt-1.5 block w-full" :value="old('purok')" placeholder="e.g. Purok 3" />
-                            <x-input-error :messages="$errors->get('purok')" class="mt-2" />
                         </div>
                     </div>
                 </div>
@@ -507,49 +509,108 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const regionSelect = document.getElementById('region');
         const provinceSelect = document.getElementById('province');
         const municipalitySelect = document.getElementById('municipality');
         const barangaySelect = document.getElementById('barangay');
+        const provinceWrapper = provinceSelect.closest('div'); // yung buong <div> ng Province field
 
-        let allCitiesMunicipalities = []; // cache — kunin lang isang beses
+        let allProvinces = [];
+        let allCitiesMunicipalities = [];
 
-        // Load provinces
-        fetch('https://psgc.cloud/api/provinces')
+        fetch('https://psgc.cloud/api/regions')
             .then(res => res.json())
-            .then(provinces => {
-                provinces
+            .then(regions => {
+                regions
                     .sort((a, b) => a.name.localeCompare(b.name))
-                    .forEach(province => {
+                    .forEach(region => {
                         const option = document.createElement('option');
-                        option.value = province.name;
-                        option.dataset.code = province.code;
-                        option.textContent = province.name;
-                        provinceSelect.appendChild(option);
+                        option.value = region.name;
+                        option.dataset.code = region.code;
+                        option.textContent = region.name;
+                        regionSelect.appendChild(option);
                     });
             })
+            .catch(err => console.error('Failed to load regions:', err));
+
+        fetch('https://psgc.cloud/api/provinces')
+            .then(res => res.json())
+            .then(data => { allProvinces = data; })
             .catch(err => console.error('Failed to load provinces:', err));
 
-        // I-cache lahat ng cities/municipalities isang beses (walang province filter sa server)
         fetch('https://psgc.cloud/api/cities-municipalities')
             .then(res => res.json())
-            .then(data => {
-                allCitiesMunicipalities = data;
-            })
+            .then(data => { allCitiesMunicipalities = data; })
             .catch(err => console.error('Failed to load cities/municipalities:', err));
 
-        // Kapag napili ang Province — i-filter sa CACHE (client-side), hindi na mag-fetch ulit
+        regionSelect.addEventListener('change', () => {
+            const selectedOption = regionSelect.options[regionSelect.selectedIndex];
+            const regionCode = selectedOption.dataset.code;
+            const regionName = selectedOption.value;
+
+            municipalitySelect.innerHTML = '<option value="">-- Select Municipality First --</option>';
+            barangaySelect.innerHTML = '<option value="">-- Select Municipality First --</option>';
+            municipalitySelect.disabled = true;
+            barangaySelect.disabled = true;
+
+            if (!regionCode) {
+                provinceSelect.innerHTML = '<option value="">-- Select Region First --</option>';
+                provinceSelect.disabled = true;
+                provinceWrapper.style.display = ''; // ibalik kung natago
+                return;
+            }
+
+            const regionPrefix = regionCode.substring(0, 2);
+
+            const matchedProvinces = allProvinces
+                .filter(p => p.code.substring(0, 2) === regionPrefix)
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            if (matchedProvinces.length === 0) {
+                // WALANG PROVINCE sa region na 'to (hal. NCR) — i-skip ang province dropdown
+                provinceWrapper.style.display = 'none';
+                provinceSelect.innerHTML = `<option value="${regionName}" selected>${regionName}</option>`;
+                provinceSelect.disabled = false; // hindi na disabled para masali sa form submit
+
+                // Direktang i-populate ang Municipality galing sa REGION prefix (2 digits)
+                const matchedMunicipalities = allCitiesMunicipalities
+                    .filter(m => m.code.substring(0, 2) === regionPrefix)
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                municipalitySelect.innerHTML = '<option value="">-- Select Municipality --</option>';
+                matchedMunicipalities.forEach(m => {
+                    const option = document.createElement('option');
+                    option.value = m.name;
+                    option.dataset.code = m.code;
+                    option.textContent = m.name;
+                    municipalitySelect.appendChild(option);
+                });
+                municipalitySelect.disabled = false;
+            } else {
+                // May province ang region na 'to — normal na flow
+                provinceWrapper.style.display = '';
+                provinceSelect.innerHTML = '<option value="">-- Select Province --</option>';
+                matchedProvinces.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.name;
+                    option.dataset.code = p.code;
+                    option.textContent = p.name;
+                    provinceSelect.appendChild(option);
+                });
+                provinceSelect.disabled = false;
+            }
+        });
+
         provinceSelect.addEventListener('change', () => {
             const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
             const provinceCode = selectedOption.dataset.code;
 
+            // Kung "walang province" mode (NCR case), wala nang code — huwag nang gawin ito
+            if (!provinceCode) return;
+
             municipalitySelect.innerHTML = '<option value="">-- Select Municipality --</option>';
             barangaySelect.innerHTML = '<option value="">-- Select Municipality First --</option>';
             barangaySelect.disabled = true;
-
-            if (!provinceCode) {
-                municipalitySelect.disabled = true;
-                return;
-            }
 
             const provincePrefix = provinceCode.substring(0, 6);
 
@@ -568,7 +629,6 @@
             municipalitySelect.disabled = false;
         });
 
-        // Kapag napili ang Municipality — dito lang tayo mag-fefetch ulit (working endpoint naman ito)
         municipalitySelect.addEventListener('change', () => {
             const selectedOption = municipalitySelect.options[municipalitySelect.selectedIndex];
             const municipalityCode = selectedOption.dataset.code;
