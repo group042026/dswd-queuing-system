@@ -37,6 +37,7 @@ class ClientController extends Controller
             'district' => ['required', 'string', 'max:255'],
             'municipality' => ['required', 'string', 'max:255'],
             'province' => ['required', 'string', 'max:255'],
+            'region' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],

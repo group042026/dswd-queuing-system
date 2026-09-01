@@ -25,10 +25,7 @@ class ReportController extends Controller
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
-        $clients = Client::with(['queue' => function ($q) use ($selectedDate) {
-                $q->whereDate('date_issued', $selectedDate);
-            }])
-            ->whereDate('date_registered', $selectedDate)
+        $clients = Client::whereDate('date_registered', $selectedDate)
             ->orderBy('date_registered', 'asc')
             ->get();
 
@@ -43,9 +40,7 @@ class ReportController extends Controller
         Gate::authorize('access-admin');
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
-
         $user = auth()->user();
-
 
         Report::create([
             'created_by' => auth()->id(),

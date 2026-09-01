@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Client;
+use Illuminate\Support\Enumerable;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+
+class DailyClientReportExport implements FromCollection, WithHeadings, WithMapping
+{
+    protected string $date;
+    protected string $enteredBy;
+
+    public function __construct(string $date)
+    {
+        $this->date = $date;
+        $this->enteredBy = auth()->user()->first_name . ' ' . auth()->user()->last_name;
+    }
+
+    public function collection(): Enumerable
+    {
+        return Client::whereDate('date_registered', $this->date)
+            ->orderBy('date_registered', 'asc')
+            ->get();
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Entered By',
+            'Client No.',
+            'Date of Assistance',
+            'Region',
+            'Province',
+            'City/Municipality',
+            'Barangay',
+            'District',
+            'Last Name',
+            'First Name',
+            'Middle Name',
+            'Extra Name',
+            'Sex',
+            'Civil Status',
+            'DOB',
+            'Age',
+            'Mode of Admission',
+            'Type of Assistance1',
+            'Amount1',
+            'Source of Fund1',
+            'Mode of Release1',
+            'Type of Assistance2',
+            'Amount2',
+            'Source of Fund2',
+            'Mode of Release2',
+            'Type of Assistance3',
+            'Amount3',
+            'Source of Fund3',
+            'Mode of Release3',
+            'Type of Assistance4',
+            'Amount4',
+            'Source of Fund4',
+            'Mode of Release4',
+            'Client Category',
+            'Subcategory',
+            'Occupation',
+            'Salary',
+            'Number of Family Members',
+            'Service Modality',
+        ];
+    }
+
+    public function map($client): array
+    {
+        return [
+            $this->enteredBy,
+            $client->control_number,
+            \Carbon\Carbon::parse($client->date_registered)->format('Y-m-d'),
+            $client->region,
+            $client->province,
+            $client->municipality,
+            $client->barangay,
+            $client->district,
+            $client->last_name,
+            $client->first_name,
+            $client->middle_name,
+            $client->suffix,
+            $client->sex,
+            $client->civil_status,
+            $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('Y-m-d') : '',
+            $client->age,
+            $client->mode_of_admission,
+            // Slot 1 — laman ang datos
+            $client->type_of_assistance,
+            $client->amount,
+            $client->program_requested,
+            $client->mode_of_release,
+            // Slot 2-4 — blangko muna
+            '', '', '', '',
+            '', '', '', '',
+            '', '', '', '',
+            $client->client_category,
+            $client->subcategory,
+            $client->occupation,
+            $client->salary,
+            $client->household_size,
+            '', // Service Modality — wala pang column, blangko muna
+        ];
+    }
+}

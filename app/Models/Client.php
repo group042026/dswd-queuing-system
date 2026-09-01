@@ -23,6 +23,7 @@ class Client extends Model
         'district',              // ✅ bago
         'municipality',
         'province',
+        'region',
         'contact_number',
         'email',
         'occupation',
