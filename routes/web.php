@@ -93,6 +93,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
 
     Route::controller(ReleasingController::class)->group(function (){
         Route::get('/receptionist/releasing', 'index')->name('receptionist.releasing');
+        Route::get('/receptionist/releasing/data', 'releasingData')->name('receptionist.releasing.data');
         Route::post('/receptionist/releasing/{clientProcessing}/release', 'release')->name('receptionist.releasing.release');
     });
 });

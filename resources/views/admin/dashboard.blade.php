@@ -1049,13 +1049,13 @@
                                 <div class="demographics-card__meta">
                                     <span class="demographics-card__label">
                                         <span class="demographics-card__label-dot demographics-card__label-dot--senior"></span>
-                                        Seniors
+                                        Senior Citizen
                                     </span>
                                     <span class="demographics-card__value" data-stat="seniorsCount">{{ $seniorsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $senPercent = $totalQueuesToday > 0 ? ($seniorsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--senior" style="width: {{ $senPercent }}%"></div>
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--senior" data-bar="seniorsCount" style="width: {{ $senPercent }}%"></div>
                                 </div>
                             </div>
 
@@ -1070,7 +1070,7 @@
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $familyHeadsPercent = $totalQueuesToday > 0 ? ($familyHeadsAndOtherNeedyAdultsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--family-heads" style="width: {{ $familyHeadsPercent  }}%"></div>
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--family-heads" data-bar="familyHeadsAndOtherNeedyAdultsCount" style="width: {{ $familyHeadsPercent }}%"></div>
                                 </div>
                             </div>
 
@@ -1085,7 +1085,7 @@
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $youthPercent = $totalQueuesToday > 0 ? ($youthInNeedAndOtherNeedyAdultsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--youth-needy-adult" style="width: {{ $youthPercent }}%"></div>
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--youth-needy-adult" data-bar="youthInNeedAndOtherNeedyAdultsCount" style="width: {{ $youthPercent }}%"></div>
                                 </div>
                             </div>
 
@@ -1100,7 +1100,7 @@
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $youthSpecialPercent = $totalQueuesToday > 0 ? ($youthInNeedOfSpecialProtectionsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--youth-protection" style="width: {{ $youthSpecialPercent }}%"></div>
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--youth-protection" data-bar="youthInNeedOfSpecialProtectionsCount" style="width: {{ $youthSpecialPercent }}%"></div>
                                 </div>
                             </div>
 
@@ -1115,7 +1115,7 @@
                                 </div>
                                 <div class="demographics-card__bar-bg">
                                     @php $menWomenPercent = $totalQueuesToday > 0 ? ($menWomenInSpeciallyDifficultCircumstancesCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--menwomen" style="width: {{ $menWomenPercent }}%"></div>
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--menwomen" data-bar="menWomenInSpeciallyDifficultCircumstancesCount" style="width: {{ $menWomenPercent }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -1209,6 +1209,21 @@
                             document.querySelector('[data-stat="youthInNeedAndOtherNeedyAdultsCount"]').textContent = data.stats.youthInNeedAndOtherNeedyAdultsCount;
                             document.querySelector('[data-stat="youthInNeedOfSpecialProtectionsCount"]').textContent = data.stats.youthInNeedOfSpecialProtectionsCount;
                             document.querySelector('[data-stat="menWomenInSpeciallyDifficultCircumstancesCount"]').textContent = data.stats.menWomenInSpeciallyDifficultCircumstancesCount;
+
+                            const total = data.stats.totalQueuesToday || 0;
+
+                            const barKeys = [
+                                'seniorsCount',
+                                'familyHeadsAndOtherNeedyAdultsCount',
+                                'youthInNeedAndOtherNeedyAdultsCount',
+                                'youthInNeedOfSpecialProtectionsCount',
+                                'menWomenInSpeciallyDifficultCircumstancesCount',
+                            ];
+
+                            barKeys.forEach(key => {
+                                const percent = total > 0 ? (data.stats[key] / total) * 100 : 0;
+                                document.querySelector(`[data-bar="${key}"]`).style.width = percent + '%';
+                            });
 
                             // Update recent processings list
                             const listContainer = document.querySelector('[data-recent-processings]');

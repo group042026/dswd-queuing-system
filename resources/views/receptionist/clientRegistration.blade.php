@@ -468,7 +468,7 @@
                             <x-input-label for="client_category" :value="__('Client Category')" class="font-semibold text-gray-700" />
                             <select id="client_category" name="client_category" class="mt-1.5 block w-full" required>
                                 <option value="">-- {{ __('Select') }} --</option>
-                                <option value="Senior Citizens" {{ old('client_category') == 'Senior Citizens' ? 'selected' : '' }}>Senior Citizens</option>
+                                <option value="Senior Citizens" {{ old('client_category') == 'Senior Citizens' ? 'selected' : '' }}>Senior Citizen</option>
                                 <option value="Family heads and Other Needy Adult" {{ old('client_category') == 'Family heads and Other Needy Adult' ? 'selected' : '' }}>Family heads and Other Needy Adult</option>
                                 <option value="Youth in Need and Other Needy Adult" {{ old('client_category') == 'Youth in Need and Other Needy Adult' ? 'selected' : '' }}>Youth in Need and Other Needy Adult</option>
                                 <option value="Youth in Need of Special Protection" {{ old('client_category') == 'Youth in Need of Special Protection' ? 'selected' : '' }}>Youth in Need of Special Protection</option>

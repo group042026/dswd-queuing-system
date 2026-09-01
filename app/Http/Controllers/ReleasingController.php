@@ -29,6 +29,40 @@ class ReleasingController extends Controller
             'selectedDate' => $selectedDate,
         ]);
     }
+    public function releasingData(Request $request)
+    {
+        Gate::authorize('access-receptionist');
+
+        $selectedDate = $request->input('date', now()->format('Y-m-d'));
+        $page = $request->input('page', 1);
+
+        $pendingReleasing = ClientProcessing::with(['client', 'queue'])
+            ->where('current_step', 'Releasing')
+            ->where('current_status', 'Waiting')
+            ->whereDate('start_time', $selectedDate)
+            ->orderBy('start_time', 'asc')
+            ->paginate(10, ['*'], 'page', $page)
+            ->withQueryString();
+
+        $isToday = $selectedDate === now()->format('Y-m-d');
+
+        return response()->json([
+            'isToday' => $isToday,
+            'items' => $pendingReleasing->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'queue_number' => $item->queue->queue_number,
+                    'full_name' => "{$item->client->first_name} {$item->client->last_name}",
+                    'control_number' => $item->client->control_number ?? '',
+                    'client_category' => $item->client->client_category,
+                    'category_class' => strtolower(str_replace([' ', '/'], ['', '-'], $item->client->client_category)),
+                    'program_requested' => $item->client->program_requested,
+                    'release_url' => route('receptionist.releasing.release', $item->id),
+                ];
+            }),
+            'pagination' => (string) $pendingReleasing->links(),
+        ]);
+    }
 
     public function release(Request $request, ClientProcessing $clientProcessing)
     {

@@ -296,9 +296,8 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody data-releasing-list>
                             @php $isToday = $selectedDate === now()->format('Y-m-d'); @endphp
-
                             @forelse($pendingReleasing as $item)
                                 <tr>
                                     <td class="font-bold text-gray-900">{{ $item->queue->queue_number }}</td>
@@ -326,53 +325,6 @@
                                         @endif
                                     </td>
                                 </tr>
-
-                                @if($isToday)
-                                    <x-modal name="release-modal-{{ $item->id }}" maxWidth="lg">
-                                        <div class="p-6">
-                                            <div class="border-b pb-4 mb-4">
-                                                <h2 class="text-lg font-extrabold text-gray-800">
-                                                    {{ __('Release Assistance') }}
-                                                </h2>
-                                                <p class="text-sm text-gray-500 mt-1">
-                                                    Client: <span class="font-semibold text-gray-700">{{ $item->client->first_name }} {{ $item->client->last_name }}</span>
-                                                </p>
-                                            </div>
-
-                                            <div class="grid grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
-                                                <div>
-                                                    <span class="text-xs text-gray-400 block uppercase font-bold">{{ __('Client Category') }}</span>
-                                                    <span class="font-semibold text-gray-700">{{ $item->client->client_category }}</span>
-                                                </div>
-                                                <div>
-                                                    <span class="text-xs text-gray-400 block uppercase font-bold">{{ __('Program Requested') }}</span>
-                                                    <span class="font-semibold text-gray-700">{{ $item->client->program_requested }}</span>
-                                                </div>
-                                            </div>
-
-                                            <form method="POST" action="{{ route('receptionist.releasing.release', $item->id) }}">
-                                                @csrf
-
-                                                <div class="mb-4">
-                                                    <x-input-label for="remarks_{{ $item->id }}" :value="__('Remarks (Optional)')" class="font-semibold text-gray-700 text-xs mb-1.5" />
-                                                    <textarea id="remarks_{{ $item->id }}" name="remarks" rows="3"
-                                                        class="w-full"
-                                                        placeholder="{{ __('e.g. Released to client personally, claimed by representative, etc.') }}">{{ old('remarks') }}</textarea>
-                                                </div>
-
-                                                <div class="flex justify-end gap-3 mt-6 border-t pt-4">
-                                                    <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'release-modal-{{ $item->id }}')">
-                                                        {{ __('Close') }}
-                                                    </x-secondary-button>
-
-                                                    <x-primary-button type="submit" class="btn-primary">
-                                                        {{ __('Confirm Release') }}
-                                                    </x-primary-button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </x-modal>
-                                @endif
                             @empty
                                 <tr>
                                     <td colspan="5" class="p-8 text-center text-gray-500 italic">{{ __('No clients pending releasing.') }}</td>
@@ -382,10 +334,182 @@
                     </table>
                 </div>
 
-                <div class="mt-6">
+                {{-- Modals --}}
+                <div data-modal-container>
+                    @if($isToday)
+                        @foreach($pendingReleasing as $item)
+                            <x-modal name="release-modal-{{ $item->id }}" maxWidth="lg">
+                                <div class="p-6">
+                                    <div class="border-b pb-4 mb-4">
+                                        <h2 class="text-lg font-extrabold text-gray-800">
+                                            {{ __('Release Assistance') }}
+                                        </h2>
+                                        <p class="text-sm text-gray-500 mt-1">
+                                            Client: <span class="font-semibold text-gray-700">{{ $item->client->first_name }} {{ $item->client->last_name }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                        <div>
+                                            <span class="text-xs text-gray-400 block uppercase font-bold">{{ __('Client Category') }}</span>
+                                            <span class="font-semibold text-gray-700">{{ $item->client->client_category }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-xs text-gray-400 block uppercase font-bold">{{ __('Program Requested') }}</span>
+                                            <span class="font-semibold text-gray-700">{{ $item->client->program_requested }}</span>
+                                        </div>
+                                    </div>
+                                    <form method="POST" action="{{ route('receptionist.releasing.release', $item->id) }}">
+                                        @csrf
+                                        <div class="mb-4">
+                                            <x-input-label for="remarks_{{ $item->id }}" :value="__('Remarks (Optional)')" class="font-semibold text-gray-700 text-xs mb-1.5" />
+                                            <textarea id="remarks_{{ $item->id }}" name="remarks" rows="3"
+                                                class="w-full"
+                                                placeholder="{{ __('e.g. Released to client personally, claimed by representative, etc.') }}">{{ old('remarks') }}</textarea>
+                                        </div>
+                                        <div class="flex justify-end gap-3 mt-6 border-t pt-4">
+                                            <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'release-modal-{{ $item->id }}')">
+                                                {{ __('Close') }}
+                                            </x-secondary-button>
+                                            <x-primary-button type="submit" class="btn-primary">
+                                                {{ __('Confirm Release') }}
+                                            </x-primary-button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </x-modal>
+                        @endforeach
+                    @endif
+                </div>
+
+                <div class="mt-6" data-pagination>
                     {{ $pendingReleasing->links() }}
                 </div>
             </div>
         </div>
     </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let isAnyModalOpen = false;
+
+        window.addEventListener('open-modal', () => { isAnyModalOpen = true; });
+        window.addEventListener('close-modal', () => { isAnyModalOpen = false; });
+
+        function getCategoryClass(category) {
+            return category.toLowerCase().replace(/[\s\/]+/g, m => m === '/' ? '-' : '');
+        }
+
+        function renderRow(item) {
+            const actionCell = item.can_release !== false
+                ? `<x-primary-button x-on:click="$dispatch('open-modal', 'release-modal-${item.id}')" class="btn-primary">Release</x-primary-button>`
+                : '';
+
+            return `
+                <tr>
+                    <td class="font-bold text-gray-900">${item.queue_number}</td>
+                    <td>
+                        <div class="font-extrabold text-gray-800">${item.full_name}</div>
+                        <div class="text-xs text-gray-400 font-mono mt-0.5">${item.control_number}</div>
+                    </td>
+                    <td>
+                        <span class="queue-row__category queue-row__category--${item.category_class}">${item.client_category}</span>
+                    </td>
+                    <td class="font-medium text-gray-700">${item.program_requested}</td>
+                    <td>
+                        <button type="button" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150" x-data="" x-on:click="$dispatch('open-modal', 'release-modal-${item.id}')">
+                            Release
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderModal(item) {
+            return `
+                <div x-data="{
+                        show: false,
+                        focusables() {
+                            let selector = 'a, button, input:not([type=\\'hidden\\']), textarea, select, details, [tabindex]:not([tabindex=\\'-1\\'])'
+                            return [...$el.querySelectorAll(selector)].filter(el => ! el.hasAttribute('disabled'))
+                        },
+                        firstFocusable() { return this.focusables()[0] },
+                    }"
+                    x-init="$watch('show', value => {
+                        if (value) { document.body.classList.add('overflow-y-hidden'); setTimeout(() => firstFocusable().focus(), 100) }
+                        else { document.body.classList.remove('overflow-y-hidden') }
+                    })"
+                    x-on:open-modal.window="$event.detail == 'release-modal-${item.id}' ? show = true : null"
+                    x-on:close-modal.window="$event.detail == 'release-modal-${item.id}' ? show = false : null"
+                    x-on:close.stop="show = false"
+                    x-on:keydown.escape.window="show = false"
+                    x-show="show"
+                    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+                    style="display: none;"
+                >
+                    <div x-show="show" class="fixed inset-0 transform transition-all" x-on:click="show = false"
+                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                    </div>
+                    <div x-show="show" class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:max-w-lg sm:mx-auto"
+                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                        <div class="p-6">
+                            <div class="border-b pb-4 mb-4">
+                                <h2 class="text-lg font-extrabold text-gray-800">Release Assistance</h2>
+                                <p class="text-sm text-gray-500 mt-1">Client: <span class="font-semibold text-gray-700">${item.full_name}</span></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                <div>
+                                    <span class="text-xs text-gray-400 block uppercase font-bold">Client Category</span>
+                                    <span class="font-semibold text-gray-700">${item.client_category}</span>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-400 block uppercase font-bold">Program Requested</span>
+                                    <span class="font-semibold text-gray-700">${item.program_requested}</span>
+                                </div>
+                            </div>
+                            <form method="POST" action="${item.release_url}">
+                                <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
+                                <div class="mb-4">
+                                    <label class="font-semibold text-gray-700 text-xs mb-1.5 block">Remarks (Optional)</label>
+                                    <textarea name="remarks" rows="3" class="w-full" placeholder="e.g. Released to client personally, claimed by representative, etc."></textarea>
+                                </div>
+                                <div class="flex justify-end gap-3 mt-6 border-t pt-4">
+                                    <button type="button" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" x-on:click="$dispatch('close-modal', 'release-modal-${item.id}')">Close</button>
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">Confirm Release</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.Echo.channel('receptionist-dashboard')
+            .listen('.dashboard.updated', () => {
+                if (isAnyModalOpen) return; // May bukas na modal — huwag i-refresh, baka masira yung natype
+
+                const params = new URLSearchParams(window.location.search);
+
+                fetch(`{{ route('receptionist.releasing.data') }}?${params.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const rows = data.items.length > 0
+                            ? data.items.map(renderRow).join('')
+                            : `<tr><td colspan="5" class="p-8 text-center text-gray-500 italic">No clients pending releasing.</td></tr>`;
+
+                        document.querySelector('[data-releasing-list]').innerHTML = rows;
+
+                        const modalContainer = document.querySelector('[data-modal-container]');
+                        modalContainer.innerHTML = data.isToday ? data.items.map(renderModal).join('') : '';
+
+                        const paginationEl = document.querySelector('[data-pagination]');
+                        if (paginationEl) paginationEl.innerHTML = data.pagination;
+                    });
+            });
+    });
+</script>
+@endpush
 </x-receptionist-layout>

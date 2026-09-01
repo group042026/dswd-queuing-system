@@ -434,7 +434,7 @@
                                                     <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
 
                                                     <div class="flex gap-3 items-center">
-                                                        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 file:cursor-pointer hover:file:bg-blue-100" required>
+                                                        <input type="file" name="file" accept=".jpg,.jpeg,.png" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 file:cursor-pointer hover:file:bg-blue-100" required>
                                                         <x-secondary-button type="submit" class="text-xs py-2 px-4">{{ __('Upload') }}</x-secondary-button>
                                                     </div>
                                                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
@@ -456,7 +456,7 @@
                                                             <option value="Income Certificate">Income Certificate</option>
                                                             <option value="Other">Other</option>
                                                         </select>
-                                                        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-50 file:text-slate-700 file:cursor-pointer hover:file:bg-slate-100" required>
+                                                        <input type="file" name="file" accept=".jpg,.jpeg,.png" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-50 file:text-slate-700 file:cursor-pointer hover:file:bg-slate-100" required>
                                                     </div>
                                                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
 

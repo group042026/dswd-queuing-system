@@ -39,7 +39,7 @@ class AdminController extends Controller
         // $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
         // $regularsCount = $categoryCounts['Regular'] ?? 0;
 
-        $seniorsCount = $categoryCounts['Senior'] ?? 0;
+        $seniorsCount = $categoryCounts['Senior Citizens'] ?? 0;
         $familyHeadsAndOtherNeedyAdultsCount = $categoryCounts['Family heads and Other Needy Adult'] ?? 0;
         $youthInNeedAndOtherNeedyAdultsCount = $categoryCounts['Youth in Need and Other Needy Adult'] ?? 0;
         $youthInNeedOfSpecialProtectionsCount = $categoryCounts['Youth in Need of Special Protection'] ?? 0;
@@ -110,7 +110,7 @@ class AdminController extends Controller
         // $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
         // $regularsCount = $categoryCounts['Regular'] ?? 0;
 
-        $seniorsCount = $categoryCounts['Senior'] ?? 0;
+        $seniorsCount = $categoryCounts['Senior Citizens'] ?? 0;
         $familyHeadsAndOtherNeedyAdultsCount = $categoryCounts['Family heads and Other Needy Adult'] ?? 0;
         $youthInNeedAndOtherNeedyAdultsCount = $categoryCounts['Youth in Need and Other Needy Adult'] ?? 0;
         $youthInNeedOfSpecialProtectionsCount = $categoryCounts['Youth in Need of Special Protection'] ?? 0;

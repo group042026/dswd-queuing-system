@@ -17,7 +17,9 @@ class DocumentController extends Controller
         $validated = $request->validate([
             'client_id' => ['required', 'exists:clients,id'],
             'document_name' => ['required', 'string', 'max:255'],
-            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'file' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
+            // 'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+
         ]);
 
         $path = $request->file('file')->store('documents', 'public');
