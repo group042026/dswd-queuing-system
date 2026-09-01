@@ -99,7 +99,9 @@ class SocialWorkerController extends Controller
                     'full_name' => "{$item->client->first_name} {$item->client->last_name}",
                     'control_number' => $item->client->control_number,
                     'client_category' => $item->client->client_category,
-                    'category_class' => strtolower(str_replace(' ', '', $item->client->client_category)),
+                    'category_class' => strtolower(
+                        str_replace([' ', '/'], ['', '-'], $item->client->client_category)
+                    ),
                     'program_requested' => $item->client->program_requested,
                 ];
             }),

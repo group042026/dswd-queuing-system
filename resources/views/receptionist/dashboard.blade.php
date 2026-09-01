@@ -325,10 +325,41 @@
             text-transform: uppercase;
         }
 
-        .queue-row__category--senior { color: var(--dswd-blue); background-color: var(--dswd-blue-light); }
-        .queue-row__category--pwd { color: var(--dswd-red); background-color: var(--dswd-red-light); }
-        .queue-row__category--solo { color: #854d0e; background-color: var(--dswd-yellow-light); }
-        .queue-row__category--regular { color: #475569; background-color: #e2e8f0; }
+        .queue-row__category--senior {
+            color: #1d4ed8;
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .queue-row__category--familyheadsandotherneedyadult {
+            color: #047857;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
+        }
+
+        .queue-row__category--youthinneedandotherneedyadult {
+            color: #7e22ce;
+            background-color: #faf5ff;
+            border: 1px solid #e9d5ff;
+        }
+
+        .queue-row__category--youthinneedofspecialprotection {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .queue-row__category--men-womeninspeciallydifficultcircumstances {
+            color: #c2410c;
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .queue-row__category--default {
+            color: #475569;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
 
         .queue-row__action-btn {
             background-color: var(--dswd-blue);
@@ -567,7 +598,7 @@
                                                             {{ $item->current_step }}
                                                         </span>
                                                         <span>•</span>
-                                                        <span class="queue-row__category queue-row__category--{{ strtolower(str_replace(' ', '', $item->client->client_category)) }}">
+                                                        <span class="queue-row__category queue-row__category--{{ strtolower(str_replace([' ', '/'], ['', '-'], $item->client->client_category)) }}">
                                                             {{ $item->client->client_category }}
                                                         </span>
                                                         <span>•</span>

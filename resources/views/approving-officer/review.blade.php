@@ -200,23 +200,39 @@
         }
 
         .category-badge--senior {
-            color: var(--dswd-blue);
-            background-color: var(--dswd-blue-light);
+            color: #1d4ed8;
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
         }
 
-        .category-badge--pwd {
-            color: var(--dswd-red);
-            background-color: var(--dswd-red-light);
+        .category-badge--familyheadsandotherneedyadult {
+            color: #047857;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
         }
 
-        .category-badge--soloparent {
-            color: #854d0e;
-            background-color: var(--dswd-yellow-light);
+        .category-badge--youthinneedandotherneedyadult {
+            color: #7e22ce;
+            background-color: #faf5ff;
+            border: 1px solid #e9d5ff;
         }
 
-        .category-badge--regular {
+        .category-badge--youthinneedofspecialprotection {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .category-badge--men-womeninspeciallydifficultcircumstances {
+            color: #c2410c;
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .category-badge--default {
             color: #475569;
-            background-color: #e2e8f0;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         /* ============================================================
@@ -529,7 +545,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="category-badge category-badge--{{ strtolower(str_replace(' ', '', $item->client->client_category)) }}">
+                                        <span class="category-badge category-badge--{{ strtolower(str_replace([' ', '/'], ['', '-'], $item->client->client_category)) }}">
                                             {{ $item->client->client_category }}
                                         </span>
                                     </td>

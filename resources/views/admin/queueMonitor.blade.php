@@ -322,26 +322,38 @@
         }
 
         .badge-priority--senior {
-            color: var(--dswd-blue);
-            background-color: var(--dswd-blue-light);
-            border-color: var(--dswd-blue-border);
+            color: #1d4ed8;
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
         }
 
-        .badge-priority--pwd {
-            color: var(--dswd-red);
-            background-color: var(--dswd-red-light);
-            border-color: var(--dswd-red-border);
+        .badge-priority--family-heads {
+            color: #047857;
+            background-color: #ecfdf5;
+            border-color: #a7f3d0;
         }
 
-        .badge-priority--solo {
-            color: #854d0e;
-            background-color: var(--dswd-yellow-light);
-            border-color: rgba(252, 209, 22, 0.3);
+        .badge-priority--youth-needy-adult {
+            color: #7e22ce;
+            background-color: #faf5ff;
+            border-color: #e9d5ff;
         }
 
-        .badge-priority--regular {
+        .badge-priority--youth-protection {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .badge-priority--difficult-circumstances {
+            color: #c2410c;
+            background-color: #fff7ed;
+            border-color: #fed7aa;
+        }
+
+        .badge-priority--default {
             color: #475569;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             border-color: #e2e8f0;
         }
 
@@ -457,17 +469,33 @@
                                         @if($queue->priority)
                                             @php
                                                 $priorityModifier = match($queue->client->client_category) {
-                                                    'Senior'      => 'badge-priority--senior',
-                                                    'PWD'         => 'badge-priority--pwd',
-                                                    'Solo Parent' => 'badge-priority--solo',
-                                                    default       => 'badge-priority--regular'
+                                                    'Senior'
+                                                        => 'badge-priority--senior',
+
+                                                    'Family heads and Other Needy Adult'
+                                                        => 'badge-priority--family-heads',
+
+                                                    'Youth in Need and Other Needy Adult'
+                                                        => 'badge-priority--youth-needy-adult',
+
+                                                    'Youth in Need of Special Protection'
+                                                        => 'badge-priority--youth-protection',
+
+                                                    'Men/Women in specially difficult circumstances'
+                                                        => 'badge-priority--difficult-circumstances',
+
+                                                    default
+                                                        => 'badge-priority--default',
                                                 };
                                             @endphp
+
                                             <span class="badge-priority {{ $priorityModifier }}">
                                                 {{ $queue->client->client_category }}
                                             </span>
                                         @else
-                                            <span class="badge-priority badge-priority--regular">Regular</span>
+                                            <span class="badge-priority badge-priority--default">
+                                                {{ $queue->client->client_category }}
+                                            </span>
                                         @endif
                                     </td>
                                     <td>
@@ -616,10 +644,21 @@
         function getPriorityClass(category) {
             const map = {
                 'Senior': 'badge-priority--senior',
-                'PWD': 'badge-priority--pwd',
-                'Solo Parent': 'badge-priority--solo',
+
+                'Family heads and Other Needy Adult':
+                    'badge-priority--family-heads',
+
+                'Youth in Need and Other Needy Adult':
+                    'badge-priority--youth-needy-adult',
+
+                'Youth in Need of Special Protection':
+                    'badge-priority--youth-protection',
+
+                'Men/Women in specially difficult circumstances':
+                    'badge-priority--difficult-circumstances',
             };
-            return map[category] || 'badge-priority--regular';
+
+            return map[category] || 'badge-priority--default';
         }
 
         function renderQueueTable(queues) {
@@ -634,9 +673,11 @@
             let modals = '';
 
             queues.forEach(q => {
-                const priorityBadge = q.priority
-                    ? `<span class="badge-priority ${getPriorityClass(q.client_category)}">${q.client_category}</span>`
-                    : `<span class="badge-priority badge-priority--regular">Regular</span>`;
+                const priorityBadge = `
+                    <span class="badge-priority ${getPriorityClass(q.client_category)}">
+                        ${q.client_category}
+                    </span>
+                `;
 
                 const stepCell = q.current_step
                     ? `<span>${q.current_step}</span>`

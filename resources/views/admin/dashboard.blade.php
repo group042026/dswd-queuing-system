@@ -405,24 +405,36 @@
         }
 
         .queue-row__category--senior {
-            color: var(--dswd-blue);
-            background-color: var(--dswd-blue-light);
-            border-color: var(--dswd-blue-border);
+            color: #1d4ed8;
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
         }
 
-        .queue-row__category--pwd {
-            color: var(--dswd-red);
-            background-color: var(--dswd-red-light);
-            border-color: var(--dswd-red-border);
+        .queue-row__category--family-heads {
+            color: #047857;
+            background-color: #ecfdf5;
+            border-color: #a7f3d0;
         }
 
-        .queue-row__category--solo {
-            color: #854d0e;
-            background-color: var(--dswd-yellow-light);
-            border-color: rgba(252, 209, 22, 0.3);
+        .queue-row__category--youth-needy-adult {
+            color: #7e22ce;
+            background-color: #faf5ff;
+            border-color: #e9d5ff;
         }
 
-        .queue-row__category--regular {
+        .queue-row__category--youth-protection {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .queue-row__category--difficult-circumstances {
+            color: #c2410c;
+            background-color: #fff7ed;
+            border-color: #fed7aa;
+        }
+
+        .queue-row__category--default {
             color: #334155;
             background-color: #f1f5f9;
             border-color: #e2e8f0;
@@ -576,10 +588,25 @@
             border-radius: 50%;
         }
 
-        .demographics-card__label-dot--senior { background-color: var(--dswd-blue); }
-        .demographics-card__label-dot--pwd { background-color: var(--dswd-red); }
-        .demographics-card__label-dot--solo { background-color: var(--dswd-yellow); }
-        .demographics-card__label-dot--regular { background-color: #6b7280; }
+        .demographics-card__label-dot--senior {
+            background-color: var(--dswd-blue);
+        }
+
+        .demographics-card__label-dot--family-heads {
+            background-color: var(--emerald-green);
+        }
+
+        .demographics-card__label-dot--youth-needy-adult {
+            background-color: #9333b8;
+        }
+
+        .demographics-card__label-dot--youth-protection {
+            background-color: var(--dswd-red);
+        }
+
+        .demographics-card__label-dot--menwomen {
+            background-color: #ea580c;
+        }
 
         .demographics-card__value {
             color: #1e293b;
@@ -599,10 +626,25 @@
             transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .demographics-card__bar-fill--senior { background-color: var(--dswd-blue); }
-        .demographics-card__bar-fill--pwd { background-color: var(--dswd-red); }
-        .demographics-card__bar-fill--solo { background-color: var(--dswd-yellow); }
-        .demographics-card__bar-fill--regular { background-color: #6b7280; }
+        .demographics-card__bar-fill--senior {
+            background-color: var(--dswd-blue);
+        }
+
+        .demographics-card__bar-fill--family-heads {
+            background-color: var(--emerald-green);
+        }
+
+        .demographics-card__bar-fill--youth-needy-adult {
+            background-color: #9333b8;
+        }
+
+        .demographics-card__bar-fill--youth-protection {
+            background-color: var(--dswd-red);
+        }
+
+        .demographics-card__bar-fill--menwomen {
+            background-color: #ea580c;
+        }
 
         .actions-card {
             background-color: var(--card-bg);
@@ -932,10 +974,12 @@
                                                     <span class="queue-row__divider">•</span>
                                                     @php
                                                         $catModifier = match($processing->client->client_category) {
-                                                            'Senior'      => 'queue-row__category--senior',
-                                                            'PWD'         => 'queue-row__category--pwd',
-                                                            'Solo Parent' => 'queue-row__category--solo',
-                                                            default       => 'queue-row__category--regular'
+                                                            'Senior' => 'queue-row__category--senior',
+                                                            'Family heads and Other Needy Adult' => 'queue-row__category--family-heads',
+                                                            'Youth in Need and Other Needy Adult' => 'queue-row__category--youth-needy-adult',
+                                                            'Youth in Need of Special Protection' => 'queue-row__category--youth-protection',
+                                                            'Men/Women in specially difficult circumstances' => 'queue-row__category--difficult-circumstances',
+                                                            default => 'queue-row__category--default'
                                                         };
                                                     @endphp
                                                     <span class="queue-row__category {{ $catModifier }}">
@@ -949,7 +993,7 @@
                                         <div class="queue-row__right">
                                             <div class="queue-row__program-details">
                                                 <div class="queue-row__program">
-                                                    Program: <span class="queue-row__program-value">{{ $processing->client->program_requested }}</span>
+                                                    Source of Fund: <span class="queue-row__program-value">{{ $processing->client->program_requested }}</span>
                                                 </div>
                                                 <div class="queue-row__step">
                                                     Step: {{ $processing->current_step }}
@@ -1015,48 +1059,63 @@
                                 </div>
                             </div>
 
-                            <!-- PWD -->
+                            <!-- Family heads and Other Needy Adult -->
                             <div class="demographics-card__item">
                                 <div class="demographics-card__meta">
                                     <span class="demographics-card__label">
-                                        <span class="demographics-card__label-dot demographics-card__label-dot--pwd"></span>
-                                        PWDs
+                                        <span class="demographics-card__label-dot demographics-card__label-dot--family-heads"></span>
+                                        Family heads and Other Needy Adult
                                     </span>
-                                    <span class="demographics-card__value" data-stat="pwdsCount">{{ $pwdsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="familyHeadsAndOtherNeedyAdultsCount">{{ $familyHeadsAndOtherNeedyAdultsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
-                                    @php $pwdPercent = $totalQueuesToday > 0 ? ($pwdsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--pwd" style="width: {{ $pwdPercent }}%"></div>
+                                    @php $familyHeadsPercent = $totalQueuesToday > 0 ? ($familyHeadsAndOtherNeedyAdultsCount / $totalQueuesToday) * 100 : 0; @endphp
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--family-heads" style="width: {{ $familyHeadsPercent  }}%"></div>
                                 </div>
                             </div>
 
-                            <!-- Solo Parent -->
+                            <!-- Youth in Need and Other Needy Adult -->
                             <div class="demographics-card__item">
                                 <div class="demographics-card__meta">
                                     <span class="demographics-card__label">
-                                        <span class="demographics-card__label-dot demographics-card__label-dot--solo"></span>
-                                        Solo Parents
+                                        <span class="demographics-card__label-dot demographics-card__label-dot--youth-needy-adult"></span>
+                                        Youth in Need and Other Needy Adult
                                     </span>
-                                    <span class="demographics-card__value" data-stat="soloParentsCount">{{ $soloParentsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="youthInNeedAndOtherNeedyAdultsCount">{{ $youthInNeedAndOtherNeedyAdultsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
-                                    @php $soloPercent = $totalQueuesToday > 0 ? ($soloParentsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--solo" style="width: {{ $soloPercent }}%"></div>
+                                    @php $youthPercent = $totalQueuesToday > 0 ? ($youthInNeedAndOtherNeedyAdultsCount / $totalQueuesToday) * 100 : 0; @endphp
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--youth-needy-adult" style="width: {{ $youthPercent }}%"></div>
                                 </div>
                             </div>
 
-                            <!-- Regular -->
+                            <!-- Youth in Need of Special Protection -->
                             <div class="demographics-card__item">
                                 <div class="demographics-card__meta">
                                     <span class="demographics-card__label">
-                                        <span class="demographics-card__label-dot demographics-card__label-dot--regular"></span>
-                                        Regulars
+                                        <span class="demographics-card__label-dot demographics-card__label-dot--youth-protection"></span>
+                                        Youth in Need of Special Protection
                                     </span>
-                                    <span class="demographics-card__value" data-stat="regularsCount">{{ $regularsCount }}</span>
+                                    <span class="demographics-card__value" data-stat="youthInNeedOfSpecialProtectionsCount">{{ $youthInNeedOfSpecialProtectionsCount }}</span>
                                 </div>
                                 <div class="demographics-card__bar-bg">
-                                    @php $regPercent = $totalQueuesToday > 0 ? ($regularsCount / $totalQueuesToday) * 100 : 0; @endphp
-                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--regular" style="width: {{ $regPercent }}%"></div>
+                                    @php $youthSpecialPercent = $totalQueuesToday > 0 ? ($youthInNeedOfSpecialProtectionsCount / $totalQueuesToday) * 100 : 0; @endphp
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--youth-protection" style="width: {{ $youthSpecialPercent }}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Men/Women in specially difficult circumstances -->
+                            <div class="demographics-card__item">
+                                <div class="demographics-card__meta">
+                                    <span class="demographics-card__label">
+                                        <span class="demographics-card__label-dot demographics-card__label-dot--menwomen"></span>
+                                        Men/Women in specially difficult circumstances
+                                    </span>
+                                    <span class="demographics-card__value" data-stat="menWomenInSpeciallyDifficultCircumstancesCount">{{ $menWomenInSpeciallyDifficultCircumstancesCount }}</span>
+                                </div>
+                                <div class="demographics-card__bar-bg">
+                                    @php $menWomenPercent = $totalQueuesToday > 0 ? ($menWomenInSpeciallyDifficultCircumstancesCount / $totalQueuesToday) * 100 : 0; @endphp
+                                    <div class="demographics-card__bar-fill demographics-card__bar-fill--menwomen" style="width: {{ $menWomenPercent }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -1140,10 +1199,16 @@
                             document.querySelector('[data-stat="cancelledQueuesToday"]').textContent = data.stats.cancelledQueuesToday;
 
                             // Update demographics
+                            // document.querySelector('[data-stat="seniorsCount"]').textContent = data.stats.seniorsCount;
+                            // document.querySelector('[data-stat="pwdsCount"]').textContent = data.stats.pwdsCount;
+                            // document.querySelector('[data-stat="soloParentsCount"]').textContent = data.stats.soloParentsCount;
+                            // document.querySelector('[data-stat="regularsCount"]').textContent = data.stats.regularsCount;
+
                             document.querySelector('[data-stat="seniorsCount"]').textContent = data.stats.seniorsCount;
-                            document.querySelector('[data-stat="pwdsCount"]').textContent = data.stats.pwdsCount;
-                            document.querySelector('[data-stat="soloParentsCount"]').textContent = data.stats.soloParentsCount;
-                            document.querySelector('[data-stat="regularsCount"]').textContent = data.stats.regularsCount;
+                            document.querySelector('[data-stat="familyHeadsAndOtherNeedyAdultsCount"]').textContent = data.stats.familyHeadsAndOtherNeedyAdultsCount;
+                            document.querySelector('[data-stat="youthInNeedAndOtherNeedyAdultsCount"]').textContent = data.stats.youthInNeedAndOtherNeedyAdultsCount;
+                            document.querySelector('[data-stat="youthInNeedOfSpecialProtectionsCount"]').textContent = data.stats.youthInNeedOfSpecialProtectionsCount;
+                            document.querySelector('[data-stat="menWomenInSpeciallyDifficultCircumstancesCount"]').textContent = data.stats.menWomenInSpeciallyDifficultCircumstancesCount;
 
                             // Update recent processings list
                             const listContainer = document.querySelector('[data-recent-processings]');

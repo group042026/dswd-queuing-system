@@ -34,10 +34,17 @@ class AdminController extends Controller
             ->pluck('total', 'client_category')
             ->toArray();
 
+        // $seniorsCount = $categoryCounts['Senior'] ?? 0;
+        // $pwdsCount = $categoryCounts['PWD'] ?? 0;
+        // $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
+        // $regularsCount = $categoryCounts['Regular'] ?? 0;
+
         $seniorsCount = $categoryCounts['Senior'] ?? 0;
-        $pwdsCount = $categoryCounts['PWD'] ?? 0;
-        $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
-        $regularsCount = $categoryCounts['Regular'] ?? 0;
+        $familyHeadsAndOtherNeedyAdultsCount = $categoryCounts['Family heads and Other Needy Adult'] ?? 0;
+        $youthInNeedAndOtherNeedyAdultsCount = $categoryCounts['Youth in Need and Other Needy Adult'] ?? 0;
+        $youthInNeedOfSpecialProtectionsCount = $categoryCounts['Youth in Need of Special Protection'] ?? 0;
+        $menWomenInSpeciallyDifficultCircumstancesCount = $categoryCounts['Men/Women in specially difficult circumstances'] ?? 0;
+
 
         // 3. User distribution
         $totalUsers = User::count();
@@ -67,9 +74,10 @@ class AdminController extends Controller
             'cancelledQueuesToday',
             'completedTodayCount',
             'seniorsCount',
-            'pwdsCount',
-            'soloParentsCount',
-            'regularsCount',
+            'familyHeadsAndOtherNeedyAdultsCount',
+            'youthInNeedAndOtherNeedyAdultsCount',
+            'youthInNeedOfSpecialProtectionsCount',
+            'menWomenInSpeciallyDifficultCircumstancesCount',
             'totalUsers',
             'roleCounts',
             'recentProcessings'
@@ -97,10 +105,16 @@ class AdminController extends Controller
             ->pluck('total', 'client_category')
             ->toArray();
 
+        // $seniorsCount = $categoryCounts['Senior'] ?? 0;
+        // $pwdsCount = $categoryCounts['PWD'] ?? 0;
+        // $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
+        // $regularsCount = $categoryCounts['Regular'] ?? 0;
+
         $seniorsCount = $categoryCounts['Senior'] ?? 0;
-        $pwdsCount = $categoryCounts['PWD'] ?? 0;
-        $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
-        $regularsCount = $categoryCounts['Regular'] ?? 0;
+        $familyHeadsAndOtherNeedyAdultsCount = $categoryCounts['Family heads and Other Needy Adult'] ?? 0;
+        $youthInNeedAndOtherNeedyAdultsCount = $categoryCounts['Youth in Need and Other Needy Adult'] ?? 0;
+        $youthInNeedOfSpecialProtectionsCount = $categoryCounts['Youth in Need of Special Protection'] ?? 0;
+        $menWomenInSpeciallyDifficultCircumstancesCount = $categoryCounts['Men/Women in specially difficult circumstances'] ?? 0;
 
         $recentProcessings = ClientProcessing::with(['client', 'queue'])
             ->whereDate('start_time', $today)
@@ -115,9 +129,10 @@ class AdminController extends Controller
                 'cancelledQueuesToday' => $cancelledQueuesToday,
                 'completedTodayCount' => $completedTodayCount,
                 'seniorsCount' => $seniorsCount,
-                'pwdsCount' => $pwdsCount,
-                'soloParentsCount' => $soloParentsCount,
-                'regularsCount' => $regularsCount,
+                'familyHeadsAndOtherNeedyAdultsCount' => $familyHeadsAndOtherNeedyAdultsCount,
+                'youthInNeedAndOtherNeedyAdultsCount' => $youthInNeedAndOtherNeedyAdultsCount,
+                'youthInNeedOfSpecialProtectionsCount' => $youthInNeedOfSpecialProtectionsCount,
+                'menWomenInSpeciallyDifficultCircumstancesCount' => $menWomenInSpeciallyDifficultCircumstancesCount,
             ],
             'recentProcessings' => $recentProcessings->map(function ($p) {
                 return [

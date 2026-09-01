@@ -376,10 +376,23 @@
 
                 getCategoryClass(category) {
                     switch (category) {
-                        case 'Senior': return 'bg-blue-100 text-[#0038a8] border border-blue-200';
-                        case 'PWD': return 'bg-red-100 text-[#ce1126] border border-red-200';
-                        case 'Solo Parent': return 'bg-amber-100 text-amber-800 border border-amber-200';
-                        default: return 'bg-slate-100 text-slate-600 border border-slate-200';
+                        case 'Senior':
+                            return 'bg-blue-100 text-[#1d4ed8] border border-blue-200';
+
+                        case 'Family heads and Other Needy Adult':
+                            return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+
+                        case 'Youth in Need and Other Needy Adult':
+                            return 'bg-purple-100 text-purple-800 border border-purple-200';
+
+                        case 'Youth in Need of Special Protection':
+                            return 'bg-red-100 text-red-800 border border-red-200';
+
+                        case 'Men/Women in specially difficult circumstances':
+                            return 'bg-orange-100 text-orange-800 border border-orange-200';
+
+                        default:
+                            return 'bg-slate-100 text-slate-600 border border-slate-200';
                     }
                 },
 

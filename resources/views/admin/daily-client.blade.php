@@ -470,38 +470,41 @@
             white-space: nowrap;
         }
 
-        .client-category--senior {
-            color: var(--dswd-blue);
-
-            background-color: var(--dswd-blue-light);
-
-            border: 1px solid var(--dswd-blue-border);
+        .category-badge--senior {
+            color: #1d4ed8;
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
         }
 
-        .client-category--pwd {
-            color: var(--dswd-red);
-
-            background-color: var(--dswd-red-light);
-
-            border: 1px solid var(--dswd-red-border);
+        .category-badge--family-heads {
+            color: #047857;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
         }
 
-        .client-category--solo {
-            color: #92400e;
-
-            background-color: #fffbeb;
-
-            border: 1px solid #fde68a;
+        .category-badge--youth-needy-adult {
+            color: #7e22ce;
+            background-color: #faf5ff;
+            border: 1px solid #e9d5ff;
         }
 
-        .client-category--regular {
+        .category-badge--youth-protection {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .category-badge--difficult-circumstances {
+            color: #c2410c;
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .category-badge--default {
             color: #475569;
-
-            background-color: #f8fafc;
-
-            border: 1px solid #e2e8f0;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
         }
-
 
         /* ==========================================================================
            13. Program Requested
@@ -808,7 +811,7 @@
                                 </th>
 
                                 <th>
-                                    Program Requested
+                                    Source of Fund
                                 </th>
 
                                 <th>
@@ -837,21 +840,26 @@
                                     $categoryClass = match($client->client_category) {
 
                                         'Senior'
-                                            => 'client-category--senior',
+                                            => 'category-badge--senior',
 
-                                        'PWD'
-                                            => 'client-category--pwd',
+                                        'Family heads and Other Needy Adult'
+                                            => 'category-badge--family-heads',
 
-                                        'Solo Parent'
-                                            => 'client-category--solo',
+                                        'Youth in Need and Other Needy Adult'
+                                            => 'category-badge--youth-needy-adult',
+
+                                        'Youth in Need of Special Protection'
+                                            => 'category-badge--youth-protection',
+
+                                        'Men/Women in specially difficult circumstances'
+                                            => 'category-badge--difficult-circumstances',
 
                                         default
-                                            => 'client-category--regular',
+                                            => 'category-badge--default',
 
                                     };
 
                                 @endphp
-
 
                                 <tr>
 

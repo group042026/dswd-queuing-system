@@ -18,20 +18,25 @@ class Client extends Model
         'birthdate',
         'age',
         'civil_status',
+        'address',
         'barangay',
+        'district',              // ✅ bago
         'municipality',
         'province',
-        'region',
         'contact_number',
         'email',
         'occupation',
-        'monthly_income',
+        'salary',                //'monthly_income'
         'household_size',
         'valid_id_type',
         'valid_id_number',
         'client_category',
+        'subcategory',           
+        'mode_of_admission',     
+        'mode_of_release',       
+        'amount',                
         'program_requested',
-        'reason_for_assistance',
+        'type_of_assistance',    //'reason_for_assistance'
     ];
 
     public $timestamps = false;

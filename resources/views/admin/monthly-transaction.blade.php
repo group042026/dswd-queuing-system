@@ -554,7 +554,7 @@
         .monthly-program {
             max-width: 220px;
             font-size: 13px;
-            colr: #475569;
+            color: #475569;
 
             font-weight: 600;
         }
@@ -583,24 +583,42 @@
             white-space: nowrap;
         }
 
+        /* Senior */
         .monthly-category--senior {
             color: var(--dswd-blue);
             background-color: var(--dswd-blue-light);
             border: 1px solid var(--dswd-blue-border);
         }
 
-        .monthly-category--pwd {
+        /* Family Heads and Other Needy Adult */
+        .monthly-category--family-head {
             color: var(--dswd-red);
             background-color: var(--dswd-red-light);
             border: 1px solid var(--dswd-red-border);
         }
 
-        .monthly-category--solo {
+        /* Youth in Need and Other Needy Adult */
+        .monthly-category--youth {
             color: #92400e;
             background-color: #fffbeb;
             border: 1px solid #fde68a;
         }
 
+        /* Youth in Need of Special Protection */
+        .monthly-category--youth-protection {
+            color: #166534;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Men/Women in Specially Difficult Circumstances */
+        .monthly-category--difficult-circumstances {
+            color: #7c2d12;
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        /* Fallback */
         .monthly-category--regular {
             color: #475569;
             background-color: #f8fafc;
@@ -972,18 +990,21 @@
                                     $categoryClass = match(
                                         $processing->client->client_category
                                     ) {
+                                        'Senior' => 'monthly-category--senior',
 
-                                        'Senior'
-                                            => 'monthly-category--senior',
+                                        'Family heads and Other Needy Adult'
+                                            => 'monthly-category--family-head',
 
-                                        'PWD'
-                                            => 'monthly-category--pwd',
+                                        'Youth in Need and Other Needy Adult'
+                                            => 'monthly-category--youth',
 
-                                        'Solo Parent'
-                                            => 'monthly-category--solo',
+                                        'Youth in Need of Special Protection'
+                                            => 'monthly-category--youth-protection',
 
-                                        default
-                                            => 'monthly-category--regular',
+                                        'Men/Women in specially difficult circumstances'
+                                            => 'monthly-category--difficult-circumstances',
+
+                                        default => 'monthly-category--regular',
                                     };
                                 @endphp
                                 <tr>

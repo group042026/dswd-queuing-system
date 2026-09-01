@@ -25,29 +25,34 @@ class ClientController extends Controller
         Gate::authorize('access-receptionist');
 
         $validated = $request->validate([
-            'first_name'            => ['required', 'string', 'max:255'],
-            'middle_name'           => ['nullable', 'string', 'max:255'],
-            'last_name'             => ['required', 'string', 'max:255'],
-            'suffix'                => ['nullable', 'string', 'max:10'],
-            'sex'                   => ['required', 'in:Male,Female'],
-            'birthdate'             => ['required', 'date', 'before:today'],
-            'age'                   => ['required', 'integer', 'min:0'],
-            'civil_status'          => ['required', 'string'],
-            'barangay'              => ['required', 'string', 'max:255'],
-            'municipality'          => ['required', 'string', 'max:255'],
-            'region'                => ['required', 'string', 'max:255'],
-            'province'              => ['required', 'string', 'max:255'],
-            'email'                 => ['nullable', 'email', 'max:255'],
-            'occupation'            => ['nullable', 'string', 'max:255'],
-            'contact_number'        => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],
-            'monthly_income'        => ['required', 'numeric', 'min:0'],
-            'household_size'        => ['required', 'integer', 'min:1'],
-            'valid_id_type'         => ['required', 'string'],
-            'valid_id_number'       => ['required', 'string', 'max:255'],
-            'client_category'       => ['required', 'in:Senior,PWD,Solo Parent,Regular'],
-            'program_requested'     => ['required', 'string'],
-            'reason_for_assistance' => ['required', 'string'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'suffix' => ['nullable', 'string', 'max:10'],
+            'sex' => ['required', 'in:Male,Female'],
+            'birthdate' => ['required', 'date', 'before:today'],
+            'age' => ['required', 'integer', 'min:0'],
+            'civil_status' => ['required', 'string'],
+            'barangay' => ['required', 'string', 'max:255'],
+            'district' => ['required', 'string', 'max:255'],
+            'municipality' => ['required', 'string', 'max:255'],
+            'province' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'occupation' => ['nullable', 'string', 'max:255'],
+            'contact_number' => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],
+            'salary' => ['nullable', 'numeric', 'min:0'],
+            'household_size' => ['required', 'integer', 'min:1'],
+            'valid_id_type' => ['required', 'string'],
+            'valid_id_number' => ['required', 'string', 'max:255'],
+            'client_category' => ['required', 'in:Senior Citizens,Family heads and Other Needy Adult,Youth in Need and Other Needy Adult,Youth in Need of Special Protection,Men/Women in specially difficult circumstances'],
+            'subcategory' => ['required', 'in:NONE OF THE ABOVE,BELOW MINIMUM WAGE EARNER,NO REGULAR INCOME,INDIGENOUS PEOPLE,SOLO PARENT,4PS BENEFICIARY'],
+            'mode_of_admission' => ['required', 'in:Walk-in,Offsite'],
+            'mode_of_release' => ['required', 'in:Outright Cash'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
+            'program_requested' => ['required', 'string'],
+            'type_of_assistance' => ['required', 'in:CASH RELIEF ASSISTANCE,MEDICAL ASSISTANCE,FUNERAL ASSISTANCE'],
         ]);
+
 
         $validated['control_number'] = $this->generateControlNumber();
         $validated['date_registered'] = now();
@@ -56,20 +61,23 @@ class ClientController extends Controller
             $client = Client::create($validated);
 
             $queue = Queue::create([
-                'queue_number'  => $this->generateQueueNumber(),
-                'client_id'     => $client->id,
-                'priority'      => in_array($client->client_category, ['Senior', 'PWD', 'Solo Parent']),
-                'queue_status'  => 'Serving',
-                'date_issued'   => now(),
+                'queue_number' => $this->generateQueueNumber(),
+                'client_id' => $client->id,
+                'priority' => in_array($client->client_category, [
+                    'Senior Citizens',
+                    'Men/Women in specially difficult circumstances',
+                ]),
+                'queue_status' => 'Serving',
+                'date_issued' => now(),
             ]);
 
             ClientProcessing::create([
-                'client_id'      => $client->id,
-                'user_id'        => auth()->id(),
-                'queue_id'       => $queue->id,
-                'current_step'   => 'Validation',
+                'client_id' => $client->id,
+                'user_id' => auth()->id(),
+                'queue_id' => $queue->id,
+                'current_step' => 'Validation',
                 'current_status' => 'Processing',
-                'start_time'     => now(),
+                'start_time' => now(),
             ]);
 
             ActivityLog::record(

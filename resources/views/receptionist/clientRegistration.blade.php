@@ -411,9 +411,9 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <x-input-label for="monthly_income" :value="__('Monthly Income')" class="font-semibold text-gray-700" />
-                            <x-text-input id="monthly_income" name="monthly_income" type="number" step="0.01" class="mt-1.5 block w-full" :value="old('monthly_income')" required />
-                            <x-input-error :messages="$errors->get('monthly_income')" class="mt-2" />
+                            <x-input-label for="salary" :value="__('Salary')" class="font-semibold text-gray-700" />
+                            <x-text-input id="salary" name="salary" type="number" step="0.01" class="mt-1.5 block w-full" :value="old('salary')" />
+                            <x-input-error :messages="$errors->get('salary')" class="mt-2" />
                         </div>
 
                         <div>
@@ -468,16 +468,31 @@
                             <x-input-label for="client_category" :value="__('Client Category')" class="font-semibold text-gray-700" />
                             <select id="client_category" name="client_category" class="mt-1.5 block w-full" required>
                                 <option value="">-- {{ __('Select') }} --</option>
-                                <option value="Senior" {{ old('client_category') == 'Senior' ? 'selected' : '' }}>Senior Citizen</option>
-                                <option value="PWD" {{ old('client_category') == 'PWD' ? 'selected' : '' }}>PWD</option>
-                                <option value="Solo Parent" {{ old('client_category') == 'Solo Parent' ? 'selected' : '' }}>Solo Parent</option>
-                                <option value="Regular" {{ old('client_category') == 'Regular' ? 'selected' : '' }}>Regular</option>
+                                <option value="Senior Citizens" {{ old('client_category') == 'Senior Citizens' ? 'selected' : '' }}>Senior Citizens</option>
+                                <option value="Family heads and Other Needy Adult" {{ old('client_category') == 'Family heads and Other Needy Adult' ? 'selected' : '' }}>Family heads and Other Needy Adult</option>
+                                <option value="Youth in Need and Other Needy Adult" {{ old('client_category') == 'Youth in Need and Other Needy Adult' ? 'selected' : '' }}>Youth in Need and Other Needy Adult</option>
+                                <option value="Youth in Need of Special Protection" {{ old('client_category') == 'Youth in Need of Special Protection' ? 'selected' : '' }}>Youth in Need of Special Protection</option>
+                                <option value="Men/Women in specially difficult circumstances" {{ old('client_category') == 'Men/Women in specially difficult circumstances' ? 'selected' : '' }}>Men/Women in specially difficult circumstances</option>
                             </select>
                             <x-input-error :messages="$errors->get('client_category')" class="mt-2" />
                         </div>
 
                         <div>
-                            <x-input-label for="program_requested" :value="__('Program Requested')" class="font-semibold text-gray-700" />
+                            <x-input-label for="subcategory" :value="__('Subcategory')" class="font-semibold text-gray-700" />
+                            <select id="subcategory" name="subcategory" class="mt-1.5 block w-full" required>
+                                <option value="">-- {{ __('Select') }} --</option>
+                                <option value="NONE OF THE ABOVE">NONE OF THE ABOVE</option>
+                                <option value="BELOW MINIMUM WAGE EARNER">BELOW MINIMUM WAGE EARNER</option>
+                                <option value="NO REGULAR INCOME">NO REGULAR INCOME</option>
+                                <option value="INDIGENOUS PEOPLE">INDIGENOUS PEOPLE</option>
+                                <option value="SOLO PARENT">SOLO PARENT</option>
+                                <option value="4PS BENEFICIARY">4PS BENEFICIARY</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('subcategory')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="program_requested" :value="__('Source of Fund')" class="font-semibold text-gray-700" />
                             <select id="program_requested" name="program_requested" class="mt-1.5 block w-full" required>
                                 <option value="">-- {{ __('Select') }} --</option>
                                 <option value="AICS" {{ old('program_requested') == 'AICS' ? 'selected' : '' }}>AICS (Assistance to Individuals in Crisis Situation)</option>
@@ -485,12 +500,51 @@
                             </select>
                             <x-input-error :messages="$errors->get('program_requested')" class="mt-2" />
                         </div>
-                    </div>
 
-                    <div class="mt-6">
-                        <x-input-label for="reason_for_assistance" :value="__('Reason for Assistance')" class="font-semibold text-gray-700" />
-                        <textarea id="reason_for_assistance" name="reason_for_assistance" rows="4" class="mt-1.5 block w-full" required>{{ old('reason_for_assistance') }}</textarea>
-                        <x-input-error :messages="$errors->get('reason_for_assistance')" class="mt-2" />
+                        <div>
+                            <x-input-label for="district" :value="__('District')" class="font-semibold text-gray-700" />
+                            <select id="district" name="district" class="mt-1.5 block w-full" required>
+                                <option value="">-- {{ __('Select') }} --</option>
+                                <option value="Lone">Lone</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('district')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="mode_of_admission" :value="__('Mode of Admission/Service Modality')" class="font-semibold text-gray-700" />
+                            <select id="mode_of_admission" name="mode_of_admission" class="mt-1.5 block w-full" required>
+                                <option value="">-- {{ __('Select') }} --</option>
+                                <option value="Walk-in">Walk-in</option>
+                                <option value="Offsite">Offsite</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('mode_of_admission')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="mode_of_release" :value="__('Mode of Release')" class="font-semibold text-gray-700" />
+                            <select id="mode_of_release" name="mode_of_release" class="mt-1.5 block w-full" required>
+                                <option value="">-- {{ __('Select') }} --</option>
+                                <option value="Outright Cash">Outright Cash</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('mode_of_release')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="amount" :value="__('Amount')" class="font-semibold text-gray-700" />
+                            <x-text-input id="amount" name="amount" type="number" step="0.01" class="mt-1.5 block w-full" :value="old('amount')" />
+                            <x-input-error :messages="$errors->get('amount')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="type_of_assistance" :value="__('Type of Assistance')" class="font-semibold text-gray-700" />
+                            <select id="type_of_assistance" name="type_of_assistance" class="mt-1.5 block w-full" required>
+                                <option value="">-- {{ __('Select') }} --</option>
+                                <option value="CASH RELIEF ASSISTANCE" {{ old('type_of_assistance') == 'CASH RELIEF ASSISTANCE' ? 'selected' : '' }}>CASH RELIEF ASSISTANCE</option>
+                                <option value="MEDICAL ASSISTANCE" {{ old('type_of_assistance') == 'MEDICAL ASSISTANCE' ? 'selected' : '' }}>MEDICAL ASSISTANCE</option>
+                                <option value="FUNERAL ASSISTANCE" {{ old('type_of_assistance') == 'FUNERAL ASSISTANCE' ? 'selected' : '' }}>FUNERAL ASSISTANCE</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('type_of_assistance')" class="mt-2" />
+                        </div>
                     </div>
                 </div>
 
