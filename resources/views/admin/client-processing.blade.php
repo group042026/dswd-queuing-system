@@ -645,164 +645,96 @@
 
     </style>
 
-
     <div class="processing-report">
-
         <div class="processing-report__container">
-
-
-            {{-- ================================================================
-                 Header Banner
-                 ================================================================ --}}
-
             <div class="processing-banner">
-
                 <div class="processing-banner__content">
-
                     <p class="processing-banner__badge">
                         DSWD Operations Control Hub
                     </p>
-
                     <h1 class="processing-banner__title">
                         Client Processing Report
                     </h1>
-
                     <p class="processing-banner__description">
                         Monitor active client processing and review
                         historical processing records.
                     </p>
-
                 </div>
-
                 <div class="processing-banner__ribbon">
-
                     <div
                         class="processing-banner__ribbon-stripe
                                processing-banner__ribbon-stripe--blue">
                     </div>
-
                     <div
                         class="processing-banner__ribbon-stripe
                                processing-banner__ribbon-stripe--yellow">
                     </div>
-
                     <div
                         class="processing-banner__ribbon-stripe
                                processing-banner__ribbon-stripe--red">
                     </div>
-
                 </div>
-
             </div>
-
-
-            {{-- ================================================================
-                 Current Snapshot
-                 ================================================================ --}}
-
             <div class="processing-snapshot">
-
                 <h2 class="processing-snapshot__title">
                     Current Snapshot (Live)
                 </h2>
-
                 <div class="processing-snapshot-grid">
-
-                    {{-- Total Active --}}
                     <div class="processing-snapshot-item">
-
                         <div class="processing-snapshot-item__label">
                             Total Active
                         </div>
-
                         <div class="processing-snapshot-item__value">
                             {{ $totalStuck }}
                         </div>
-
                     </div>
-
-
-                    {{-- Validation --}}
                     <div class="processing-snapshot-item">
-
                         <div class="processing-snapshot-item__label">
                             Validation
                         </div>
-
                         <div class="processing-snapshot-item__value">
                             {{ $stuckPerStage['Validation'] ?? 0 }}
                         </div>
-
                     </div>
-
-
-                    {{-- Assessment --}}
                     <div class="processing-snapshot-item">
-
                         <div class="processing-snapshot-item__label">
                             Assessment
                         </div>
-
                         <div class="processing-snapshot-item__value">
                             {{ $stuckPerStage['Assessment'] ?? 0 }}
                         </div>
-
                     </div>
-
-
-                    {{-- Review --}}
                     <div class="processing-snapshot-item">
-
                         <div class="processing-snapshot-item__label">
                             Review
                         </div>
-
                         <div class="processing-snapshot-item__value">
                             {{ $stuckPerStage['Review'] ?? 0 }}
                         </div>
-
                     </div>
-
-
-                    {{-- Releasing --}}
                     <div class="processing-snapshot-item">
-
                         <div class="processing-snapshot-item__label">
                             Releasing
                         </div>
-
                         <div class="processing-snapshot-item__value">
                             {{ $stuckPerStage['Releasing'] ?? 0 }}
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
-
-            {{-- ================================================================
-                 Date Range Filter
-                 ================================================================ --}}
-
             <div class="processing-filter-card">
-
                 <form
                     method="GET"
                     action="{{ route('admin.client-processing') }}"
                     class="processing-filter-form"
                 >
-
                     <div class="processing-filter-group">
-
                         <label
                             for="date_from"
                             class="processing-filter-label"
                         >
                             From
                         </label>
-
                         <input
                             id="date_from"
                             name="date_from"
@@ -810,19 +742,14 @@
                             class="processing-filter-input"
                             value="{{ $dateFrom }}"
                         />
-
                     </div>
-
-
                     <div class="processing-filter-group">
-
                         <label
                             for="date_to"
                             class="processing-filter-label"
                         >
                             To
                         </label>
-
                         <input
                             id="date_to"
                             name="date_to"
@@ -830,15 +757,11 @@
                             class="processing-filter-input"
                             value="{{ $dateTo }}"
                         />
-
                     </div>
-
-
                     <button
                         type="submit"
                         class="processing-btn processing-btn--blue"
                     >
-
                         <svg
                             width="16"
                             height="16"
@@ -853,12 +776,8 @@
                                 d="M3 4h18M3 10h18M3 16h18M3 22h18"
                             />
                         </svg>
-
                         {{ __('View Report') }}
-
                     </button>
-
-
                     <a
                         href="{{ route('admin.client-processing.export', [
                             'date_from' => $dateFrom,
@@ -866,7 +785,6 @@
                         ]) }}"
                         class="processing-btn processing-btn--red"
                     >
-
                         <svg
                             width="16"
                             height="16"
@@ -884,288 +802,158 @@
                                 01-2 2v12a2 2 0 002 2z"
                             />
                         </svg>
-
                         {{ __('Download Excel') }}
-
                     </a>
-
                 </form>
-
             </div>
-
-
-            {{-- ================================================================
-                 Historical Processing
-                 ================================================================ --}}
-
             <div class="processing-history-card">
-
-
-                {{-- Card Header --}}
-
                 <div class="processing-history-card__header">
-
                     <div>
-
                         <h2 class="processing-history-card__title">
                             Processing History
                         </h2>
-
                         <p class="processing-history-card__subtitle">
-
                             Showing processing history from:
-
                             <span class="processing-history-card__date">
-
                                 {{
                                     \Carbon\Carbon::parse($dateFrom)
                                         ->format('M d, Y')
                                 }}
-
                                 —
-
                                 {{
                                     \Carbon\Carbon::parse($dateTo)
                                         ->format('M d, Y')
                                 }}
-
                             </span>
-
                         </p>
-
                     </div>
-
                 </div>
-
-
                 {{-- Table --}}
-
                 <div class="processing-table-wrapper">
-
                     <table class="processing-table">
-
                         <thead>
-
                             <tr>
-
                                 <th>
                                     Queue Number
                                 </th>
-
                                 <th>
                                     Client Name
                                 </th>
-
                                 <th>
                                     Step
                                 </th>
-
                                 <th>
                                     Status
                                 </th>
-
                                 <th>
                                     Handled By
                                 </th>
-
                                 <th>
                                     Start Time
                                 </th>
-
                                 <th>
                                     End Time
                                 </th>
-
                             </tr>
-
                         </thead>
-
-
                         <tbody>
-
                             @forelse($processingHistory as $processing)
-
                                 <tr>
-
-                                    {{-- Queue Number --}}
-
                                     <td>
-
                                         <span class="processing-queue-number">
-
                                             {{
                                                 $processing->queue
                                                     ->queue_number
                                                     ?? '—'
                                             }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Client Name --}}
-
                                     <td>
-
                                         <span class="processing-client-name">
-
                                             {{
                                                 $processing->client
                                                     ->first_name
                                             }}
-
                                             {{
                                                 $processing->client
                                                     ->last_name
                                             }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Step --}}
-
                                     <td>
-
                                         <span class="processing-step">
-
                                             {{ $processing->current_step }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Status --}}
-
                                     <td>
-
                                         @php
-
                                             $statusClass = match(
                                                 $processing->current_status
                                             ) {
-
                                                 'Processing'
                                                     => 'processing-status--processing',
-
                                                 'Waiting'
                                                     => 'processing-status--waiting',
-
                                                 'Completed'
                                                     => 'processing-status--completed',
-
                                                 'Cancelled'
                                                     => 'processing-status--cancelled',
-
                                                 default
                                                     => 'processing-status--waiting',
-
                                             };
-
                                         @endphp
-
-
                                         <span
                                             class="processing-status {{ $statusClass }}"
                                         >
-
                                             {{ $processing->current_status }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Handled By --}}
-
                                     <td>
-
                                         <span class="processing-user">
-
                                             {{
                                                 $processing->user
                                                     ? "{$processing->user->first_name} {$processing->user->last_name}"
                                                     : '—'
                                             }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Start Time --}}
-
                                     <td>
-
                                         <span class="processing-date">
-
                                             {{
                                                 $processing->start_time
                                                     ->format('M d, Y h:i A')
                                             }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- End Time --}}
-
                                     <td>
-
                                         <span class="processing-date">
-
                                             {{
                                                 $processing->end_time
                                                     ? $processing->end_time
                                                         ->format('M d, Y h:i A')
                                                     : '—'
                                             }}
-
                                         </span>
-
                                     </td>
-
                                 </tr>
-
-
                             @empty
-
                                 <tr>
-
                                     <td
                                         colspan="7"
                                         class="processing-empty"
                                     >
                                         {{ __('No processing records for this date range.') }}
                                     </td>
-
                                 </tr>
-
                             @endforelse
-
                         </tbody>
-
                     </table>
-
                 </div>
-
-
                 {{-- Pagination --}}
-
                 <div class="processing-pagination">
-
                     {{ $processingHistory->links() }}
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </x-admin-layout>

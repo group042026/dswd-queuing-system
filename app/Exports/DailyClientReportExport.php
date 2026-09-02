@@ -70,7 +70,7 @@ class DailyClientReportExport implements
             'Occupation',
             'Salary',
             'Number of Family Members',
-            'Service Modality',
+            // 'Service Modality',
         ];
     }
 
@@ -122,18 +122,6 @@ class DailyClientReportExport implements
             '', // Service Modality
         ];
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | COLUMN WIDTHS
-    |--------------------------------------------------------------------------
-    | NOTE: map()/headings() only output 27 columns, A through AA.
-    | Widths below now match that exactly (previously this pointed at
-    | AH-AM, which don't correspond to any real column — that's what
-    | was causing PhpSpreadsheet to think the sheet extended all the
-    | way to AM and draw filter dropdowns on the empty columns in between).
-    |--------------------------------------------------------------------------
-    */
 
     public function columnWidths(): array
     {

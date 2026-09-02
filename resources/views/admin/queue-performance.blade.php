@@ -718,19 +718,10 @@
 
 
     <div class="queue-report">
-
         <div class="queue-report__container">
-
-            {{-- ================================================================
-                 Header Banner
-                 ================================================================ --}}
-
             <div class="queue-banner">
-
                 <div class="queue-banner__content">
-
                     <div class="queue-banner__bg-icon">
-
                         <svg
                             width="240"
                             height="240"
@@ -743,68 +734,47 @@
                                 4h8v2H6v-2z"
                             />
                         </svg>
-
                     </div>
-
                     <p class="queue-banner__badge">
                         DSWD Operations Control Hub
                     </p>
-
                     <h1 class="queue-banner__title">
                         Queue Performance Report
                     </h1>
-
                     <p class="queue-banner__description">
                         Monitor queue activity, service performance,
                         processing duration, and queue status across
                         the selected reporting period.
                     </p>
-
                 </div>
-
                 <div class="queue-banner__ribbon">
-
                     <div
                         class="queue-banner__ribbon-stripe
                                queue-banner__ribbon-stripe--blue">
                     </div>
-
                     <div
                         class="queue-banner__ribbon-stripe
                                queue-banner__ribbon-stripe--yellow">
                     </div>
-
                     <div
                         class="queue-banner__ribbon-stripe
                                queue-banner__ribbon-stripe--red">
                     </div>
-
                 </div>
-
             </div>
-
-
-            {{-- ================================================================
-                 Date Range Filter
-                 ================================================================ --}}
-
             <div class="queue-filter-card">
-
                 <form
                     method="GET"
                     action="{{ route('admin.queue-performance') }}"
                     class="queue-filter-form"
                 >
-
                     <div class="queue-filter-group">
-
                         <label
                             for="date_from"
                             class="queue-filter-label"
                         >
                             {{ __('From') }}
                         </label>
-
                         <input
                             type="date"
                             id="date_from"
@@ -812,19 +782,14 @@
                             class="queue-filter-input"
                             value="{{ $dateFrom }}"
                         />
-
                     </div>
-
-
                     <div class="queue-filter-group">
-
                         <label
                             for="date_to"
                             class="queue-filter-label"
                         >
                             {{ __('To') }}
                         </label>
-
                         <input
                             type="date"
                             id="date_to"
@@ -832,15 +797,11 @@
                             class="queue-filter-input"
                             value="{{ $dateTo }}"
                         />
-
                     </div>
-
-
                     <button
                         type="submit"
                         class="queue-btn queue-btn--blue"
                     >
-
                         <svg
                             width="16"
                             height="16"
@@ -859,8 +820,6 @@
                         {{ __('View Report') }}
 
                     </button>
-
-
                     <a
                         href="{{ route('admin.queue-performance.export', [
                             'date_from' => $dateFrom,
@@ -868,7 +827,6 @@
                         ]) }}"
                         class="queue-btn queue-btn--red"
                     >
-
                         <svg
                             width="16"
                             height="16"
@@ -886,54 +844,30 @@
                                 01-2 2v12a2 2 0 002 2z"
                             />
                         </svg>
-
                         {{ __('Download Excel') }}
-
                     </a>
-
                 </form>
-
             </div>
-
-
-            {{-- ================================================================
-                 Summary Cards
-                 ================================================================ --}}
-
             <div class="queue-summary-grid">
-
-
-                {{-- ============================================================
-                     Total Queues
-                     ============================================================ --}}
-
                 <div class="queue-stat-card queue-stat-card--blue">
-
                     <div class="queue-stat-content">
-
                         <span class="queue-stat-label">
                             {{ __('Total Queues') }}
                         </span>
-
                         <div class="queue-stat-value">
                             {{ $totalQueues }}
                         </div>
-
                         <span
                             class="queue-stat-badge
                                    queue-stat-badge--blue"
                         >
                             {{ __('Queues Issued') }}
                         </span>
-
                     </div>
-
-
                     <div
                         class="queue-stat-icon
                                queue-stat-icon--blue"
                     >
-
                         <svg
                             width="24"
                             height="24"
@@ -947,65 +881,40 @@
                             <path d="M4 4h16v16H4z" />
                             <path d="M8 8h8M8 12h8M8 16h5" />
                         </svg>
-
                     </div>
-
                 </div>
-
-
-                {{-- ============================================================
-                     Served by Status
-                     ============================================================ --}}
-
                 <div class="queue-stat-card queue-stat-card--yellow">
-
                     <div class="queue-stat-content">
-
                         <span class="queue-stat-label">
                             {{ __('Served by Status') }}
                         </span>
-
                         <div class="queue-breakdown">
-
                             @forelse($servedCount as $status => $count)
-
                                 <div class="queue-breakdown-row">
-
                                     <span class="queue-breakdown-name">
                                         {{ $status }}
                                     </span>
-
                                     <span class="queue-breakdown-count">
                                         {{ $count }}
                                     </span>
-
                                 </div>
-
                             @empty
-
                                 <span class="text-xs text-gray-400">
                                     {{ __('No data') }}
                                 </span>
-
                             @endforelse
-
                         </div>
-
                         <span
                             class="queue-stat-badge
                                    queue-stat-badge--yellow"
                         >
                             {{ __('By Queue Status') }}
                         </span>
-
                     </div>
-
-
                     <div
                         class="queue-stat-icon
                                queue-stat-icon--yellow"
                     >
-
                         <svg
                             width="24"
                             height="24"
@@ -1020,65 +929,40 @@
                             <path d="M12 4v16" />
                             <circle cx="12" cy="12" r="9" />
                         </svg>
-
                     </div>
-
                 </div>
-
-
-                {{-- ============================================================
-                     Average Time per Step
-                     ============================================================ --}}
-
                 <div class="queue-stat-card queue-stat-card--red">
-
                     <div class="queue-stat-content">
-
                         <span class="queue-stat-label">
                             {{ __('Avg Time per Step') }}
                         </span>
-
                         <div class="queue-breakdown">
-
                             @forelse($avgTimePerStep as $step => $minutes)
-
                                 <div class="queue-breakdown-row">
-
                                     <span class="queue-breakdown-name">
                                         {{ $step }}
                                     </span>
-
                                     <span class="queue-breakdown-count">
                                         {{ round($minutes, 1) }} min
                                     </span>
-
                                 </div>
-
                             @empty
-
                                 <span class="text-xs text-gray-400">
                                     {{ __('No data') }}
                                 </span>
-
                             @endforelse
-
                         </div>
-
                         <span
                             class="queue-stat-badge
                                    queue-stat-badge--red"
                         >
                             {{ __('Processing Time') }}
                         </span>
-
                     </div>
-
-
                     <div
                         class="queue-stat-icon
                                queue-stat-icon--red"
                     >
-
                         <svg
                             width="24"
                             height="24"
@@ -1092,156 +976,87 @@
                             <circle cx="12" cy="12" r="9" />
                             <path d="M12 7v5l3 2" />
                         </svg>
-
                     </div>
-
                 </div>
-
             </div>
-
-
-            {{-- ================================================================
-                 Detailed Queue Performance
-                 ================================================================ --}}
-
             <div class="queue-performance-card">
-
-
-                {{-- Card Header --}}
-
                 <div class="queue-performance-card__header">
-
                     <div>
-
                         <h2 class="queue-performance-card__title">
                             {{ __('Queue Performance Details') }}
                         </h2>
-
                         <p class="queue-performance-card__subtitle">
-
                             {{ __('Showing queues from:') }}
-
                             <span class="queue-performance-card__date">
-
                                 {{
                                     \Carbon\Carbon::parse($dateFrom)
                                         ->format('M d, Y')
                                 }}
-
                                 —
-
                                 {{
                                     \Carbon\Carbon::parse($dateTo)
                                         ->format('M d, Y')
                                 }}
-
                             </span>
-
                         </p>
-
                     </div>
-
                 </div>
-
-
                 {{-- Table --}}
-
                 <div class="queue-table-wrapper">
-
                     <table class="queue-table">
-
                         <thead>
-
                             <tr>
-
                                 <th>Queue Number</th>
-
                                 <th>Client Name</th>
-
+                                <th>Client Category</th>
                                 <th>Priority</th>
-
                                 <th>Queue Status</th>
-
                                 <th>Total Duration</th>
-
                                 <th>Current Step</th>
-
                                 <th>Date Issued</th>
-
                             </tr>
-
                         </thead>
-
-
                         <tbody>
-
                             @forelse($queues as $queue)
-
                                 <tr>
-
-                                    {{-- Queue Number --}}
-
                                     <td>
-
                                         <span class="queue-number">
                                             {{ $queue->queue_number }}
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Client Name --}}
-
                                     <td>
-
                                         <span class="queue-client-name">
-
                                             {{ $queue->client->first_name }}
-
                                             {{ $queue->client->last_name }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Priority --}}
-
                                     <td>
-
+                                        <span class="queue-category">
+                                            {{ $queue->client->client_category }}
+                                        </span>
+                                    </td>
+                                    <td>
                                         @if($queue->priority)
-
                                             <span
                                                 class="queue-priority
                                                        queue-priority--yes"
                                             >
                                                 Yes
                                             </span>
-
                                         @else
-
                                             <span
                                                 class="queue-priority
                                                        queue-priority--no"
                                             >
                                                 No
                                             </span>
-
                                         @endif
-
                                     </td>
-
-
-                                    {{-- Queue Status --}}
-
                                     <td>
-
                                         @php
-
                                             $statusClass = match(
                                                 $queue->queue_status
                                             ) {
-
                                                 'Serving'
                                                     => 'queue-status--serving',
 
@@ -1259,32 +1074,20 @@
 
                                                 default
                                                     => 'queue-status--abandoned',
-
                                             };
-
                                         @endphp
-
-
                                         <span
                                             class="queue-status
                                                    {{ $statusClass }}"
                                         >
                                             {{ $queue->queue_status }}
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Total Duration --}}
-
                                     <td>
-
                                         @if($queue->queue_status === 'Abandoned')
-
                                             <span class="queue-muted">
                                                 {{ __('Abandoned') }}
                                             </span>
-
                                         @elseif(
                                             in_array(
                                                 $queue->queue_status,
@@ -1293,9 +1096,7 @@
                                             &&
                                             $queue->latestProcessing?->end_time
                                         )
-
                                             @php
-
                                                 $duration =
                                                     \Carbon\Carbon::parse(
                                                         $queue->date_issued
@@ -1304,48 +1105,28 @@
                                                             ->end_time,
                                                         true
                                                     );
-
                                             @endphp
-
                                             <span class="queue-duration">
                                                 {{ $duration }}
                                             </span>
-
                                         @else
-
                                             <span class="queue-muted">
                                                 {{ __('In Progress') }}
                                             </span>
-
                                         @endif
-
                                     </td>
-
-
-                                    {{-- Current Step --}}
-
                                     <td>
-
                                         <span class="queue-step">
-
                                             {{
                                                 $queue
                                                     ->latestProcessing
                                                     ->current_step
                                                     ?? '—'
                                             }}
-
                                         </span>
-
                                     </td>
-
-
-                                    {{-- Date Issued --}}
-
                                     <td>
-
                                         <span class="queue-date">
-
                                             {{
                                                 \Carbon\Carbon::parse(
                                                     $queue->date_issued
@@ -1353,48 +1134,24 @@
                                                     'M d, Y h:i A'
                                                 )
                                             }}
-
                                         </span>
-
                                     </td>
-
                                 </tr>
-
-
                             @empty
-
                                 <tr>
-
-                                    <td
-                                        colspan="7"
-                                        class="queue-empty"
-                                    >
+                                    <td colspan="8" class="queue-empty">
                                         {{ __('No queues for this date range.') }}
                                     </td>
-
                                 </tr>
-
                             @endforelse
-
                         </tbody>
-
                     </table>
-
                 </div>
-
-
                 {{-- Pagination --}}
-
                 <div class="queue-pagination">
-
                     {{ $queues->links() }}
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </x-admin-layout>

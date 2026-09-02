@@ -206,14 +206,25 @@
     <div class="registration-container" x-data="{
         birthdate: '',
         age: '',
+        ageError: '',
         computeAge() {
-            if (!this.birthdate) { this.age = ''; return; }
+            if (!this.birthdate) { this.age = ''; this.ageError = ''; return; }
             const today = new Date();
             const bd = new Date(this.birthdate);
             let years = today.getFullYear() - bd.getFullYear();
             const m = today.getMonth() - bd.getMonth();
             if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) years--;
-            this.age = years >= 0 ? years : '';
+
+            if (years < 0) {
+                this.age = '';
+                this.ageError = 'Invalid birthdate.';
+            } else if (years > 130) {
+                this.age = years;
+                this.ageError = 'Age must not exceed 130 years.';
+            } else {
+                this.age = years;
+                this.ageError = '';
+            }
         }
     }">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
@@ -322,7 +333,8 @@
                                 x-model="age"
                                 readonly
                             />
-                            <p class="text-xs text-gray-400 mt-1">{{ __('Auto-computed from birthdate') }}</p>
+                            <p class="text-xs text-gray-400 mt-1" x-show="!ageError">{{ __('Auto-computed from birthdate') }}</p>
+                            <p class="text-xs text-red-500 mt-1 font-semibold" x-show="ageError" x-text="ageError"></p>
                         </div>
                     </div>
 

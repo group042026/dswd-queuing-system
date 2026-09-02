@@ -293,7 +293,7 @@
                                 <th>Queue #</th>
                                 <th>Client Name</th>
                                 <th>Category</th>
-                                <th>Program</th>
+                                <th>Source of Fund</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>

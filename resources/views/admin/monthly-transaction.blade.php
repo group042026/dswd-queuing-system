@@ -485,6 +485,7 @@
             color: #334155;
             font-weight: 600;
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         .dark .monthly-table td {
@@ -702,9 +703,6 @@
 
     <div class="monthly-report">
         <div class="monthly-report__container">
-            {{-- ================================================================
-                 Header Banner
-                 ================================================================ --}}
             <div class="monthly-banner">
                 <div class="monthly-banner__content">
                     <div class="monthly-banner__bg-icon">
@@ -751,9 +749,6 @@
                     </div>
                 </div>
             </div>
-            {{-- ================================================================
-                 Month Filter
-                 ================================================================ --}}
             <div class="monthly-filter-card">
                 <form
                     method="GET"
@@ -820,9 +815,6 @@
 
             {{-- Summary cards --}}
             <div class="monthly-summary-grid">
-                {{-- ============================================================
-                    Total Transactions
-                    ============================================================ --}}
                 <div class="monthly-stat-card monthly-stat-card--blue">
                     <div class="monthly-stat-content">
                         <span class="monthly-stat-label">
@@ -858,9 +850,6 @@
                         </svg>
                     </div>
                 </div>
-                {{-- ============================================================
-                    Per Program
-                    ============================================================ --}}
                 <div class="monthly-stat-card monthly-stat-card--yellow">
                     <div class="monthly-stat-content">
                         <span class="monthly-stat-label">
@@ -903,9 +892,6 @@
                         </svg>
                     </div>
                 </div>
-                {{-- ============================================================
-                    Per Category
-                    ============================================================ --}}
                 <div class="monthly-stat-card monthly-stat-card--red">
                     <div class="monthly-stat-content">
                         <span class="monthly-stat-label">
@@ -949,11 +935,7 @@
                     </div>
                 </div>
             </div>
-            {{-- ================================================================
-                 Detailed Transactions
-                 ================================================================ --}}
             <div class="monthly-transactions-card">
-                {{-- Card Header --}}
                 <div class="monthly-transactions-card__header">
                     <div>
                         <h2 class="monthly-transactions-card__title">
@@ -971,127 +953,91 @@
                         </p>
                     </div>
                 </div>
-                {{-- Table --}}
-                <div class="monthly-table-wrapper">
+                <div class="monthly-table-wrapper" style="overflow-x: auto;">
                     <table class="monthly-table">
                         <thead>
                             <tr>
-                                <th>Control Number</th>
-                                <th> Queue Number</th>
-                                <th>Full Name</th>
-                                <th>Category</th>
-                                <th>Program Requested</th>
-                                <th> Date Released</th>
+                                <th>Client Number</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Suffix</th>
+                                <th>Sex</th>
+                                <th>Birthdate</th>
+                                <th>Age</th>
+                                <th>Civil Status</th>
+                                <th>Barangay</th>
+                                <th>District</th>
+                                <th>Mode of Admission</th>
+                                <th>Mode of Release</th>
+                                <th>Municipality</th>
+                                <th>Province</th>
+                                <th>Region</th>
+                                <th>Contact Number</th>
+                                <th>Occupation</th>
+                                <th>Salary</th>
+                                <th>Household Size</th>
+                                <th>Client Category</th>
+                                <th>Subcategory</th>
+                                <th>Amount</th>
+                                <th>Source of Fund</th>
+                                <th>Type of Assistance</th>
+                                <th>Date Released</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($transactions as $processing)
                                 @php
-                                    $categoryClass = match(
-                                        $processing->client->client_category
-                                    ) {
-                                        'Senior' => 'monthly-category--senior',
-
+                                    $client = $processing->client;
+                                    $categoryClass = match($client->client_category) {
+                                        'Senior Citizens'
+                                            => 'monthly-category--senior',
                                         'Family heads and Other Needy Adult'
                                             => 'monthly-category--family-head',
-
                                         'Youth in Need and Other Needy Adult'
                                             => 'monthly-category--youth',
-
                                         'Youth in Need of Special Protection'
                                             => 'monthly-category--youth-protection',
-
                                         'Men/Women in specially difficult circumstances'
                                             => 'monthly-category--difficult-circumstances',
-
                                         default => 'monthly-category--regular',
                                     };
                                 @endphp
                                 <tr>
-                                    {{-- Control Number --}}
-                                    <td>
-                                        <span
-                                            class="monthly-control-number"
-                                        >
-                                            {{
-                                                $processing
-                                                    ->client
-                                                    ->control_number
-                                            }}
-                                        </span>
-                                    </td>
-                                    {{-- Queue Number --}}
-                                    <td>
-                                        <span
-                                            class="monthly-queue-number"
-                                        >
-                                            {{
-                                                $processing
-                                                    ->queue
-                                                    ->queue_number
-                                                    ?? '—'
-                                            }}
-                                        </span>
-                                    </td>
-                                    {{-- Full Name --}}
-                                    <td>
-                                        <span
-                                            class="monthly-client-name"
-                                        >
-                                            {{
-                                                $processing
-                                                    ->client
-                                                    ->first_name
-                                            }}
-                                            {{
-                                                $processing
-                                                    ->client
-                                                    ->last_name
-                                            }}
-                                        </span>
-                                    </td>
-                                    {{-- Category --}}
-                                    <td>
-                                        <span
-                                            class="monthly-category
-                                                   {{ $categoryClass }}"
-                                        >
-                                            {{
-                                                $processing
-                                                    ->client
-                                                    ->client_category
-                                            }}
-                                        </span>
-                                    </td>
-                                    {{-- Program Requested --}}
-                                    <td>
-                                        <div class="monthly-program">
-                                            {{
-                                                $processing
-                                                    ->client
-                                                    ->program_requested
-                                            }}
-                                        </div>
-                                    </td>
-                                    {{-- Date Released --}}
+                                    <td><span class="monthly-control-number">{{ $client->control_number }}</span></td>
+                                    <td>{{ $client->first_name }}</td>
+                                    <td>{{ $client->middle_name }}</td>
+                                    <td>{{ $client->last_name }}</td>
+                                    <td>{{ $client->suffix }}</td>
+                                    <td>{{ $client->sex }}</td>
+                                    <td>{{ $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('M d, Y') : '—' }}</td>
+                                    <td>{{ $client->age }}</td>
+                                    <td>{{ $client->civil_status }}</td>
+                                    <td>{{ $client->barangay }}</td>
+                                    <td>{{ $client->district }}</td>
+                                    <td>{{ $client->mode_of_admission }}</td>
+                                    <td>{{ $client->mode_of_release }}</td>
+                                    <td>{{ $client->municipality }}</td>
+                                    <td>{{ $client->province }}</td>
+                                    <td>{{ $client->region }}</td>
+                                    <td>{{ $client->contact_number }}</td>
+                                    <td>{{ $client->occupation }}</td>
+                                    <td>{{ $client->salary ? number_format($client->salary, 2) : '—' }}</td>
+                                    <td>{{ $client->household_size }}</td>
+                                    <td><span class="monthly-category {{ $categoryClass }}">{{ $client->client_category }}</span></td>
+                                    <td>{{ $client->subcategory }}</td>
+                                    <td>{{ $client->amount ? number_format($client->amount, 2) : '—' }}</td>
+                                    <td>{{ $client->program_requested }}</td>
+                                    <td>{{ $client->type_of_assistance }}</td>
                                     <td>
                                         <span class="monthly-date">
-                                            {{
-                                                \Carbon\Carbon::parse(
-                                                    $processing->end_time
-                                                )->format(
-                                                    'M d, Y h:i A'
-                                                )
-                                            }}
+                                            {{ \Carbon\Carbon::parse($processing->end_time)->format('M d, Y h:i A') }}
                                         </span>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td
-                                        colspan="6"
-                                        class="monthly-empty"
-                                    >
+                                    <td colspan="26" class="monthly-empty">
                                         {{ __('No transactions for this month.') }}
                                     </td>
                                 </tr>
