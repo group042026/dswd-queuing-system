@@ -92,7 +92,7 @@
 
             {{-- Controls — DESKTOP/TV LANG --}}
             <div class="hidden lg:flex items-center gap-3 md:gap-4 justify-between w-full md:w-auto border-t border-white/10 pt-2.5 md:pt-0 md:border-t-0">
-                <div class="flex items-center bg-white/10 rounded-lg p-0.5 md:p-1">
+                {{-- <div class="flex items-center bg-white/10 rounded-lg p-0.5 md:p-1">
                     <button @click="toggleSound()"
                             class="px-2 py-1 md:px-3 md:py-1.5 rounded text-[10px] md:text-xs font-bold transition-all flex items-center gap-1 md:gap-1.5"
                             :class="soundEnabled ? 'bg-white text-[#0038a8] shadow-sm' : 'text-white hover:bg-white/10'">
@@ -103,7 +103,7 @@
                             :class="voiceEnabled ? 'bg-white text-[#0038a8] shadow-sm' : 'text-white hover:bg-white/10'">
                         <span x-text="voiceEnabled ? '🗣️ Voice ON' : '🤐 Voice OFF'"></span>
                     </button>
-                </div>
+                </div> --}}
 
                 <div class="flex items-center gap-3">
                     <button @click="toggleFullscreen()"

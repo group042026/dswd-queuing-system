@@ -94,6 +94,7 @@ class User extends Authenticatable
         if ($this->hasRole('receptionist')) return route('receptionist.dashboard');
         if ($this->hasRole('social worker')) return route('social-worker.dashboard');
         if ($this->hasRole('approving officer')) return route('approving-officer.dashboard');
+        if ($this->hasRole('cashier')) return route('cashier.dashboard');
 
         return route('login');
     }

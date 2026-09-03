@@ -32,6 +32,8 @@
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mt-0.5">Social Worker</span>
                     @elseif(Auth::user()->hasRole('approving officer'))
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 mt-0.5">Approving Officer</span>
+                    @elseif(Auth::user()->hasRole('cashier'))
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 mt-0.5">Cashier</span>
                     @endif
                 </div>
             </div>
@@ -145,17 +147,13 @@
                 </a>
 
                 <!-- Releasing -->
-                <a href="{{ route('receptionist.releasing') }}" 
+                {{-- <a href="{{ route('receptionist.releasing') }}" 
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('receptionist.releasing*') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                     <svg class="h-5 w-5 {{ request()->routeIs('receptionist.releasing*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                     </svg>
                     <span>Releasing</span>
-                </a>
-
-
-
-
+                </a> --}}
             
 
             @elseif (Auth::user()->hasRole('social worker'))
@@ -203,6 +201,34 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     <span>Review</span>
+                </a>
+
+                <!-- Releasing -->
+                <a href="{{ route('approving-officer.releasing') }}" 
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('receptionist.releasing*') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('approving-officer.releasing*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                    </svg>
+                    <span>Releasing</span>
+                </a>
+                
+            @elseif (Auth::user()->hasRole('cashier'))
+                <!-- Dashboard -->
+                <a href="{{ route('cashier.dashboard') }}" 
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('cashier.dashboard') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('cashier.dashboard') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <!-- Releasing -->
+                <a href="{{ route('approving-officer.releasing') }}" 
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('approving-officer.releasing') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('approving-officer.releasing') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span>Releasing</span>
                 </a>
             @endif
         </div>

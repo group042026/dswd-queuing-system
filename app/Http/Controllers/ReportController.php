@@ -130,7 +130,7 @@ class ReportController extends Controller
         $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
         $dateTo = $request->input('date_to', now()->format('Y-m-d'));
 
-        // Average time per step (Validation, Assessment, Review, Releasing)
+        // Average time per step
         $avgTimePerStep = ClientProcessing::where('current_status', 'Completed')
             ->whereNotNull('end_time')
             ->whereDate('start_time', '>=', $dateFrom)
@@ -139,7 +139,7 @@ class ReportController extends Controller
             ->groupBy('current_step')
             ->pluck('avg_minutes', 'current_step');
 
-        // Count ng na-serve per queue_status
+        // Count served per queue_status
         $servedCount = Queue::whereDate('date_issued', '>=', $dateFrom)
             ->whereDate('date_issued', '<=', $dateTo)
             ->select('queue_status', DB::raw('count(*) as total'))
@@ -148,7 +148,7 @@ class ReportController extends Controller
 
         $totalQueues = $servedCount->sum();
 
-        // Detailed list — per queue entry, kasama ang overall duration niya (registration to completion/cancellation)
+        // overall duration (registration to completion/cancellation)
         $queues = Queue::with(['client', 'latestProcessing'])
             ->whereDate('date_issued', '>=', $dateFrom)
             ->whereDate('date_issued', '<=', $dateTo)

@@ -12,7 +12,7 @@ class ReleasingController extends Controller
 {
     public function index(Request $request)
     {
-        Gate::authorize('access-receptionist');
+        Gate::authorize('access-releasing');
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
@@ -24,14 +24,14 @@ class ReleasingController extends Controller
             ->paginate(10)
             ->appends(['date' => $selectedDate]);
 
-        return view('receptionist.releasing', [
+        return view('approving-officer.releasing', [
             'pendingReleasing' => $pendingReleasing,
             'selectedDate' => $selectedDate,
         ]);
     }
     public function releasingData(Request $request)
     {
-        Gate::authorize('access-receptionist');
+        Gate::authorize('access-releasing');
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
         $page = $request->input('page', 1);
@@ -57,7 +57,7 @@ class ReleasingController extends Controller
                     'client_category' => $item->client->client_category,
                     'category_class' => strtolower(str_replace([' ', '/'], ['', '-'], $item->client->client_category)),
                     'program_requested' => $item->client->program_requested,
-                    'release_url' => route('receptionist.releasing.release', $item->id),
+                    'release_url' => route('approving-officer.releasing.release', $item->id),
                 ];
             }),
             'pagination' => (string) $pendingReleasing->links(),
@@ -66,7 +66,7 @@ class ReleasingController extends Controller
 
     public function release(Request $request, ClientProcessing $clientProcessing)
     {
-        Gate::authorize('access-receptionist');
+        Gate::authorize('access-releasing');
 
         $validated = $request->validate([
             'remarks' => ['nullable', 'string'],
@@ -88,6 +88,6 @@ class ReleasingController extends Controller
 
         event(new DashboardUpdated()); //for real time
 
-        return redirect()->route('receptionist.releasing')->with('success', 'Assistance released successfully.');
+        return redirect()->route('approving-officer.releasing')->with('success', 'Assistance released successfully.');
     }
 }

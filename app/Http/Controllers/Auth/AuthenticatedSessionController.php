@@ -48,6 +48,9 @@ class AuthenticatedSessionController extends Controller
         if($user->hasRole('approving officer')){
             return redirect()->route('approving-officer.dashboard');
         }
+        if($user->hasRole('cashier')){
+            return redirect()->route('cashier.dashboard');
+        }
 
         ActivityLog::record(
             'Login Rejected — No Role',

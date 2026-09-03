@@ -716,12 +716,11 @@
 
     </style>
 
-
     <div class="queue-report">
         <div class="queue-report__container">
             <div class="queue-banner">
                 <div class="queue-banner__content">
-                    <div class="queue-banner__bg-icon">
+                    {{-- <div class="queue-banner__bg-icon">
                         <svg
                             width="240"
                             height="240"
@@ -734,7 +733,7 @@
                                 4h8v2H6v-2z"
                             />
                         </svg>
-                    </div>
+                    </div> --}}
                     <p class="queue-banner__badge">
                         DSWD Operations Control Hub
                     </p>
@@ -763,45 +762,20 @@
                 </div>
             </div>
             <div class="queue-filter-card">
-                <form
-                    method="GET"
-                    action="{{ route('admin.queue-performance') }}"
-                    class="queue-filter-form"
-                >
+                <form method="GET" action="{{ route('admin.queue-performance') }}" class="queue-filter-form" >
                     <div class="queue-filter-group">
-                        <label
-                            for="date_from"
-                            class="queue-filter-label"
-                        >
+                        <label for="date_from" class="queue-filter-label">
                             {{ __('From') }}
                         </label>
-                        <input
-                            type="date"
-                            id="date_from"
-                            name="date_from"
-                            class="queue-filter-input"
-                            value="{{ $dateFrom }}"
-                        />
+                        <input type="date" id="date_from" name="date_from" class="queue-filter-input" value="{{ $dateFrom }}"/>
                     </div>
                     <div class="queue-filter-group">
-                        <label
-                            for="date_to"
-                            class="queue-filter-label"
-                        >
+                        <label for="date_to" class="queue-filter-label" >
                             {{ __('To') }}
                         </label>
-                        <input
-                            type="date"
-                            id="date_to"
-                            name="date_to"
-                            class="queue-filter-input"
-                            value="{{ $dateTo }}"
-                        />
+                        <input type="date" id="date_to" name="date_to" class="queue-filter-input" value="{{ $dateTo }}"/>
                     </div>
-                    <button
-                        type="submit"
-                        class="queue-btn queue-btn--blue"
-                    >
+                    <button type="submit" class="queue-btn queue-btn--blue">
                         <svg
                             width="16"
                             height="16"

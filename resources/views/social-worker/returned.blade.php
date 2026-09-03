@@ -85,6 +85,51 @@
         .ret-banner__stripe--yellow { background-color: var(--dswd-yellow); }
         .ret-banner__stripe--red { background-color: var(--dswd-red); }
 
+
+        /* Filter Section */
+        .filter-card {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .dark .filter-label {
+            color: #94a3b8;
+        }
+
+        .filter-input {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-input:focus {
+            border-color: var(--dswd-blue);
+            box-shadow:
+                0 0 0 3px rgba(0, 56, 168, 0.12);
+        }
+
         /* Main Data Card */
         .data-card {
             background-color: var(--card-bg);
@@ -168,6 +213,41 @@
                 </div>
             @endif
 
+            {{-- Date filter --}}
+            <div class="filter-card">
+                <form method="GET" action="{{ route('social-worker.returned') }}" class="flex items-end gap-3 flex-wrap">
+                    {{-- <div class="flex flex-col gap-1.5">
+                        <x-input-label for="date" :value="__('Select Queue Date')" class="font-semibold text-gray-700 text-xs" />
+                        <x-text-input id="date" name="date" type="date" class="block" value="{{ $selectedDate }}" />
+                    </div> --}}
+
+                    <div class="filter-group">
+                        <label for="date_from" class="filter-label">
+                            {{ __('From') }}
+                        </label>
+                        <input type="date" id="date_from" name="date_from" class="filter-input" value="{{ $dateFrom }}"/>
+                    </div>
+                    <div class="filter-group">
+                        <label for="date_to" class="filter-label" >
+                            {{ __('To') }}
+                        </label>
+                        <input type="date" id="date_to" name="date_to" class="filter-input" value="{{ $dateTo }}"/>
+                    </div>
+
+                    <x-primary-button type="submit" class="h-[42px] px-5 btn-primary">
+                        {{ __('Filter Queue') }}
+                    </x-primary-button>
+
+                    @if($dateTo !== now()->format('Y-m-d'))
+                        <a href="{{ route('social-worker.returned') }}">
+                            <x-secondary-button type="button" class="h-[42px] px-5">
+                                {{ __('Back to Today') }}
+                            </x-secondary-button>
+                        </a>
+                    @endif
+                </form>
+            </div>
+
             <div class="data-card">
                 <div class="mb-6 flex justify-between items-center border-b pb-4">
                     <div>
@@ -186,7 +266,7 @@
                                 <th>Client Name</th>
                                 <th>Return Remarks</th>
                                 <th>Returned On</th>
-                                <th>Actions</th>
+                                {{-- <th>Actions</th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -205,18 +285,18 @@
                                     <td class="text-xs text-gray-500">
                                         {{ $item->end_time?->format('M d, Y h:i A') }}
                                     </td>
-                                    <td>
+                                    {{-- <td>
                                         <form method="POST" action="{{ route('social-worker.returned.resume', $item->id) }}">
                                             @csrf
                                             <x-primary-button type="submit" class="btn-primary">
                                                 {{ __('Resume Assessment') }}
                                             </x-primary-button>
                                         </form>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-gray-500 italic">{{ __('No returned applications.') }}</td>
+                                    <td colspan="4" class="p-8 text-center text-gray-500 italic">{{ __('No returned applications.') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>

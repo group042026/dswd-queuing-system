@@ -439,8 +439,11 @@
 
                                             <div class="mb-4">
                                                 <x-input-label for="interview_date_{{ $item->id }}" :value="__('Interview Date')" class="font-bold text-gray-700" />
-                                                <x-text-input id="interview_date_{{ $item->id }}" name="interview_date" type="date" class="mt-1.5 block w-full" value="{{ old('interview_date', now()->format('Y-m-d')) }}" required />
-                                                <x-input-error :messages="$errors->get('interview_date')" class="mt-2" />
+                                                <div id="interview_date_{{ $item->id }}"
+                                                    class="mt-1.5 block w-full rounded-md border-gray-300 bg-gray-100 px-3 py-2 text-gray-700 shadow-sm cursor-not-allowed">
+                                                    {{ \Carbon\Carbon::parse($item->client->date_registered)->format('F d, Y') }}
+                                                </div>
+                                                <p class="text-xs text-gray-500 mt-1">Interview date is automatically set to the client's registration date.</p>
                                             </div>
 
                                             <div class="mb-4">

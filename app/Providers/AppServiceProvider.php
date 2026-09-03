@@ -37,6 +37,14 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('approving officer');
         });
 
+        Gate::define('access-cashier', function (User $user) {
+            return $user->hasRole('cashier');
+        });
+
+        Gate::define('access-releasing', function (User $user) {
+            return $user->hasRole('approving officer') || $user->hasRole('cashier');
+        });
+
         Gate::define('manage-documents', function ($user) {
             return $user->hasRole('receptionist') || $user->hasRole('social worker');
         });

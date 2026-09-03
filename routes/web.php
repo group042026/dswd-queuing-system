@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApprovingOfficerController;
+use App\Http\Controllers\CashierController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProfileController;
@@ -91,11 +92,11 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
 
     });
 
-    Route::controller(ReleasingController::class)->group(function (){
-        Route::get('/receptionist/releasing', 'index')->name('receptionist.releasing');
-        Route::get('/receptionist/releasing/data', 'releasingData')->name('receptionist.releasing.data');
-        Route::post('/receptionist/releasing/{clientProcessing}/release', 'release')->name('receptionist.releasing.release');
-    });
+    // Route::controller(ReleasingController::class)->group(function (){
+    //     Route::get('/receptionist/releasing', 'index')->name('receptionist.releasing');
+    //     Route::get('/receptionist/releasing/data', 'releasingData')->name('receptionist.releasing.data');
+    //     Route::post('/receptionist/releasing/{clientProcessing}/release', 'release')->name('receptionist.releasing.release');
+    // });
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(function (){
@@ -106,7 +107,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
         Route::get('/social-worker/assessment', 'pendingAssessment')->name('social-worker.assessment');
         Route::post('/social-worker/assessment/{clientProcessing}', 'storeAssessment')->name('social-worker.assessment.store');
         Route::get('/social-worker/returned', 'returnedAssessments')->name('social-worker.returned');
-        Route::post('/social-worker/returned/{clientProcessing}/resume', 'resumeAssessment')->name('social-worker.returned.resume');
+        // Route::post('/social-worker/returned/{clientProcessing}/resume', 'resumeAssessment')->name('social-worker.returned.resume');
     });
 
     Route::controller(DocumentController::class)->group(function (){
@@ -117,7 +118,6 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
 });
 
 Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group(function (){
-    
     Route::controller(ApprovingOfficerController::class)->group(function (){
         Route::get('/approving-officer/dashboard', 'index')->name('approving-officer.dashboard');
         Route::get('/approving-officer/dashboard-data', 'dashboardData')->name('approving-officer.dashboard.data');
@@ -125,6 +125,18 @@ Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group
         Route::post('/approving-officer/review/{clientProcessing}/decide', 'decide')->name('approving-officer.review.decide');
     });
 
+});
+
+Route::middleware('auth', 'prevent-back', 'can:access-releasing')->group(function () {
+    Route::controller(ReleasingController::class)->group(function () {
+        Route::get('/approving-officer/releasing', 'index')->name('approving-officer.releasing');
+        Route::get('/approving-officer/releasing/data', 'releasingData')->name('approving-officer.releasing.data');
+        Route::post('/approving-officer/releasing/{clientProcessing}/release', 'release')->name('approving-officer.releasing.release');
+    });
+});
+
+Route::middleware('auth', 'prevent-back', 'can:access-cashier')->group(function () {
+    Route::get('/cashier/dashboard', [CashierController::class, 'index'])->name('cashier.dashboard');
 });
 
 Route::middleware('auth')->group(function () {

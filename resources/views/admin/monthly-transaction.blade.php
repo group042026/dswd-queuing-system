@@ -705,7 +705,7 @@
         <div class="monthly-report__container">
             <div class="monthly-banner">
                 <div class="monthly-banner__content">
-                    <div class="monthly-banner__bg-icon">
+                    {{-- <div class="monthly-banner__bg-icon">
                         <svg
                             width="240"
                             height="240"
@@ -719,7 +719,7 @@
                                 12h-3v3h-2v-3H9v-2h3v-3h2v3h3v2z"
                             />
                         </svg>
-                    </div>
+                    </div> --}}
                     <p class="monthly-banner__badge">
                         DSWD Operations Control Hub
                     </p>

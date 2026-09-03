@@ -439,7 +439,7 @@
     <div class="daily-client">
         <div class="daily-client__container">
             <div class="client-header">
-                <div class="client-header__bg-icon">
+                {{-- <div class="client-header__bg-icon">
                     <svg width="240" height="240" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M19 3H5c-1.1 0-2 .9-2 2v14
@@ -447,7 +447,7 @@
                             c0-1.1-.9-2-2-2zm-2 12h-3v3h-2v-3H9v-2h3v-3h2v3h3v2z"
                         />
                     </svg>
-                </div>
+                </div> --}}
                 <div>
                     <p class="client-header__badge"> DSWD Operations Control Hub </p>
                     <h1 class="client-header__title"> Daily Client Report </h1>

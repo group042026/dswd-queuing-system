@@ -133,7 +133,7 @@ class SocialWorkerController extends Controller
         Gate::authorize('access-social-worker');
 
         $validated = $request->validate([
-            'interview_date' => ['required', 'date'],
+            // 'interview_date' => ['required', 'date'], //Dating date picker
             'means_verification' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
             'assessment_findings' => ['required', 'string'],
             'recommendation' => ['required', 'string'],
@@ -144,6 +144,8 @@ class SocialWorkerController extends Controller
         $validated['client_id'] = $clientProcessing->client_id;
         $validated['social_worker_id'] = auth()->id();
         $validated['assessment_status'] = 'Completed';
+
+        $validated['interview_date'] = $clientProcessing->client->date_registered;
 
         Assessment::create($validated);
 
@@ -171,13 +173,20 @@ class SocialWorkerController extends Controller
         return redirect()->route('social-worker.assessment')->with('success', 'Assessment completed. Client moved to Review stage.');
     }
 
-    public function returnedAssessments()
+    public function returnedAssessments(Request $request)
     {
         Gate::authorize('access-social-worker');
+
+        // $selectedDate = $request->input('date', now()->format('Y-m-d'));
+
+        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
 
         $returned = ClientProcessing::with(['client', 'queue'])
             ->where('current_step', 'Review')
             ->where('current_status', 'Completed')
+            ->whereDate('start_time', '>=', $dateFrom)
+            ->whereDate('end_time', '<=', $dateTo)
             ->whereHas('client.assessment', function ($q) {
                 $q->where('approval_status', 'Returned');
             })
@@ -189,34 +198,39 @@ class SocialWorkerController extends Controller
                     ->groupBy('client_id');
             })
             ->orderBy('end_time', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends(['date_from' => $dateFrom, 'date_to' => $dateTo]);
 
-        return view('social-worker.returned', ['returned' => $returned]);
-    }
-
-    public function resumeAssessment(ClientProcessing $clientProcessing)
-    {
-        Gate::authorize('access-social-worker');
-
-        $assessment = $clientProcessing->client->assessment;
-        $assessment->update(['approval_status' => 'Resumed']);
-
-        ClientProcessing::create([
-            'client_id' => $clientProcessing->client_id,
-            'user_id' => auth()->id(),
-            'queue_id' => $clientProcessing->queue_id,
-            'current_step' => 'Assessment',
-            'current_status' => 'Waiting',
-            'start_time' => now(),
+        return view('social-worker.returned', 
+                ['returned' => $returned, 
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo
         ]);
-
-        ActivityLog::record(
-            'Assessment Resumed',
-            "Resumed assessment for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name} — moved back to Pending Assessment"
-        );
-
-        event(new DashboardUpdated()); //for real time
-
-        return redirect()->route('social-worker.returned')->with('success', 'Client moved back to Pending Assessment.');
     }
+
+    // public function resumeAssessment(ClientProcessing $clientProcessing)
+    // {
+    //     Gate::authorize('access-social-worker');
+
+    //     $assessment = $clientProcessing->client->assessment;
+    //     $assessment->update(['approval_status' => 'Resumed']);
+
+    //     ClientProcessing::create([
+    //         'client_id' => $clientProcessing->client_id,
+    //         'user_id' => auth()->id(),
+    //         'queue_id' => $clientProcessing->queue_id,
+    //         'current_step' => 'Assessment',
+    //         'current_status' => 'Waiting',
+    //         'start_time' => now(),
+    //     ]);
+
+    //     ActivityLog::record(
+    //         'Assessment Resumed',
+    //         "Resumed assessment for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name} — moved back to Pending Assessment"
+    //     );
+
+    //     event(new DashboardUpdated()); //for real time
+
+    //     return redirect()->route('social-worker.returned')->with('success', 'Client moved back to Pending Assessment.');
+    // }
 }
