@@ -114,6 +114,7 @@ class DailyClientReportExport implements
             $client->mode_of_release,
 
             $client->client_category,
+            // str_replace(', ', "\n", $client->subcategory ?? ''),
             $client->subcategory,
             strtoupper($client->occupation),
             $client->salary,
@@ -255,6 +256,18 @@ class DailyClientReportExport implements
                     ->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER);
             }
+
+            $sheet->getStyle("W2:W{$highestRow}")->applyFromArray([
+                'font' => [
+                    'name' => 'Calibri',
+                    'size' => 7.5,
+                    'color' => ['rgb' => '000000'],
+                ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_TOP,
+                    'wrapText' => true,
+                ],
+            ]);
         }
 
         //ROW HEIGHT
@@ -264,7 +277,7 @@ class DailyClientReportExport implements
 
         // Data rows
         for ($row = 2; $row <= $highestRow; $row++) {
-            $sheet->getRowDimension($row)->setRowHeight(20);
+            $sheet->getRowDimension($row)->setRowHeight(25);
         }
 
         //DATE FORMATTING

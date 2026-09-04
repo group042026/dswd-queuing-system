@@ -46,7 +46,8 @@ class ClientController extends Controller
             'valid_id_type' => ['required', 'string'],
             'valid_id_number' => ['required', 'string', 'max:255'],
             'client_category' => ['required', 'in:Senior Citizens,Family heads and Other Needy Adult,Youth in Need and Other Needy Adult,Youth in Need of Special Protection,Men/Women in specially difficult circumstances'],
-            'subcategory' => ['required', 'in:NONE OF THE ABOVE,BELOW MINIMUM WAGE EARNER,NO REGULAR INCOME,INDIGENOUS PEOPLE,SOLO PARENT,4PS BENEFICIARY'],
+            'subcategory' => ['required', 'array', 'min:1'],
+            'subcategory.*' => ['in:NONE OF THE ABOVE,BELOW MINIMUM WAGE EARNER,NO REGULAR INCOME,INDIGENOUS PEOPLE,SOLO PARENT,4PS BENEFICIARY'],
             'mode_of_admission' => ['required', 'in:Walk-in,Offsite'],
             'mode_of_release' => ['required', 'in:Outright Cash'],
             'amount' => ['nullable', 'numeric', 'min:0'],
@@ -54,6 +55,8 @@ class ClientController extends Controller
             'type_of_assistance' => ['required', 'in:CASH RELIEF ASSISTANCE,MEDICAL ASSISTANCE,FUNERAL ASSISTANCE'],
         ]);
 
+                                    //implode is used to join elements together into a single string
+        $validated['subcategory'] = implode(', ', $validated['subcategory']);
 
         $validated['control_number'] = $this->generateControlNumber();
         $validated['date_registered'] = now();

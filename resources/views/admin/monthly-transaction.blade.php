@@ -626,6 +626,17 @@
             border: 1px solid #e2e8f0;
         }
 
+        .monthly-subcategory {
+            max-width: 220px;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: normal;
+        }
+
+        .monthly-subcategory--multiple {
+            font-size: 11px;
+        }
+
         /* ==========================================================================
            15. Empty State
            ========================================================================== */
@@ -1025,7 +1036,11 @@
                                     <td>{{ $client->salary ? number_format($client->salary, 2) : '—' }}</td>
                                     <td>{{ $client->household_size }}</td>
                                     <td><span class="monthly-category {{ $categoryClass }}">{{ $client->client_category }}</span></td>
-                                    <td>{{ $client->subcategory }}</td>
+                                    <td class="monthly-subcategory {{ str_contains($client->subcategory ?? '', ',') ? 'monthly-subcategory--multiple' : '' }}">
+                                        @foreach (explode(', ', $client->subcategory ?? '') as $subcategory)
+                                            {{ $subcategory }}@if (!$loop->last),<br>@endif
+                                        @endforeach
+                                    </td>
                                     <td>{{ $client->amount ? number_format($client->amount, 2) : '—' }}</td>
                                     <td>{{ $client->program_requested }}</td>
                                     <td>{{ $client->type_of_assistance }}</td>

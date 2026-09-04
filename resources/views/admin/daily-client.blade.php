@@ -322,6 +322,17 @@
             white-space: nowrap;
         }
 
+        .client-subcategory {
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 220px;
+        }
+
+        .client-subcategory--multiple {
+            font-size: 11px;
+        }
+
         .category-badge--senior {
             color: #1d4ed8;
             background-color: #eff6ff;
@@ -565,7 +576,11 @@
                                     <td>{{ $client->salary ? number_format($client->salary, 2) : '—' }}</td>
                                     <td>{{ $client->household_size }}</td>
                                     <td><span class="client-category {{ $categoryClass }}">{{ $client->client_category }}</span></td>
-                                    <td>{{ $client->subcategory }}</td>
+                                    <td class="client-subcategory {{ str_contains($client->subcategory ?? '', ',') ? 'client-subcategory--multiple' : '' }}">
+                                        @foreach (explode(', ', $client->subcategory ?? '') as $subcategory)
+                                            {{ $subcategory }}@if (!$loop->last),<br>@endif
+                                        @endforeach
+                                    </td>
                                     <td>{{ $client->amount ? number_format($client->amount, 2) : '—' }}</td>
                                     <td>{{ $client->program_requested }}</td>
                                     <td>{{ $client->type_of_assistance }}</td>

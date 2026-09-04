@@ -162,7 +162,7 @@
         .processing-snapshot-grid {
             display: grid;
 
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
 
             gap: 24px;
         }
@@ -684,7 +684,7 @@
                         <div class="processing-snapshot-item__label">
                             Total Active
                         </div>
-                        <div class="processing-snapshot-item__value">
+                        <div class="processing-snapshot-item__value" data-snapshot="totalStuck">
                             {{ $totalStuck }}
                         </div>
                     </div>
@@ -692,7 +692,7 @@
                         <div class="processing-snapshot-item__label">
                             Validation
                         </div>
-                        <div class="processing-snapshot-item__value">
+                        <div class="processing-snapshot-item__value" data-snapshot="Validation">
                             {{ $stuckPerStage['Validation'] ?? 0 }}
                         </div>
                     </div>
@@ -700,7 +700,7 @@
                         <div class="processing-snapshot-item__label">
                             Assessment
                         </div>
-                        <div class="processing-snapshot-item__value">
+                        <div class="processing-snapshot-item__value" data-snapshot="Assessment">
                             {{ $stuckPerStage['Assessment'] ?? 0 }}
                         </div>
                     </div>
@@ -708,7 +708,7 @@
                         <div class="processing-snapshot-item__label">
                             Review
                         </div>
-                        <div class="processing-snapshot-item__value">
+                        <div class="processing-snapshot-item__value" data-snapshot="Review">
                             {{ $stuckPerStage['Review'] ?? 0 }}
                         </div>
                     </div>
@@ -716,10 +716,19 @@
                         <div class="processing-snapshot-item__label">
                             Releasing
                         </div>
-                        <div class="processing-snapshot-item__value">
+                        <div class="processing-snapshot-item__value" data-snapshot="Releasing">
                             {{ $stuckPerStage['Releasing'] ?? 0 }}
                         </div>
                     </div>
+                    <div class="processing-snapshot-item">
+                        <div class="processing-snapshot-item__label">
+                            Completed Today
+                        </div>
+                        <div class="processing-snapshot-item__value" data-snapshot="completedToday">
+                            {{ $completedToday }}
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="processing-filter-card">
@@ -956,4 +965,59 @@
             </div>
         </div>
     </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Client processing realtime script loaded.');
+        window.Echo.channel('admin-dashboard')
+            .listen('.dashboard.updated', () => {
+                const params = new URLSearchParams({
+                    date_from: document.getElementById('date_from').value,
+                    date_to: document.getElementById('date_to').value,
+                });
+
+                fetch(`{{ route('admin.client-processing.data') }}?${params}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error: ${response.status}`);
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        const updateSnapshot = (key, value) => {
+                            const element = document.querySelector(
+                                `[data-snapshot="${key}"]`
+                            );
+
+                            if (element) {
+                                element.textContent = value;
+                            }
+                        };
+
+                        updateSnapshot('totalStuck', data.totalStuck ?? 0);
+
+                        ['Validation', 'Assessment', 'Review', 'Releasing']
+                            .forEach(stage => {
+                                updateSnapshot(
+                                    stage,
+                                    data.stuckPerStage?.[stage] ?? 0
+                                );
+                            });
+
+                        updateSnapshot(
+                            'completedToday',
+                            data.completedToday ?? 0
+                        );
+                    })
+                    .catch(error => {
+                        console.error(
+                            'Failed to update processing snapshot:',
+                            error
+                        );
+                    });
+            });
+    });
+</script>
+@endpush
 </x-admin-layout>

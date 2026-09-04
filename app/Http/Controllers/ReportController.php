@@ -204,9 +204,17 @@ class ReportController extends Controller
 
         // Snapshot NGAYON — ilang naka-stuck sa bawat stage (hindi naka-date filter)
         $stuckPerStage = ClientProcessing::whereIn('current_status', ['Waiting', 'Processing'])
+            ->whereDate('start_time', '>=', $dateFrom)
+            ->whereDate('start_time', '<=', $dateTo)
             ->select('current_step', DB::raw('count(*) as total'))
             ->groupBy('current_step')
             ->pluck('total', 'current_step');
+
+        $completedToday = ClientProcessing::where('current_step', 'Releasing')
+            ->where('current_status', 'Completed')
+            ->whereDate('end_time', '>=', $dateFrom)
+            ->whereDate('end_time', '<=', $dateTo)
+            ->count();    
 
         $totalStuck = $stuckPerStage->sum();
 
@@ -223,7 +231,38 @@ class ReportController extends Controller
             'dateTo' => $dateTo,
             'stuckPerStage' => $stuckPerStage,
             'totalStuck' => $totalStuck,
+            'completedToday' => $completedToday,
             'processingHistory' => $processingHistory,
+        ]);
+    }
+
+    public function clientProcessingData(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $dateFrom = $request->input('date_from', now()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->addDay()->format('Y-m-d'));
+
+        $stuckPerStage = ClientProcessing::whereIn('current_status', [
+            'Waiting',
+            'Processing',
+        ])
+            ->whereDate('start_time', '>=', $dateFrom)
+            ->whereDate('start_time', '<=', $dateTo)
+            ->select('current_step', DB::raw('count(*) as total'))
+            ->groupBy('current_step')
+            ->pluck('total', 'current_step');
+            
+        $completedToday = ClientProcessing::where('current_step', 'Releasing')
+            ->where('current_status', 'Completed')
+            ->whereDate('end_time', '>=', $dateFrom)
+            ->whereDate('end_time', '<=', $dateTo)
+            ->count();
+
+        return response()->json([
+            'totalStuck' => $stuckPerStage->sum(),
+            'stuckPerStage' => $stuckPerStage,
+            'completedToday' => $completedToday,
         ]);
     }
 

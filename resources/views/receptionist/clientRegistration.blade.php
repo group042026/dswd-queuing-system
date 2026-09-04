@@ -490,16 +490,33 @@
                         </div>
 
                         <div>
-                            <x-input-label for="subcategory" :value="__('Subcategory')" class="font-semibold text-gray-700" />
-                            <select id="subcategory" name="subcategory" class="mt-1.5 block w-full" required>
-                                <option value="">-- {{ __('Select') }} --</option>
-                                <option value="NONE OF THE ABOVE">NONE OF THE ABOVE</option>
-                                <option value="BELOW MINIMUM WAGE EARNER">BELOW MINIMUM WAGE EARNER</option>
-                                <option value="NO REGULAR INCOME">NO REGULAR INCOME</option>
-                                <option value="INDIGENOUS PEOPLE">INDIGENOUS PEOPLE</option>
-                                <option value="SOLO PARENT">SOLO PARENT</option>
-                                <option value="4PS BENEFICIARY">4PS BENEFICIARY</option>
-                            </select>
+                            <x-input-label :value="__('Subcategory')" class="font-semibold text-gray-700" />
+                            <div class="mt-1.5 space-y-2 border border-gray-300 rounded-md p-3">
+                                @php
+                                    $subcategories = [
+                                        'NONE OF THE ABOVE',
+                                        'BELOW MINIMUM WAGE EARNER',
+                                        'NO REGULAR INCOME',
+                                        'INDIGENOUS PEOPLE',
+                                        'SOLO PARENT',
+                                        '4PS BENEFICIARY',
+                                    ];
+                                    $oldSubcategories = old('subcategory', []);
+                                @endphp
+
+                                @foreach($subcategories as $subcategory)
+                                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                                        <input
+                                            type="checkbox"
+                                            name="subcategory[]"
+                                            value="{{ $subcategory }}"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            {{ in_array($subcategory, $oldSubcategories) ? 'checked' : '' }}
+                                        >
+                                        {{ $subcategory }}
+                                    </label>
+                                @endforeach
+                            </div>
                             <x-input-error :messages="$errors->get('subcategory')" class="mt-2" />
                         </div>
 

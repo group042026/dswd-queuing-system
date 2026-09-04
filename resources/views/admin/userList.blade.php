@@ -639,7 +639,7 @@
 
                 <div>
                     <x-input-label for="middle_name" :value="__('Middle Name')" />
-                    <x-text-input id="middle_name" name="middle_name" type="text" class="mt-1 block w-full" :value="old('middle_name')" required />
+                    <x-text-input id="middle_name" name="middle_name" type="text" class="mt-1 block w-full" :value="old('middle_name')" />
                     <x-input-error :messages="$errors->get('middle_name')" class="mt-2" />
                 </div>
 
