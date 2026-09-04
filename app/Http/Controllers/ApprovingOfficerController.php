@@ -188,6 +188,6 @@ class ApprovingOfficerController extends Controller
 
         event(new DashboardUpdated()); //for real time
 
-        return redirect()->route('approving-officer.review')->with('success', $message);
+        return redirect()->route('approving-officer.releasing')->with('success', $message);
     }
 }

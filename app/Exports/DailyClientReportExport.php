@@ -70,7 +70,7 @@ class DailyClientReportExport implements
             'Occupation',
             'Salary',
             'Number of Family Members',
-            // 'Service Modality',
+            'Service Modality',
         ];
     }
 
@@ -120,7 +120,7 @@ class DailyClientReportExport implements
             $client->salary,
             $client->household_size,
 
-            '', // Service Modality
+            $client->service_modality,
         ];
     }
 

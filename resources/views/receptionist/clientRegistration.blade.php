@@ -549,6 +549,7 @@
                             <x-input-error :messages="$errors->get('mode_of_admission')" class="mt-2" />
                         </div>
 
+
                         <div>
                             <x-input-label for="mode_of_release" :value="__('Mode of Release')" class="font-semibold text-gray-700" />
                             <select id="mode_of_release" name="mode_of_release" class="mt-1.5 block w-full" required>
@@ -573,6 +574,34 @@
                                 <option value="FUNERAL ASSISTANCE" {{ old('type_of_assistance') == 'FUNERAL ASSISTANCE' ? 'selected' : '' }}>FUNERAL ASSISTANCE</option>
                             </select>
                             <x-input-error :messages="$errors->get('type_of_assistance')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label
+                                for="service_modality"
+                                :value="__('Service Modality')"
+                                class="font-semibold text-gray-700"
+                            />
+
+                            <select
+                                id="service_modality"
+                                name="service_modality"
+                                class="mt-1.5 block w-full"
+                                required
+                            >
+                                <option value="">-- {{ __('Select') }} --</option>
+                                <option value="Walk-in" {{ old('service_modality') == 'Walk-in' ? 'selected' : '' }}>
+                                    Walk-in
+                                </option>
+                                <option value="Offsite" {{ old('service_modality') == 'Offsite' ? 'selected' : '' }}>
+                                    Offsite
+                                </option>
+                            </select>
+
+                            <x-input-error
+                                :messages="$errors->get('service_modality')"
+                                class="mt-2"
+                            />
                         </div>
                     </div>
                 </div>

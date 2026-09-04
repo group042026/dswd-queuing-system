@@ -49,6 +49,7 @@ class ClientController extends Controller
             'subcategory' => ['required', 'array', 'min:1'],
             'subcategory.*' => ['in:NONE OF THE ABOVE,BELOW MINIMUM WAGE EARNER,NO REGULAR INCOME,INDIGENOUS PEOPLE,SOLO PARENT,4PS BENEFICIARY'],
             'mode_of_admission' => ['required', 'in:Walk-in,Offsite'],
+            'service_modality' => ['required', 'in:Walk-in,Offsite'],
             'mode_of_release' => ['required', 'in:Outright Cash'],
             'amount' => ['nullable', 'numeric', 'min:0'],
             'program_requested' => ['required', 'string'],

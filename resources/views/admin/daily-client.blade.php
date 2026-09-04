@@ -533,6 +533,7 @@
                                 <th>Amount</th>
                                 <th>Source of Fund</th>
                                 <th>Type of Assistance</th>
+                                <th>Service Modality</th>
                                 <th>Date Registered</th>
                             </tr>
                         </thead>
@@ -584,6 +585,7 @@
                                     <td>{{ $client->amount ? number_format($client->amount, 2) : '—' }}</td>
                                     <td>{{ $client->program_requested }}</td>
                                     <td>{{ $client->type_of_assistance }}</td>
+                                    <td>{{ $client->service_modality }}</td>
                                     <td>
                                         <span class="client-date">
                                             {{ \Carbon\Carbon::parse($client->date_registered)->format('M d, Y h:i A') }}
