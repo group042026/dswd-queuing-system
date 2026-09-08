@@ -47,7 +47,7 @@ class AdminController extends Controller
 
 
         // 3. User distribution
-        $totalUsers = User::count();
+        $totalUsers = User::whereKeyNot(auth()->id())->count();
         $roleCounts = \DB::table('role_user')
             ->join('roles', 'role_user.role_id', '=', 'roles.id')
             ->select('roles.role_name', \DB::raw('count(*) as total'))

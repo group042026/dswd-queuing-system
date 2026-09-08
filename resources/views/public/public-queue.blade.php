@@ -200,7 +200,7 @@
                                 </div>
                             </template>
                             <template x-if="desks[deskKey].upNext.length === 0">
-                                <div class="text-slate-400 font-extrabold text-xs uppercase tracking-wider py-4">Walang Naghihintay</div>
+                                <div class="text-slate-400 font-extrabold text-xs uppercase tracking-wider py-4">No Active Ticket</div>
                             </template>
                         </div>
                     </template>
@@ -225,7 +225,7 @@
 
                     <template x-if="(deskKey === 'validation' ? desks.validation.upNext : desks[deskKey].upNext.slice(1)).length === 0">
                         <div class="text-center py-6">
-                            <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Walang Iba Pang Naghihintay</span>
+                            <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No Active Ticket</span>
                         </div>
                     </template>
                 </div>
