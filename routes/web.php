@@ -6,6 +6,7 @@ use App\Http\Controllers\ApprovingOfficerController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\MovController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ReceptionistController;
@@ -27,6 +28,14 @@ Route::get('/', function () {
 
 Route::get('/public/queue-board', [QueueController::class, 'publicQueue'])->name('public.public-queue');
 Route::get('/public/queue-board/data', [QueueController::class, 'liveQueueData'])->name('public.public-queue.data');
+
+Route::get('/mov-capture/{client}', [MovController::class, 'showCaptureForm'])
+    ->name('mov.capture')
+    ->middleware('signed');
+
+Route::post('/mov-capture/{client}', [MovController::class, 'upload'])
+    ->name('mov.upload')
+    ->middleware('signed');
 
 Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function () {
 
@@ -86,6 +95,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
         Route::get('/receptionist/validation', 'index')->name('receptionist.validation');
         Route::post('/receptionist/validation/{clientProcessing}/proceed', 'proceed')->name('receptionist.validation.proceed');
     });
+    Route::get('/receptionist/mov-qr/{client}', [MovController::class, 'generateQr'])->name('receptionist.mov.generate');
 
     Route::controller(DocumentController::class)->group(function () {
         Route::post('/receptionist/documents', 'store')->name('receptionist.documents.store');

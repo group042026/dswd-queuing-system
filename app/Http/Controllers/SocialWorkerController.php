@@ -132,19 +132,23 @@ class SocialWorkerController extends Controller
     {
         Gate::authorize('access-social-worker');
 
+        $movDocument = $clientProcessing->client->documents
+            ->firstWhere('document_name', 'Means of Verification (MOV)');
+
+        if (! $movDocument) {
+            return back()->withErrors([
+                'means_verification' => 'No MOV photo found for this client. Please have the Receptionist capture it first.',
+            ]);
+        }
+
         $validated = $request->validate([
-            // 'interview_date' => ['required', 'date'], //Dating date picker
-            'means_verification' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
-            'assessment_findings' => ['required', 'string'],
-            'recommendation' => ['required', 'string'],
             'remarks' => ['nullable', 'string'],
         ]);
 
-        $validated['means_verification'] = $request->file('means_verification')->store('assessment-photos', 'public');
+        $validated['means_verification'] = $movDocument->file_path;
         $validated['client_id'] = $clientProcessing->client_id;
         $validated['social_worker_id'] = auth()->id();
         $validated['assessment_status'] = 'Completed';
-
         $validated['interview_date'] = $clientProcessing->client->date_registered;
 
         Assessment::create($validated);
@@ -165,10 +169,10 @@ class SocialWorkerController extends Controller
 
         ActivityLog::record(
             'Assessment Completed',
-            "Completed assessment for client — Recommendation: {$validated['recommendation']}"
+            "Completed assessment for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name}"
         );
 
-        event(new DashboardUpdated()); //for real time
+        event(new DashboardUpdated());
 
         return redirect()->route('social-worker.assessment')->with('success', 'Assessment completed. Client moved to Review stage.');
     }

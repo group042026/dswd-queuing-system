@@ -462,7 +462,7 @@
 
                         <div>
                             <x-input-label for="valid_id_number" :value="__('Valid ID Number')" class="font-semibold text-gray-700" />
-                            <x-text-input id="valid_id_number" name="valid_id_number" type="text" class="mt-1.5 block w-full" :value="old('valid_id_number')" required />
+                            <x-text-input id="valid_id_number" name="valid_id_number" type="text" inputmode="numeric" maxlength="15" pattern="[0-9]{1,15}" class="mt-1.5 block w-full" :value="old('valid_id_number')" required />
                             <x-input-error :messages="$errors->get('valid_id_number')" class="mt-2" />
                         </div>
                     </div>

@@ -44,7 +44,7 @@ class ClientController extends Controller
             'salary' => ['nullable', 'numeric', 'min:0'],
             'household_size' => ['required', 'integer', 'min:1'],
             'valid_id_type' => ['required', 'string'],
-            'valid_id_number' => ['required', 'string', 'max:255'],
+            'valid_id_number' => ['required', 'string', 'regex:/^[0-9]{1,15}$/'],
             'client_category' => ['required', 'in:Senior Citizens,Family heads and Other Needy Adult,Youth in Need and Other Needy Adult,Youth in Need of Special Protection,Men/Women in specially difficult circumstances'],
             'subcategory' => ['required', 'array', 'min:1'],
             'subcategory.*' => ['in:NONE OF THE ABOVE,BELOW MINIMUM WAGE EARNER,NO REGULAR INCOME,INDIGENOUS PEOPLE,SOLO PARENT,4PS BENEFICIARY'],

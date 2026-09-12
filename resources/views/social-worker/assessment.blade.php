@@ -332,6 +332,39 @@
 
                                 <x-modal name="assess-modal-{{ $item->id }}" maxWidth="lg" :show="session('reopen_processing_id') == $item->id || $errors->any()">
                                     <div class="p-6">
+
+                                        <div class="mb-6 flex flex-col items-center text-center">
+                                            <x-input-label
+                                                :value="__('Means of Verification (MOV)')"
+                                                class="font-bold text-gray-700 mb-3"
+                                            />
+
+                                            @php
+                                                $movDocument = $item->client->documents
+                                                    ->firstWhere('document_name', 'Means of Verification (MOV)');
+                                            @endphp
+
+                                            @if($movDocument)
+                                                <img
+                                                    src="{{ Storage::url($movDocument->file_path) }}"
+                                                    alt="MOV"
+                                                    class="w-24 h-24 object-cover rounded-full border-3 border-slate-300 bg-slate-50 shadow-md"
+                                                >
+
+                                                <p class="mt-2 text-xs font-bold text-green-700">
+                                                    {{ __('MOV Captured') }}
+                                                </p>
+                                            @else
+                                                <div class="p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs font-semibold">
+                                                    {{ __('No MOV photo found. Please ask the Receptionist to capture the MOV first before proceeding.') }}
+                                                </div>
+                                            @endif
+
+                                            <x-input-error
+                                                :messages="$errors->get('means_verification')"
+                                                class="mt-2"
+                                            />
+                                        </div>
                                         <div class="border-b pb-4 mb-4">
                                             <h2 class="text-lg font-extrabold text-gray-800">
                                                 {{ __('Assessment Form') }}
@@ -434,7 +467,7 @@
                                             </form>
                                         </div>
 
-                                        <form method="POST" action="{{ route('social-worker.assessment.store', $item->id) }}" enctype="multipart/form-data">
+                                        <form method="POST" action="{{ route('social-worker.assessment.store', $item->id) }}">
                                             @csrf
 
                                             <div class="mb-4">
@@ -447,27 +480,6 @@
                                             </div>
 
                                             <div class="mb-4">
-                                                <x-input-label for="means_verification_{{ $item->id }}" :value="__('Means Verification (Proof of Appearance Photo)')" />
-                                                <input type="file" id="means_verification_{{ $item->id }}" name="means_verification"
-                                                    accept=".jpg,.jpeg,.png" capture="environment"
-                                                    class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 file:cursor-pointer hover:file:bg-blue-100"
-                                                    required>
-                                                <x-input-error :messages="$errors->get('means_verification')" class="mt-2" />
-                                            </div>
-
-                                            <div class="mb-4">
-                                                <x-input-label for="assessment_findings_{{ $item->id }}" :value="__('Assessment Findings')" class="font-bold text-gray-700" />
-                                                <textarea id="assessment_findings_{{ $item->id }}" name="assessment_findings" rows="3" class="mt-1.5 block w-full" required>{{ old('assessment_findings') }}</textarea>
-                                                <x-input-error :messages="$errors->get('assessment_findings')" class="mt-2" />
-                                            </div>
-
-                                            <div class="mb-4">
-                                                <x-input-label for="recommendation_{{ $item->id }}" :value="__('Recommendation')" class="font-bold text-gray-700" />
-                                                <textarea id="recommendation_{{ $item->id }}" name="recommendation" rows="3" class="mt-1.5 block w-full" required>{{ old('recommendation') }}</textarea>
-                                                <x-input-error :messages="$errors->get('recommendation')" class="mt-2" />
-                                            </div>
-
-                                            <div class="mb-4">
                                                 <x-input-label for="remarks_{{ $item->id }}" :value="__('Remarks (Optional)')" class="font-bold text-gray-700" />
                                                 <textarea id="remarks_{{ $item->id }}" name="remarks" rows="2" class="mt-1.5 block w-full">{{ old('remarks') }}</textarea>
                                             </div>
@@ -476,9 +488,16 @@
                                                 <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'assess-modal-{{ $item->id }}')">
                                                     {{ __('Close') }}
                                                 </x-secondary-button>
-                                                <x-primary-button type="submit" class="btn-primary">
-                                                    {{ __('Complete Assessment') }}
-                                                </x-primary-button>
+
+                                                @if($movDocument)
+                                                    <x-primary-button type="submit" class="btn-primary">
+                                                        {{ __('Complete Assessment') }}
+                                                    </x-primary-button>
+                                                @else
+                                                    <x-primary-button type="submit" disabled class="opacity-50 cursor-not-allowed">
+                                                        {{ __('Complete Assessment') }}
+                                                    </x-primary-button>
+                                                @endif
                                             </div>
                                         </form>
                                     </div>

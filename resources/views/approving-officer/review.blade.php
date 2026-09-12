@@ -583,18 +583,7 @@
                                         <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">
                                             {{ __('Review Application') }}
                                         </h2>
-                                        <div class="mb-5">
-                                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">
-                                                {{ __('Client') }}
-                                            </div>
-                                            <div class="text-base font-bold text-gray-800">
-                                                {{ $item->client->first_name }}
-                                                {{ $item->client->last_name }}
-                                            </div>
-                                            <div class="text-xs text-gray-400 font-mono mt-0.5">
-                                                {{ $item->client->control_number }}
-                                            </div>
-                                        </div>
+
                                         <div class="review-detail-avatar-container">
                                             @if($assessment?->means_verification)
                                                 <img
@@ -620,6 +609,20 @@
                                                 </div>
                                             @endif
                                         </div>
+
+                                        <div class="mb-5">
+                                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">
+                                                {{ __('Client') }}
+                                            </div>
+                                            <div class="text-base font-bold text-gray-800">
+                                                {{ $item->client->first_name }}
+                                                {{ $item->client->last_name }}
+                                            </div>
+                                            <div class="text-xs text-gray-400 font-mono mt-0.5">
+                                                {{ $item->client->control_number }}
+                                            </div>
+                                        </div>
+
                                         <div class="review-detail-grid">
                                             <div class="review-detail-row">
                                                 <div class="review-detail-label">
@@ -642,22 +645,6 @@
                                                     {{ $item->client->assessment?->socialWorker?->last_name ?? '' }}
                                                 </div>
                                             </div>
-                                            <div class="review-detail-row review-detail-grid__span-2">
-                                                <div class="review-detail-label">
-                                                    {{ __('Assessment Findings') }}
-                                                </div>
-                                                <div class="review-detail-value review-detail-value--normal">
-                                                    {{ $assessment?->assessment_findings ?? '—' }}
-                                                </div>
-                                            </div>
-                                            <div class="review-detail-row review-detail-grid__span-2">
-                                                <div class="review-detail-label">
-                                                    {{ __('Recommendation') }}
-                                                </div>
-                                                <div class="review-detail-value review-detail-value--normal">
-                                                    {{ $assessment?->recommendation ?? '—' }}
-                                                </div>
-                                            </div>
                                             @if($assessment?->remarks)
                                                 <div class="review-detail-row review-detail-grid__span-2">
                                                     <div class="review-detail-label">
@@ -669,6 +656,7 @@
                                                 </div>
                                             @endif
                                         </div>
+
                                         <form
                                             method="POST"
                                             action="{{ route('approving-officer.review.decide', $item->id) }}"

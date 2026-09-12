@@ -504,37 +504,16 @@
                         {{ __('clients') }}
                     </div>
                 </div>
-                <div class="client-table-wrapper" style="overflow-x: auto;">
+                <div class="client-table-wrapper">
                     <table class="client-table">
                         <thead>
                             <tr>
                                 <th>Client Number</th>
-                                <th>First Name</th>
-                                <th>Middle Name</th>
-                                <th>Last Name</th>
-                                <th>Suffix</th>
-                                <th>Sex</th>
-                                <th>Birthdate</th>
-                                <th>Age</th>
-                                <th>Civil Status</th>
+                                <th>Full Name</th>
+                                <th>Category</th>
                                 <th>Barangay</th>
-                                <th>District</th>
-                                <th>Mode of Admission</th>
-                                <th>Mode of Release</th>
-                                <th>Municipality</th>
-                                <th>Province</th>
-                                <th>Region</th>
-                                <th>Contact Number</th>
-                                <th>Occupation</th>
-                                <th>Salary</th>
-                                <th>Household Size</th>
-                                <th>Client Category</th>
-                                <th>Subcategory</th>
-                                <th>Amount</th>
-                                <th>Source of Fund</th>
-                                <th>Type of Assistance</th>
-                                <th>Service Modality</th>
                                 <th>Date Registered</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -557,44 +536,107 @@
                                 @endphp
                                 <tr>
                                     <td><span class="client-control-number">{{ $client->control_number }}</span></td>
-                                    <td>{{ $client->first_name }}</td>
-                                    <td>{{ $client->middle_name }}</td>
-                                    <td>{{ $client->last_name }}</td>
-                                    <td>{{ $client->suffix }}</td>
-                                    <td>{{ $client->sex }}</td>
-                                    <td>{{ $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('M d, Y') : '—' }}</td>
-                                    <td>{{ $client->age }}</td>
-                                    <td>{{ $client->civil_status }}</td>
-                                    <td>{{ $client->barangay }}</td>
-                                    <td>{{ $client->district }}</td>
-                                    <td>{{ $client->mode_of_admission }}</td>
-                                    <td>{{ $client->mode_of_release }}</td>
-                                    <td>{{ $client->municipality }}</td>
-                                    <td>{{ $client->province }}</td>
-                                    <td>{{ $client->region }}</td>
-                                    <td>{{ $client->contact_number }}</td>
-                                    <td>{{ $client->occupation }}</td>
-                                    <td>{{ $client->salary ? number_format($client->salary, 2) : '—' }}</td>
-                                    <td>{{ $client->household_size }}</td>
-                                    <td><span class="client-category {{ $categoryClass }}">{{ $client->client_category }}</span></td>
-                                    <td class="client-subcategory {{ str_contains($client->subcategory ?? '', ',') ? 'client-subcategory--multiple' : '' }}">
-                                        @foreach (explode(', ', $client->subcategory ?? '') as $subcategory)
-                                            {{ $subcategory }}@if (!$loop->last),<br>@endif
-                                        @endforeach
+                                    <td>
+                                        <span class="client-name">{{ $client->first_name }} {{ $client->last_name }}</span>
                                     </td>
-                                    <td>{{ $client->amount ? number_format($client->amount, 2) : '—' }}</td>
-                                    <td>{{ $client->program_requested }}</td>
-                                    <td>{{ $client->type_of_assistance }}</td>
-                                    <td>{{ $client->service_modality }}</td>
+                                    <td><span class="client-category {{ $categoryClass }}">{{ $client->client_category }}</span></td>
+                                    <td><span class="client-barangay">{{ $client->barangay }}</span></td>
                                     <td>
                                         <span class="client-date">
                                             {{ \Carbon\Carbon::parse($client->date_registered)->format('M d, Y h:i A') }}
                                         </span>
                                     </td>
+                                    <td>
+                                        <x-secondary-button type="button" x-on:click="$dispatch('open-modal', 'client-details-{{ $client->id }}')">
+                                            {{ __('View') }}
+                                        </x-secondary-button>
+                                    </td>
                                 </tr>
+
+                                <x-modal name="client-details-{{ $client->id }}" maxWidth="2xl">
+                                    <div class="p-6">
+                                        <div class="border-b pb-4 mb-4">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h2 class="text-lg font-extrabold text-gray-800">{{ __('Client Details') }}</h2>
+                                                    <p class="text-sm text-gray-500 mt-1">
+                                                        {{ $client->first_name }} {{ $client->last_name }}
+                                                        <span class="text-xs font-mono text-gray-400 ml-2">{{ $client->control_number }}</span>
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="client-category {{ $categoryClass }}">{{ $client->client_category }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
+
+                                            {{-- Personal Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Personal Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">First Name</span><span class="font-semibold text-gray-700">{{ $client->first_name }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Middle Name</span><span class="font-semibold text-gray-700">{{ $client->middle_name ?: '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Last Name</span><span class="font-semibold text-gray-700">{{ $client->last_name }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Suffix</span><span class="font-semibold text-gray-700">{{ $client->suffix ?: '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Sex</span><span class="font-semibold text-gray-700">{{ $client->sex }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Civil Status</span><span class="font-semibold text-gray-700">{{ $client->civil_status }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Birthdate</span><span class="font-semibold text-gray-700">{{ $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('M d, Y') : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Age</span><span class="font-semibold text-gray-700">{{ $client->age }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Contact Number</span><span class="font-semibold text-gray-700">{{ $client->contact_number }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Occupation</span><span class="font-semibold text-gray-700">{{ $client->occupation ?: '—' }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Address --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Address') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Region</span><span class="font-semibold text-gray-700">{{ $client->region }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Province</span><span class="font-semibold text-gray-700">{{ $client->province }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Municipality</span><span class="font-semibold text-gray-700">{{ $client->municipality }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Barangay</span><span class="font-semibold text-gray-700">{{ $client->barangay }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">District</span><span class="font-semibold text-gray-700">{{ $client->district }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Assistance Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Assistance Details') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Subcategory</span><span class="font-semibold text-gray-700">{{ $client->subcategory }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Type of Assistance</span><span class="font-semibold text-gray-700">{{ $client->type_of_assistance }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Source of Fund</span><span class="font-semibold text-gray-700">{{ $client->program_requested }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Amount</span><span class="font-semibold text-gray-700">{{ $client->amount ? number_format($client->amount, 2) : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Mode of Admission</span><span class="font-semibold text-gray-700">{{ $client->mode_of_admission }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Mode of Release</span><span class="font-semibold text-gray-700">{{ $client->mode_of_release }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Other Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Other Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Salary</span><span class="font-semibold text-gray-700">{{ $client->salary ? number_format($client->salary, 2) : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Household Size</span><span class="font-semibold text-gray-700">{{ $client->household_size }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Valid ID Type</span><span class="font-semibold text-gray-700">{{ $client->valid_id_type }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Valid ID Number</span><span class="font-semibold text-gray-700">{{ $client->valid_id_number }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Date Registered</span><span class="font-semibold text-gray-700">{{ \Carbon\Carbon::parse($client->date_registered)->format('M d, Y h:i A') }}</span></div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="flex justify-end mt-6 pt-4 border-t border-gray-100">
+                                            <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'client-details-{{ $client->id }}')">
+                                                {{ __('Close') }}
+                                            </x-secondary-button>
+                                        </div>
+                                    </div>
+                                </x-modal>
                             @empty
                                 <tr>
-                                    <td colspan="28" class="client-empty">
+                                    <td colspan="6" class="client-empty">
                                         {{ __('No clients registered on this date.') }}
                                     </td>
                                 </tr>

@@ -561,6 +561,51 @@
             border: 1px solid #e2e8f0;
         }
 
+        .queue-category {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .queue-category--senior {
+            color: var(--dswd-blue);
+            background-color: var(--dswd-blue-light);
+            border: 1px solid var(--dswd-blue-border);
+        }
+
+        .queue-category--family-head {
+            color: var(--dswd-red);
+            background-color: var(--dswd-red-light);
+            border: 1px solid var(--dswd-red-border);
+        }
+
+        .queue-category--youth {
+            color: #92400e;
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+
+        .queue-category--youth-protection {
+            color: #166534;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .queue-category--difficult-circumstances {
+            color: #7c2d12;
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .queue-category--regular {
+            color: #475569;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
         .dark .queue-priority--no {
             color: #94a3b8;
             background-color: #1e293b;
@@ -987,133 +1032,175 @@
                                 <th>Queue Status</th>
                                 <th>Total Duration</th>
                                 <th>Current Step</th>
-                                <th>Date Issued</th>
+                                {{-- <th>Date Issued</th> --}}
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($queues as $queue)
+                                @php
+                                    $client = $queue->client;
+
+                                    $categoryClass = match ($client->client_category) {
+                                        'Senior Citizens' => 'queue-category--senior',
+                                        'Family heads and Other Needy Adult' => 'queue-category--family-head',
+                                        'Youth in Need and Other Needy Adult' => 'queue-category--youth',
+                                        'Youth in Need of Special Protection' => 'queue-category--youth-protection',
+                                        'Men/Women in specially difficult circumstances' => 'queue-category--difficult-circumstances',
+                                        default => 'queue-category--regular',
+                                    };
+                                @endphp
+
+
                                 <tr>
-                                    <td>
-                                        <span class="queue-number">
-                                            {{ $queue->queue_number }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="queue-client-name">
-                                            {{ $queue->client->first_name }}
-                                            {{ $queue->client->last_name }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="queue-category">
-                                            {{ $queue->client->client_category }}
-                                        </span>
-                                    </td>
+                                    <td><span class="queue-number">{{ $queue->queue_number }}</span></td>
+                                    <td><span class="queue-client-name">{{ $client->first_name }} {{ $client->last_name }}</span></td>
+                                    <td><span class="queue-category {{ $categoryClass }}">{{ $client->client_category }}</span></td>
                                     <td>
                                         @if($queue->priority)
-                                            <span
-                                                class="queue-priority
-                                                       queue-priority--yes"
-                                            >
-                                                Yes
-                                            </span>
+                                            <span class="queue-priority queue-priority--yes">Yes</span>
                                         @else
-                                            <span
-                                                class="queue-priority
-                                                       queue-priority--no"
-                                            >
-                                                No
-                                            </span>
+                                            <span class="queue-priority queue-priority--no">No</span>
                                         @endif
                                     </td>
                                     <td>
                                         @php
-                                            $statusClass = match(
-                                                $queue->queue_status
-                                            ) {
-                                                'Serving'
-                                                    => 'queue-status--serving',
-
-                                                'Waiting'
-                                                    => 'queue-status--waiting',
-
-                                                'Completed'
-                                                    => 'queue-status--completed',
-
-                                                'Cancelled'
-                                                    => 'queue-status--cancelled',
-
-                                                'Abandoned'
-                                                    => 'queue-status--abandoned',
-
-                                                default
-                                                    => 'queue-status--abandoned',
+                                            $statusClass = match($queue->queue_status) {
+                                                'Serving' => 'queue-status--serving',
+                                                'Waiting' => 'queue-status--waiting',
+                                                'Completed' => 'queue-status--completed',
+                                                'Cancelled' => 'queue-status--cancelled',
+                                                'Abandoned' => 'queue-status--abandoned',
+                                                default => 'queue-status--abandoned',
                                             };
                                         @endphp
-                                        <span
-                                            class="queue-status
-                                                   {{ $statusClass }}"
-                                        >
-                                            {{ $queue->queue_status }}
-                                        </span>
+                                        <span class="queue-status {{ $statusClass }}">{{ $queue->queue_status }}</span>
                                     </td>
                                     <td>
                                         @if($queue->queue_status === 'Abandoned')
-                                            <span class="queue-muted">
-                                                {{ __('Abandoned') }}
-                                            </span>
-                                        @elseif(
-                                            in_array(
-                                                $queue->queue_status,
-                                                ['Completed', 'Cancelled']
-                                            )
-                                            &&
-                                            $queue->latestProcessing?->end_time
-                                        )
+                                            <span class="queue-muted">{{ __('Abandoned') }}</span>
+                                        @elseif(in_array($queue->queue_status, ['Completed', 'Cancelled']) && $queue->latestProcessing?->end_time)
                                             @php
-                                                $duration =
-                                                    \Carbon\Carbon::parse(
-                                                        $queue->date_issued
-                                                    )->diffForHumans(
-                                                        $queue->latestProcessing
-                                                            ->end_time,
-                                                        true
-                                                    );
+                                                $duration = \Carbon\Carbon::parse($queue->date_issued)->diffForHumans($queue->latestProcessing->end_time, true);
                                             @endphp
-                                            <span class="queue-duration">
-                                                {{ $duration }}
-                                            </span>
+                                            <span class="queue-duration">{{ $duration }}</span>
                                         @else
-                                            <span class="queue-muted">
-                                                {{ __('In Progress') }}
-                                            </span>
+                                            <span class="queue-muted">{{ __('In Progress') }}</span>
                                         @endif
                                     </td>
+                                    <td><span class="queue-step">{{ $queue->latestProcessing->current_step ?? '—' }}</span></td>
+                                    {{-- <td><span class="queue-date">{{ \Carbon\Carbon::parse($queue->date_issued)->format('M d, Y h:i A') }}</span></td> --}}
                                     <td>
-                                        <span class="queue-step">
-                                            {{
-                                                $queue
-                                                    ->latestProcessing
-                                                    ->current_step
-                                                    ?? '—'
-                                            }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="queue-date">
-                                            {{
-                                                \Carbon\Carbon::parse(
-                                                    $queue->date_issued
-                                                )->format(
-                                                    'M d, Y h:i A'
-                                                )
-                                            }}
-                                        </span>
+                                        <x-secondary-button type="button" x-on:click="$dispatch('open-modal', 'queue-details-{{ $queue->id }}')">
+                                            {{ __('View') }}
+                                        </x-secondary-button>
                                     </td>
                                 </tr>
+
+                                <x-modal name="queue-details-{{ $queue->id }}" maxWidth="2xl">
+                                    <div class="p-6">
+                                        <div class="border-b pb-4 mb-4">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h2 class="text-lg font-extrabold text-gray-800">{{ __('Queue & Client Details') }}</h2>
+                                                    <p class="text-sm text-gray-500 mt-1">
+                                                        {{ $client->first_name }} {{ $client->last_name }}
+                                                        <span class="text-xs font-mono text-gray-400 ml-2">{{ $queue->queue_number }}</span>
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="queue-category {{ $categoryClass }}">
+                                                        {{ $client->client_category }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
+
+                                            {{-- Queue Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Queue Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Queue Status</span><span class="font-semibold text-gray-700">{{ $queue->queue_status }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Priority</span><span class="font-semibold text-gray-700">{{ $queue->priority ? 'Yes' : 'No' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Current Step</span><span class="font-semibold text-gray-700">{{ $queue->latestProcessing->current_step ?? '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Date Issued</span><span class="font-semibold text-gray-700">{{ \Carbon\Carbon::parse($queue->date_issued)->format('M d, Y h:i A') }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Personal Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Personal Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">First Name</span><span class="font-semibold text-gray-700">{{ $client->first_name }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Middle Name</span><span class="font-semibold text-gray-700">{{ $client->middle_name ?: '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Last Name</span><span class="font-semibold text-gray-700">{{ $client->last_name }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Suffix</span><span class="font-semibold text-gray-700">{{ $client->suffix ?: '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Sex</span><span class="font-semibold text-gray-700">{{ $client->sex }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Civil Status</span><span class="font-semibold text-gray-700">{{ $client->civil_status }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Birthdate</span><span class="font-semibold text-gray-700">{{ $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('M d, Y') : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Age</span><span class="font-semibold text-gray-700">{{ $client->age }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Contact Number</span><span class="font-semibold text-gray-700">{{ $client->contact_number }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Occupation</span><span class="font-semibold text-gray-700">{{ $client->occupation ?: '—' }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Address --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Address') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Region</span><span class="font-semibold text-gray-700">{{ $client->region }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Province</span><span class="font-semibold text-gray-700">{{ $client->province }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Municipality</span><span class="font-semibold text-gray-700">{{ $client->municipality }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Barangay</span><span class="font-semibold text-gray-700">{{ $client->barangay }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">District</span><span class="font-semibold text-gray-700">{{ $client->district }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Assistance Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Assistance Details') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div>
+                                                        <span class="text-xs text-gray-400 block font-bold uppercase">Subcategory</span>
+                                                        <span class="font-semibold text-gray-700">
+                                                            @foreach (explode(', ', $client->subcategory ?? '') as $subcategory)
+                                                                {{ $subcategory }}@if (!$loop->last),<br>@endif
+                                                            @endforeach
+                                                        </span>
+                                                    </div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Type of Assistance</span><span class="font-semibold text-gray-700">{{ $client->type_of_assistance }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Source of Fund</span><span class="font-semibold text-gray-700">{{ $client->program_requested }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Amount</span><span class="font-semibold text-gray-700">{{ $client->amount ? number_format($client->amount, 2) : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Mode of Admission</span><span class="font-semibold text-gray-700">{{ $client->mode_of_admission }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Mode of Release</span><span class="font-semibold text-gray-700">{{ $client->mode_of_release }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Other Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Other Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Salary</span><span class="font-semibold text-gray-700">{{ $client->salary ? number_format($client->salary, 2) : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Household Size</span><span class="font-semibold text-gray-700">{{ $client->household_size }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Valid ID Type</span><span class="font-semibold text-gray-700">{{ $client->valid_id_type }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Valid ID Number</span><span class="font-semibold text-gray-700">{{ $client->valid_id_number }}</span></div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="flex justify-end mt-6 pt-4 border-t border-gray-100">
+                                            <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'queue-details-{{ $queue->id }}')">
+                                                {{ __('Close') }}
+                                            </x-secondary-button>
+                                        </div>
+                                    </div>
+                                </x-modal>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="queue-empty">
+                                    <td colspan="9" class="queue-empty">
                                         {{ __('No queues for this date range.') }}
                                     </td>
                                 </tr>

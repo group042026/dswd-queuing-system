@@ -17,7 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             "prevent-back" => PreventBack::class
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'mov-capture/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+

@@ -331,15 +331,31 @@
                                         @php
                                             $totalDocs = $item->client->documents->count();
                                             $verifiedDocs = $item->client->documents->where('verified', true)->count();
+                                            $hasMovDocument = $item->client->documents->contains(
+                                                fn ($document) => $document->document_name === 'Means of Verification (MOV)'
+                                            );
                                         @endphp
 
-                                        @if($totalDocs === 0)
-                                            <span class="doc-badge doc-badge--none">{{ __('No documents') }}</span>
-                                        @elseif($verifiedDocs === $totalDocs)
-                                            <span class="doc-badge doc-badge--verified">✓ {{ $verifiedDocs }}/{{ $totalDocs }} {{ __('Verified') }}</span>
-                                        @else
-                                            <span class="doc-badge doc-badge--pending">{{ $verifiedDocs }}/{{ $totalDocs }} {{ __('Verified') }}</span>
-                                        @endif
+                                        <div
+                                            data-documents-summary="{{ $item->client_id }}"
+                                            data-total-documents="{{ $totalDocs }}"
+                                            data-verified-documents="{{ $verifiedDocs }}"
+                                            data-has-mov="{{ $hasMovDocument ? 'true' : 'false' }}"
+                                        >
+                                            @if($totalDocs === 0)
+                                                <span class="doc-badge doc-badge--none">
+                                                    {{ __('No documents') }}
+                                                </span>
+                                            @elseif($verifiedDocs === $totalDocs)
+                                                <span class="doc-badge doc-badge--verified">
+                                                    ✓ {{ $verifiedDocs }}/{{ $totalDocs }} {{ __('Verified') }}
+                                                </span>
+                                            @else
+                                                <span class="doc-badge doc-badge--pending">
+                                                    {{ $verifiedDocs }}/{{ $totalDocs }} {{ __('Verified') }}
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         @php
@@ -384,7 +400,10 @@
                                             <h4 class="font-bold text-sm text-gray-800 mb-3">{{ __('Submitted Checklist') }}</h4>
 
                                             {{-- List of documents --}}
-                                            <div class="flex flex-col gap-2.5 mb-4">
+                                            <div
+                                                class="flex flex-col gap-2.5 mb-4"
+                                                data-documents-list="{{ $item->client_id }}"
+                                            >
                                                 @forelse($item->client->documents as $document)
                                                     <div class="flex justify-between items-center p-3 rounded-lg border border-slate-100 bg-white text-sm shadow-sm">
                                                         <div>
@@ -463,6 +482,54 @@
                                                     <x-secondary-button type="submit" class="text-xs py-2 px-4">{{ __('Upload Extra Document') }}</x-secondary-button>
                                                 </form>
                                             </div>
+
+                                            {{-- Means of Verification (MOV) --}}
+                                            <div class="mb-4 pt-4 border-t border-slate-100">
+                                                <p class="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{{ __('Means of Verification (MOV)') }}</p>
+
+                                                @php
+                                                    $movDocument = $item->client->documents->firstWhere('document_name', 'Means of Verification (MOV)');
+                                                @endphp
+
+                                                <div data-mov-container="{{ $item->client_id }}">
+                                                    @if($movDocument)
+                                                        <div class="flex items-center gap-3 p-3 rounded-lg border border-green-100 bg-green-50/50">
+                                                            <img src="{{ Storage::url($movDocument->file_path) }}" alt="MOV" class="w-16 h-16 object-cover rounded-md border border-green-200">
+                                                            <div class="flex-1">
+                                                                <p class="text-xs font-bold text-green-700">{{ __('MOV Captured') }}</p>
+                                                                <a href="{{ Storage::url($movDocument->file_path) }}" target="_blank" class="text-blue-600 text-xs font-semibold hover:underline">{{ __('View Full Image') }}</a>
+
+                                                                @if(!$movDocument->verified)
+                                                                    <span class="mx-1 text-gray-300">|</span>
+                                                                    <button
+                                                                        type="button"
+                                                                        class="text-amber-600 text-xs font-semibold hover:underline"
+                                                                        data-mov-generate-btn="{{ $item->client_id }}"
+                                                                        data-mov-url="{{ route('receptionist.mov.generate', $item->client_id) }}"
+                                                                    >
+                                                                        {{ __('Recapture') }}
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+
+                                                        <div data-mov-qr="{{ $item->client_id }}" class="mt-2"></div>
+                                                    @else
+                                                        <div class="flex flex-col items-center gap-3 p-4 rounded-lg border border-dashed border-slate-300 bg-slate-50">
+                                                            <div data-mov-qr="{{ $item->client_id }}"></div>
+                                                            <button
+                                                                type="button"
+                                                                class="text-xs font-semibold text-blue-600 hover:underline"
+                                                                data-mov-generate-btn="{{ $item->client_id }}"
+                                                                data-mov-url="{{ route('receptionist.mov.generate', $item->client_id) }}"
+                                                            >
+                                                                {{ __('Generate QR Code') }}
+                                                            </button>
+                                                            <p class="text-[11px] text-gray-400 text-center">{{ __('Client scans this QR using their phone to capture the MOV photo.') }}</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
 
                                         @php
@@ -516,4 +583,256 @@
             </div>
         </div>
     </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const activeChannels = {};
+
+        document.body.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-mov-generate-btn]');
+
+            if (!button) {
+                return;
+            }
+
+            const clientId = button.dataset.movGenerateBtn;
+            const url = button.dataset.movUrl;
+
+            button.disabled = true;
+            button.textContent = 'Generating...';
+
+            fetch(url, {
+                headers: {
+                    Accept: 'application/json',
+                },
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Failed to generate QR code.');
+                    }
+
+                    return data;
+                })
+                .then((data) => {
+                    const qrContainer = document.querySelector(
+                        `[data-mov-qr="${clientId}"]`
+                    );
+
+                    if (qrContainer) {
+                        qrContainer.innerHTML = `
+                            <img
+                                src="${data.qrImage}"
+                                alt="MOV QR Code"
+                                style="width: 180px; height: 180px;"
+                            >
+                        `;
+                    }
+
+                    button.style.display = 'none';
+
+                    if (activeChannels[clientId]) {
+                        window.Echo.leave(activeChannels[clientId]);
+                    }
+
+                    activeChannels[clientId] = data.channel;
+
+                    window.Echo.channel(data.channel)
+                        .listen('.mov.uploaded', (uploadedEvent) => {
+                            const movContainer = document.querySelector(
+                                `[data-mov-container="${clientId}"]`
+                            );
+
+                            const documentsList = document.querySelector(
+                                `[data-documents-list="${clientId}"]`
+                            );
+
+                            const documentsSummary = document.querySelector(
+                                `[data-documents-summary="${clientId}"]`
+                            );
+
+                            if (documentsSummary) {
+                                let totalDocuments = Number(
+                                    documentsSummary.dataset.totalDocuments
+                                );
+
+                                const verifiedDocuments = Number(
+                                    documentsSummary.dataset.verifiedDocuments
+                                );
+
+                                const hasMovDocument =
+                                    documentsSummary.dataset.hasMov === 'true';
+
+                                /*
+                                * New MOV: increase total count.
+                                * Recapture: MOV already exists, so keep the same count.
+                                */
+                                if (!hasMovDocument) {
+                                    totalDocuments += 1;
+                                }
+
+                                documentsSummary.dataset.totalDocuments = totalDocuments;
+                                documentsSummary.dataset.hasMov = 'true';
+
+                                documentsSummary.innerHTML = '';
+
+                                const badge = document.createElement('span');
+
+                                badge.className =
+                                    verifiedDocuments === totalDocuments
+                                        ? 'doc-badge doc-badge--verified'
+                                        : 'doc-badge doc-badge--pending';
+
+                                badge.innerHTML = verifiedDocuments === totalDocuments
+                                    ? `✓ ${verifiedDocuments}/${totalDocuments} Verified`
+                                    : `${verifiedDocuments}/${totalDocuments} Verified`;
+
+                                documentsSummary.appendChild(badge);
+                            }
+
+                            /*
+                             * Add or replace the MOV row inside Submitted Checklist.
+                             */
+                            if (documentsList) {
+                                const oldMovRow = documentsList.querySelector(
+                                    '[data-mov-document-row="true"]'
+                                );
+
+                                if (oldMovRow) {
+                                    oldMovRow.remove();
+                                }
+
+                                const emptyMessage = documentsList.querySelector(
+                                    '[data-empty-documents="true"]'
+                                );
+
+                                if (emptyMessage) {
+                                    emptyMessage.remove();
+                                }
+
+                                const movRow = document.createElement('div');
+
+                                movRow.dataset.movDocumentRow = 'true';
+                                movRow.className =
+                                    'flex justify-between items-center p-3 rounded-lg border border-slate-100 bg-white text-sm shadow-sm';
+
+                                movRow.innerHTML = `
+                                    <div>
+                                        <span class="font-medium text-gray-700">
+                                            ${uploadedEvent.documentName}
+                                        </span>
+
+                                        <a
+                                            href="${uploadedEvent.fileUrl}"
+                                            target="_blank"
+                                            class="text-blue-600 text-xs ml-3 font-semibold hover:underline inline-flex items-center gap-1"
+                                        >
+                                            View File
+                                        </a>
+                                    </div>
+
+                                    <form
+                                        method="POST"
+                                        action="/receptionist/documents/${uploadedEvent.documentId}/verify"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_token"
+                                            value="${document.querySelector('meta[name="csrf-token"]')?.content || ''}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="_method"
+                                            value="PATCH"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="reopen_id"
+                                            value="${clientId}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="text-yellow-600 text-xs font-extrabold hover:underline"
+                                        >
+                                            Verify File
+                                        </button>
+                                    </form>
+                                `;
+
+                                documentsList.appendChild(movRow);
+                            }
+
+                            /*
+                             * Update only the MOV section with the image and Recapture button.
+                             */
+                            if (movContainer) {
+                                movContainer.innerHTML = `
+                                    <div class="flex items-center gap-3 p-3 rounded-lg border border-green-100 bg-green-50/50">
+                                        <img
+                                            src="${uploadedEvent.fileUrl}"
+                                            alt="MOV"
+                                            class="w-16 h-16 object-cover rounded-md border border-green-200"
+                                        >
+
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold text-green-700">
+                                                MOV Captured
+                                            </p>
+
+                                            <a
+                                                href="${uploadedEvent.fileUrl}"
+                                                target="_blank"
+                                                class="text-blue-600 text-xs font-semibold hover:underline"
+                                            >
+                                                View Full Image
+                                            </a>
+
+                                            <span class="mx-1 text-gray-300">|</span>
+
+                                            <button
+                                                type="button"
+                                                class="text-amber-600 text-xs font-semibold hover:underline"
+                                                data-mov-generate-btn="${clientId}"
+                                                data-mov-url="${url}"
+                                            >
+                                                Recapture
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        data-mov-qr="${clientId}"
+                                        class="mt-2"
+                                    ></div>
+                                `;
+                            }
+
+                            window.Echo.leave(data.channel);
+                            delete activeChannels[clientId];
+                        });
+                })
+                .catch((error) => {
+                    console.error('Failed to generate QR:', error);
+
+                    button.disabled = false;
+                    button.textContent = 'Generate QR Code';
+                });
+        });
+
+        window.addEventListener('close-modal', () => {
+            Object.values(activeChannels).forEach((channel) => {
+                window.Echo.leave(channel);
+            });
+
+            Object.keys(activeChannels).forEach((clientId) => {
+                delete activeChannels[clientId];
+            });
+        });
+    });
+</script>
+@endpush
 </x-receptionist-layout>

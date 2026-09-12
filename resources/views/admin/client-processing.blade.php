@@ -842,115 +842,140 @@
                     <table class="processing-table">
                         <thead>
                             <tr>
-                                <th>
-                                    Queue Number
-                                </th>
-                                <th>
-                                    Client Name
-                                </th>
-                                <th>
-                                    Step
-                                </th>
-                                <th>
-                                    Status
-                                </th>
-                                <th>
-                                    Handled By
-                                </th>
-                                <th>
-                                    Start Time
-                                </th>
-                                <th>
-                                    End Time
-                                </th>
+                                <th>Queue Number</th>
+                                <th>Client Name</th>
+                                <th>Step</th>
+                                <th>Status</th>
+                                <th>Handled By</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($processingHistory as $processing)
+                                @php
+                                    $client = $processing->client;
+                                    $statusClass = match($processing->current_status) {
+                                        'Processing' => 'processing-status--processing',
+                                        'Waiting' => 'processing-status--waiting',
+                                        'Completed' => 'processing-status--completed',
+                                        'Cancelled' => 'processing-status--cancelled',
+                                        default => 'processing-status--waiting',
+                                    };
+                                @endphp
                                 <tr>
-                                    <td>
-                                        <span class="processing-queue-number">
-                                            {{
-                                                $processing->queue
-                                                    ->queue_number
-                                                    ?? '—'
-                                            }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="processing-client-name">
-                                            {{
-                                                $processing->client
-                                                    ->first_name
-                                            }}
-                                            {{
-                                                $processing->client
-                                                    ->last_name
-                                            }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="processing-step">
-                                            {{ $processing->current_step }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @php
-                                            $statusClass = match(
-                                                $processing->current_status
-                                            ) {
-                                                'Processing'
-                                                    => 'processing-status--processing',
-                                                'Waiting'
-                                                    => 'processing-status--waiting',
-                                                'Completed'
-                                                    => 'processing-status--completed',
-                                                'Cancelled'
-                                                    => 'processing-status--cancelled',
-                                                default
-                                                    => 'processing-status--waiting',
-                                            };
-                                        @endphp
-                                        <span
-                                            class="processing-status {{ $statusClass }}"
-                                        >
-                                            {{ $processing->current_status }}
-                                        </span>
-                                    </td>
+                                    <td><span class="processing-queue-number">{{ $processing->queue->queue_number ?? '—' }}</span></td>
+                                    <td><span class="processing-client-name">{{ $client->first_name }} {{ $client->last_name }}</span></td>
+                                    <td><span class="processing-step">{{ $processing->current_step }}</span></td>
+                                    <td><span class="processing-status {{ $statusClass }}">{{ $processing->current_status }}</span></td>
                                     <td>
                                         <span class="processing-user">
-                                            {{
-                                                $processing->user
-                                                    ? "{$processing->user->first_name} {$processing->user->last_name}"
-                                                    : '—'
-                                            }}
+                                            {{ $processing->user ? "{$processing->user->first_name} {$processing->user->last_name}" : '—' }}
+                                        </span>
+                                    </td>
+                                    <td><span class="processing-date">{{ $processing->start_time->format('M d, Y h:i A') }}</span></td>
+                                    <td>
+                                        <span class="processing-date">
+                                            {{ $processing->end_time ? $processing->end_time->format('M d, Y h:i A') : '—' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="processing-date">
-                                            {{
-                                                $processing->start_time
-                                                    ->format('M d, Y h:i A')
-                                            }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="processing-date">
-                                            {{
-                                                $processing->end_time
-                                                    ? $processing->end_time
-                                                        ->format('M d, Y h:i A')
-                                                    : '—'
-                                            }}
-                                        </span>
+                                        <x-secondary-button type="button" x-on:click="$dispatch('open-modal', 'processing-details-{{ $processing->id }}')">
+                                            {{ __('View') }}
+                                        </x-secondary-button>
                                     </td>
                                 </tr>
+
+                                <x-modal name="processing-details-{{ $processing->id }}" maxWidth="2xl">
+                                    <div class="p-6">
+                                        <div class="border-b pb-4 mb-4">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h2 class="text-lg font-extrabold text-gray-800">{{ __('Processing & Client Details') }}</h2>
+                                                    <p class="text-sm text-gray-500 mt-1">
+                                                        {{ $client->first_name }} {{ $client->last_name }}
+                                                        <span class="text-xs font-mono text-gray-400 ml-2">{{ $processing->queue->queue_number ?? '—' }}</span>
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="processing-status {{ $statusClass }}">{{ $processing->current_status }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
+
+                                            {{-- Processing Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Processing Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Step</span><span class="font-semibold text-gray-700">{{ $processing->current_step }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Handled By</span><span class="font-semibold text-gray-700">{{ $processing->user ? "{$processing->user->first_name} {$processing->user->last_name}" : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Start Time</span><span class="font-semibold text-gray-700">{{ $processing->start_time->format('M d, Y h:i A') }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">End Time</span><span class="font-semibold text-gray-700">{{ $processing->end_time ? $processing->end_time->format('M d, Y h:i A') : '—' }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Personal Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Personal Information') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">First Name</span><span class="font-semibold text-gray-700">{{ $client->first_name }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Middle Name</span><span class="font-semibold text-gray-700">{{ $client->middle_name ?: '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Last Name</span><span class="font-semibold text-gray-700">{{ $client->last_name }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Suffix</span><span class="font-semibold text-gray-700">{{ $client->suffix ?: '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Sex</span><span class="font-semibold text-gray-700">{{ $client->sex }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Civil Status</span><span class="font-semibold text-gray-700">{{ $client->civil_status }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Birthdate</span><span class="font-semibold text-gray-700">{{ $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('M d, Y') : '—' }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Age</span><span class="font-semibold text-gray-700">{{ $client->age }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Contact Number</span><span class="font-semibold text-gray-700">{{ $client->contact_number }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Client Category</span><span class="font-semibold text-gray-700">{{ $client->client_category }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Address --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Address') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Region</span><span class="font-semibold text-gray-700">{{ $client->region }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Province</span><span class="font-semibold text-gray-700">{{ $client->province }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Municipality</span><span class="font-semibold text-gray-700">{{ $client->municipality }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Barangay</span><span class="font-semibold text-gray-700">{{ $client->barangay }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">District</span><span class="font-semibold text-gray-700">{{ $client->district }}</span></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Assistance Info --}}
+                                            <div>
+                                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Assistance Details') }}</h3>
+                                                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                                                    <div>
+                                                        <span class="text-xs text-gray-400 block font-bold uppercase">Subcategory</span>
+                                                        <span class="font-semibold text-gray-700">
+                                                            @foreach (explode(', ', $client->subcategory ?? '') as $subcategory)
+                                                                {{ $subcategory }}@if (!$loop->last),<br>@endif
+                                                            @endforeach
+                                                        </span>
+                                                    </div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Type of Assistance</span><span class="font-semibold text-gray-700">{{ $client->type_of_assistance }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Source of Fund</span><span class="font-semibold text-gray-700">{{ $client->program_requested }}</span></div>
+                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Amount</span><span class="font-semibold text-gray-700">{{ $client->amount ? number_format($client->amount, 2) : '—' }}</span></div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="flex justify-end mt-6 pt-4 border-t border-gray-100">
+                                            <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'processing-details-{{ $processing->id }}')">
+                                                {{ __('Close') }}
+                                            </x-secondary-button>
+                                        </div>
+                                    </div>
+                                </x-modal>
                             @empty
                                 <tr>
-                                    <td
-                                        colspan="7"
-                                        class="processing-empty"
-                                    >
+                                    <td colspan="8" class="processing-empty">
                                         {{ __('No processing records for this date range.') }}
                                     </td>
                                 </tr>
