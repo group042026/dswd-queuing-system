@@ -25,10 +25,10 @@ class Client extends Model
         'province',
         'region',
         'contact_number',
-        'email',
-        'occupation',
-        'salary',                //'monthly_income'
-        'household_size',
+        // 'email',
+        // 'occupation',
+        // 'salary',                //'monthly_income'
+        // 'household_size',
         'valid_id_type',
         'valid_id_number',
         'client_category',

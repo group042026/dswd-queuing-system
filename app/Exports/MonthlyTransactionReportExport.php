@@ -76,8 +76,8 @@ class MonthlyTransactionReportExport extends DefaultValueBinder implements
             'Mode of Release',
             'Client Category',
             'Subcategory',
-            'Occupation',
-            'Salary',
+            // 'Occupation',
+            // 'Salary',
             'Number of Family Members',
         ];
     }
@@ -124,9 +124,9 @@ class MonthlyTransactionReportExport extends DefaultValueBinder implements
 
             $client->client_category,
             $client->subcategory,
-            $client->occupation ? strtoupper($client->occupation) : null,
+            // $client->occupation ? strtoupper($client->occupation) : null,
             $client->salary,
-            $client->household_size,
+            // $client->household_size,
         ];
     }
 
@@ -156,9 +156,9 @@ class MonthlyTransactionReportExport extends DefaultValueBinder implements
             'U' => 20, // Mode of Release
             'V' => 20, // Client Category
             'W' => 20, // Subcategory
-            'X' => 24, // Occupation
-            'Y' => 14, // Salary
-            'Z' => 20, // Number of Family Members
+            // 'X' => 24, // Occupation
+            // 'Y' => 14, // Salary
+            // 'X' => 20, // Number of Family Members
         ];
     }
 

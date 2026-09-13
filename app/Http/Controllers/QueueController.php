@@ -102,9 +102,13 @@ class QueueController extends Controller
         // Helper: i-map papunta sa SAFE fields lang — walang PII maliban sa masked name
         $mapSafe = function ($processing) {
             return [
+                'queue_id' => $processing->queue->id,
                 'queue_number' => $processing->queue->queue_number,
                 'priority' => (bool) $processing->queue->priority,
-                'masked_name' => $processing->client->first_name . ' ' . substr($processing->client->last_name, 0, 1) . '.',
+                'masked_name' => $processing->client->first_name
+                    . ' '
+                    . substr($processing->client->last_name, 0, 1)
+                    . '.',
                 'client_category' => $processing->client->client_category,
             ];
         };
@@ -145,8 +149,8 @@ class QueueController extends Controller
                 'validation' => [
                     'label' => 'DOCUMENT VALIDATION',
                     'counter' => 'Counter 1',
-                    'serving' => $validationQueue->take(2)->map($mapSafe)->values(),
-                    'upNext' => $validationQueue->slice(2)->take(5)->map($mapSafe)->values(),
+                    'serving' => $validationQueue->take(1)->map($mapSafe)->values(),
+                    'upNext' => $validationQueue->slice(1)->take(5)->map($mapSafe)->values(),
                 ],
                 'assessment' => [
                     'label' => 'INTERVIEW & ASSESSMENT',

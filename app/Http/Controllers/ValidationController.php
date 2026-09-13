@@ -41,6 +41,36 @@ class ValidationController extends Controller
             return back()->withErrors(['documents' => 'Not all documents are verified']);
         }
         
+        $documents = $client->documents;
+
+        $hasRequiredId = $documents->contains(
+            'document_name',
+            $client->valid_id_type
+        );
+
+        if (! $hasRequiredId) {
+            return back()->withErrors([
+                'documents' => 'Upload the required ID first.',
+            ]);
+        }
+
+        $hasMovDocument = $documents->contains(
+            'document_name',
+            'Means of Verification (MOV)'
+        );
+
+        if (! $hasMovDocument) {
+            return back()->withErrors([
+                'documents' => 'Upload the Means of Verification (MOV) first.',
+            ]);
+        }
+
+        if ($documents->contains('verified', false)) {
+            return back()->withErrors([
+                'documents' => 'Not all documents are verified.',
+            ]);
+        }
+        
         $clientProcessing->update([
             'current_status' => 'Completed',
             'end_time' => now(),

@@ -149,7 +149,7 @@
             display: inline-block;
         }
 
-        .category-badge--senior {
+        .category-badge--seniorcitizens {
             color: #1d4ed8;
             background-color: #eff6ff;
             border: 1px solid #bfdbfe;
@@ -533,9 +533,25 @@
                                         </div>
 
                                         @php
-                                            $totalDocs = $item->client->documents->count();
-                                            $verifiedDocs = $item->client->documents->where('verified', true)->count();
-                                            $canProceed = $totalDocs > 0 && $verifiedDocs === $totalDocs;
+                                            $documents = $item->client->documents;
+
+                                            $totalDocs = $documents->count();
+                                            $verifiedDocs = $documents->where('verified', true)->count();
+
+                                            $hasRequiredId = $documents->contains(
+                                                'document_name',
+                                                $item->client->valid_id_type
+                                            );
+
+                                            $hasMovDocument = $documents->contains(
+                                                'document_name',
+                                                'Means of Verification (MOV)'
+                                            );
+
+                                            $canProceed = $hasRequiredId
+                                                && $hasMovDocument
+                                                && $totalDocs > 0
+                                                && $verifiedDocs === $totalDocs;
                                         @endphp
 
                                         <form method="POST" action="{{ route('receptionist.validation.proceed', $item->id) }}">
@@ -558,7 +574,11 @@
 
                                             @if(!$canProceed)
                                                 <p class="text-xs text-red-500 mt-2 text-right font-semibold">
-                                                    @if($totalDocs === 0)
+                                                    @if(!$hasRequiredId)
+                                                        {{ __('Please upload the required ID first.') }}
+                                                    @elseif(!$hasMovDocument)
+                                                        {{ __('Please upload the Means of Verification (MOV) first.') }}
+                                                    @elseif($totalDocs === 0)
                                                         {{ __('Please upload requirements first.') }}
                                                     @else
                                                         {{ __('Please verify all documents first.') }}

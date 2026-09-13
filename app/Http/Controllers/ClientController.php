@@ -20,9 +20,17 @@ class ClientController extends Controller
         return view('receptionist.clientRegistration');
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
         Gate::authorize('access-receptionist');
+
+        $idFormats = [
+            'Philippine National ID' => '/^\d{12}$/',
+            'SSS ID' => '/^\d{2}-\d{7}-\d{1}$/',
+            'PhilHealth ID' => '/^\d{2}-\d{9}-\d{1}$/',
+            "Driver's License" => '/^[A-Za-z]\d{2}-\d{2}-\d{6}$/',
+            'Passport' => '/^[A-Za-z]\d{8}$/',
+        ];
 
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
@@ -38,13 +46,20 @@ class ClientController extends Controller
             'municipality' => ['required', 'string', 'max:255'],
             'province' => ['required', 'string', 'max:255'],
             'region' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'occupation' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],
-            'salary' => ['nullable', 'numeric', 'min:0'],
-            'household_size' => ['required', 'integer', 'min:1'],
             'valid_id_type' => ['required', 'string'],
-            'valid_id_number' => ['required', 'string', 'regex:/^[0-9]{1,15}$/'],
+            'valid_id_number' => [
+                'required',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) use ($request, $idFormats) {
+                    $idType = $request->input('valid_id_type');
+
+                    if (isset($idFormats[$idType]) && !preg_match($idFormats[$idType], $value)) {
+                        $fail("The ID number format is invalid for {$idType}.");
+                    }
+                },
+            ],
             'client_category' => ['required', 'in:Senior Citizens,Family heads and Other Needy Adult,Youth in Need and Other Needy Adult,Youth in Need of Special Protection,Men/Women in specially difficult circumstances'],
             'subcategory' => ['required', 'array', 'min:1'],
             'subcategory.*' => ['in:NONE OF THE ABOVE,BELOW MINIMUM WAGE EARNER,NO REGULAR INCOME,INDIGENOUS PEOPLE,SOLO PARENT,4PS BENEFICIARY'],
@@ -56,7 +71,6 @@ class ClientController extends Controller
             'type_of_assistance' => ['required', 'in:CASH RELIEF ASSISTANCE,MEDICAL ASSISTANCE,FUNERAL ASSISTANCE'],
         ]);
 
-                                    //implode is used to join elements together into a single string
         $validated['subcategory'] = implode(', ', $validated['subcategory']);
 
         $validated['control_number'] = $this->generateControlNumber();
@@ -65,13 +79,15 @@ class ClientController extends Controller
         DB::transaction(function () use ($validated) {
             $client = Client::create($validated);
 
+            $isPriority = in_array($client->client_category, [
+                'Senior Citizens',
+                'Men/Women in specially difficult circumstances',
+            ]);
+
             $queue = Queue::create([
-                'queue_number' => $this->generateQueueNumber(),
+                'queue_number' => $this->generateQueueNumber($isPriority),
                 'client_id' => $client->id,
-                'priority' => in_array($client->client_category, [
-                    'Senior Citizens',
-                    'Men/Women in specially difficult circumstances',
-                ]),
+                'priority' => $isPriority,
                 'queue_status' => 'Serving',
                 'date_issued' => now(),
             ]);
@@ -104,11 +120,14 @@ class ClientController extends Controller
         return "CN-{$year}-" . str_pad($count, 5, '0', STR_PAD_LEFT);
     }
 
-    private function generateQueueNumber(): string
+    private function generateQueueNumber(bool $isPriority): string
     {
-        $today = now()->format('Ymd');
-        $count = Queue::whereDate('date_issued', now())->count() + 1;
+        $today = now()->toDateString();
 
-        return "{$today}-" . str_pad($count, 3, '0', STR_PAD_LEFT); // hal. 20260802-001, mag-rereset sa 001 kada bagong araw
+        $count = Queue::whereDate('date_issued', $today)
+            ->where('priority', $isPriority)
+            ->count() + 1;
+
+        return str_pad($count, 2, '0', STR_PAD_LEFT); // 01, 02, ..., 99, 100, 101...
     }
 }

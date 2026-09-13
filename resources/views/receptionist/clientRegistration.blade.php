@@ -338,7 +338,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div>
                             <x-input-label for="civil_status" :value="__('Civil Status')" class="font-semibold text-gray-700" />
                             <select id="civil_status" name="civil_status" class="mt-1.5 block w-full" required>
@@ -350,18 +350,6 @@
                                 <option value="Divorced" {{ old('civil_status') == 'Divorced' ? 'selected' : '' }}>Divorced</option>
                             </select>
                             <x-input-error :messages="$errors->get('civil_status')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="email" :value="__('Email (Optional)')" class="font-semibold text-gray-700" />
-                            <x-text-input id="email" name="email" type="email" class="mt-1.5 block w-full" :value="old('email')" />
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="occupation" :value="__('Occupation')" class="font-semibold text-gray-700" />
-                            <x-text-input id="occupation" name="occupation" type="text" class="mt-1.5 block w-full" :value="old('occupation')" />
-                            <x-input-error :messages="$errors->get('occupation')" class="mt-2" />
                         </div>
 
                         <div>
@@ -415,7 +403,7 @@
                 </div>
 
                 {{-- SECTION 3: Household & Financial Background --}}
-                <div class="reg-card">
+                {{-- <div class="reg-card">
                     <h3 class="reg-card__title">
                         <span class="reg-card__title-number">3</span>
                         {{ __('Household & Financial Background') }}
@@ -434,12 +422,12 @@
                             <x-input-error :messages="$errors->get('household_size')" class="mt-2" />
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- SECTION 4: Valid ID --}}
                 <div class="reg-card">
                     <h3 class="reg-card__title">
-                        <span class="reg-card__title-number">4</span>
+                        <span class="reg-card__title-number">3</span>
                         {{ __('Valid Identification') }}
                     </h3>
 
@@ -462,7 +450,16 @@
 
                         <div>
                             <x-input-label for="valid_id_number" :value="__('Valid ID Number')" class="font-semibold text-gray-700" />
-                            <x-text-input id="valid_id_number" name="valid_id_number" type="text" inputmode="numeric" maxlength="15" pattern="[0-9]{1,15}" class="mt-1.5 block w-full" :value="old('valid_id_number')" required />
+                            <x-text-input
+                                id="valid_id_number"
+                                name="valid_id_number"
+                                type="text"
+                                inputmode="text"
+                                class="mt-1.5 block w-full"
+                                :value="old('valid_id_number')"
+                                required
+                            />
+                            <p class="text-xs text-gray-400 mt-1" id="valid_id_number_hint">{{ __('Select an ID type first') }}</p>
                             <x-input-error :messages="$errors->get('valid_id_number')" class="mt-2" />
                         </div>
                     </div>
@@ -471,7 +468,7 @@
                 {{-- SECTION 5: Assistance Details --}}
                 <div class="reg-card">
                     <h3 class="reg-card__title">
-                        <span class="reg-card__title-number">5</span>
+                        <span class="reg-card__title-number">4</span>
                         {{ __('Assistance Details') }}
                     </h3>
 
@@ -765,6 +762,141 @@
                     barangaySelect.disabled = false;
                 })
                 .catch(err => console.error('Failed to load barangays:', err));
+        });
+
+        const idTypeSelect = document.getElementById('valid_id_type');
+        const idNumberInput = document.getElementById('valid_id_number');
+        const idNumberHint = document.getElementById('valid_id_number_hint');
+
+        const idFormats = {
+            'Philippine National ID': {
+                pattern: '\\d{12}',
+                maxlength: 12,
+                placeholder: 'e.g. 123456789012',
+                hint: '12 digits, no dashes',
+            },
+            'SSS ID': {
+                pattern: '\\d{2}-\\d{7}-\\d{1}',
+                maxlength: 12,
+                placeholder: 'e.g. 12-3456789-0',
+                hint: 'Format: 12-3456789-0',
+                format: value => {
+                    const digits = value.replace(/\D/g, '').slice(0, 10);
+
+                    if (digits.length <= 2) {
+                        return digits;
+                    }
+
+                    if (digits.length <= 9) {
+                        return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+                    }
+
+                    return `${digits.slice(0, 2)}-${digits.slice(2, 9)}-${digits.slice(9)}`;
+                },
+            },
+            'PhilHealth ID': {
+                pattern: '\\d{2}-\\d{9}-\\d{1}',
+                maxlength: 14,
+                placeholder: 'e.g. 12-345678901-2',
+                hint: 'Format: 12-345678901-2',
+                format: value => {
+                    const digits = value.replace(/\D/g, '').slice(0, 12);
+
+                    if (digits.length <= 2) {
+                        return digits;
+                    }
+
+                    if (digits.length <= 11) {
+                        return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+                    }
+
+                    return `${digits.slice(0, 2)}-${digits.slice(2, 11)}-${digits.slice(11)}`;
+                },
+            },
+            "Driver's License": {
+                pattern: '[A-Za-z]\\d{2}-\\d{2}-\\d{6}',
+                maxlength: 13,
+                placeholder: 'e.g. N01-12-345678',
+                hint: 'Format: N01-12-345678',
+                format: value => {
+                    const cleaned = value
+                        .toUpperCase()
+                        .replace(/[^A-Z0-9]/g, '');
+
+                    const letter = cleaned.match(/^[A-Z]/)?.[0] ?? '';
+                    const digits = cleaned
+                        .slice(letter ? 1 : 0)
+                        .replace(/\D/g, '')
+                        .slice(0, 10);
+
+                    if (!letter) {
+                        return '';
+                    }
+
+                    if (digits.length <= 2) {
+                        return `${letter}${digits}`;
+                    }
+
+                    if (digits.length <= 4) {
+                        return `${letter}${digits.slice(0, 2)}-${digits.slice(2)}`;
+                    }
+
+                    return `${letter}${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4)}`;
+                },
+            },
+            'Passport': {
+                pattern: '[A-Za-z]\\d{8}',
+                maxlength: 9,
+                placeholder: 'e.g. P12345678',
+                hint: '1 letter followed by 8 digits',
+            },
+            "Voter's ID": {
+                pattern: '.{1,20}',
+                maxlength: 20,
+                placeholder: 'Enter Voter\'s ID number',
+                hint: 'No fixed format',
+            },
+            'Barangay ID': {
+                pattern: '.{1,20}',
+                maxlength: 20,
+                placeholder: 'Enter Barangay ID number',
+                hint: 'Varies per barangay',
+            },
+            'Other': {
+                pattern: '.{1,50}',
+                maxlength: 20,
+                placeholder: 'Enter ID number',
+                hint: 'No specific format required',
+            },
+        };
+
+        let selectedIdFormat = null;
+
+        idTypeSelect.addEventListener('change', () => {
+            const selected = idTypeSelect.value;
+            selectedIdFormat = idFormats[selected];
+
+            idNumberInput.value = '';
+
+            if (!selectedIdFormat) {
+                idNumberInput.removeAttribute('pattern');
+                idNumberInput.removeAttribute('maxlength');
+                idNumberInput.placeholder = '';
+                idNumberHint.textContent = 'Select an ID type first';
+
+                return;
+            }
+
+            idNumberInput.setAttribute('pattern', selectedIdFormat.pattern);
+            idNumberInput.setAttribute('maxlength', selectedIdFormat.maxlength);
+            idNumberInput.placeholder = selectedIdFormat.placeholder;
+            idNumberHint.textContent = selectedIdFormat.hint;
+        });
+
+        idNumberInput.addEventListener('input', () => {
+            if (selectedIdFormat?.format) {
+                idNumberInput.value = selectedIdFormat.format(idNumberInput.value);
+            }
         });
     });
 </script>

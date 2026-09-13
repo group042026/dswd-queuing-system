@@ -961,7 +961,7 @@
                                             <!-- Queue Number Badge -->
                                             <div class="queue-row__badge">
                                                 <span class="queue-row__badge-label">Queue No</span>
-                                                <span class="queue-row__badge-number">{{ substr($processing->queue->queue_number, -3) }}</span>
+                                                <span class="queue-row__badge-number">{{ $processing->queue->queue_number }}</span>
                                             </div>
 
                                             <div class="queue-row__identity">
@@ -974,7 +974,7 @@
                                                     <span class="queue-row__divider">•</span>
                                                     @php
                                                         $catModifier = match($processing->client->client_category) {
-                                                            'Senior' => 'queue-row__category--senior',
+                                                            'Senior Citizens' => 'queue-row__category--senior',
                                                             'Family heads and Other Needy Adult' => 'queue-row__category--family-heads',
                                                             'Youth in Need and Other Needy Adult' => 'queue-row__category--youth-needy-adult',
                                                             'Youth in Need of Special Protection' => 'queue-row__category--youth-protection',

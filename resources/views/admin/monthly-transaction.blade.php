@@ -1043,7 +1043,7 @@
                                                     <div><span class="text-xs text-gray-400 block font-bold uppercase">Birthdate</span><span class="font-semibold text-gray-700">{{ $client->birthdate ? \Carbon\Carbon::parse($client->birthdate)->format('M d, Y') : '—' }}</span></div>
                                                     <div><span class="text-xs text-gray-400 block font-bold uppercase">Age</span><span class="font-semibold text-gray-700">{{ $client->age }}</span></div>
                                                     <div><span class="text-xs text-gray-400 block font-bold uppercase">Contact Number</span><span class="font-semibold text-gray-700">{{ $client->contact_number }}</span></div>
-                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Occupation</span><span class="font-semibold text-gray-700">{{ $client->occupation ?: '—' }}</span></div>
+                                                    {{-- <div><span class="text-xs text-gray-400 block font-bold uppercase">Occupation</span><span class="font-semibold text-gray-700">{{ $client->occupation ?: '—' }}</span></div> --}}
                                                 </div>
                                             </div>
 
@@ -1083,8 +1083,8 @@
                                             <div>
                                                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{{ __('Other Information') }}</h3>
                                                 <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
-                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Salary</span><span class="font-semibold text-gray-700">{{ $client->salary ? number_format($client->salary, 2) : '—' }}</span></div>
-                                                    <div><span class="text-xs text-gray-400 block font-bold uppercase">Household Size</span><span class="font-semibold text-gray-700">{{ $client->household_size }}</span></div>
+                                                    {{-- <div><span class="text-xs text-gray-400 block font-bold uppercase">Salary</span><span class="font-semibold text-gray-700">{{ $client->salary ? number_format($client->salary, 2) : '—' }}</span></div> --}}
+                                                    {{-- <div><span class="text-xs text-gray-400 block font-bold uppercase">Household Size</span><span class="font-semibold text-gray-700">{{ $client->household_size }}</span></div> --}}
                                                     <div><span class="text-xs text-gray-400 block font-bold uppercase">Date Released</span><span class="font-semibold text-gray-700">{{ \Carbon\Carbon::parse($processing->end_time)->format('M d, Y h:i A') }}</span></div>
                                                 </div>
                                             </div>

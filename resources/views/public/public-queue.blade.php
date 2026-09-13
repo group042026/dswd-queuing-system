@@ -113,8 +113,8 @@
                         </svg>
                     </button>
                     <div class="pl-3 border-l border-white/20 text-right">
-                        <p class="text-xs sm:text-sm md:text-md font-bold tracking-tight text-white leading-none" x-text="timeString"></p>
-                        <p class="text-[8px] md:text-[9px] font-semibold text-slate-200 uppercase tracking-widest mt-1" x-text="dateString"></p>
+                        <p class="text-base sm:text-lg md:text-2xl font-black tracking-tight text-white leading-none" x-text="timeString"></p>
+                        <p class="text-[25px] sm:text-xs md:text-sm font-bold text-slate-200 uppercase tracking-widest mt-1" x-text="dateString"></p>
                     </div>
                 </div>
             </div>
@@ -160,13 +160,17 @@
                                     <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-900 font-mono select-none">
                                         <span x-text="desks.validation.serving[0].queue_number"></span>
                                     </div>
-                                    <div class="text-sm font-extrabold text-slate-800 mt-2 uppercase tracking-wide" x-text="desks.validation.serving[0].masked_name"></div>
-                                    <div class="mt-2 flex items-center justify-center gap-1.5">
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider"
-                                              :class="getCategoryClass(desks.validation.serving[0].client_category)"
-                                              x-text="desks.validation.serving[0].client_category"></span>
+                                    <div class="mt-3 flex flex-col items-center justify-center gap-2">
+                                        <span
+                                            class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
+                                            :class="getCategoryClass(desks.validation.serving[0].client_category)"
+                                            x-text="desks.validation.serving[0].client_category">
+                                        </span>
+
                                         <template x-if="desks.validation.serving[0].priority">
-                                            <span class="bg-red-600 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full">⚡ PRIORITY</span>
+                                            <span class="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
+                                                ⚡ PRIORITY
+                                            </span>
                                         </template>
                                     </div>
                                 </div>
@@ -188,13 +192,17 @@
                                     <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-700 font-mono select-none">
                                         <span x-text="desks[deskKey].upNext[0].queue_number"></span>
                                     </div>
-                                    <div class="text-sm font-extrabold text-slate-700 mt-2 uppercase tracking-wide" x-text="desks[deskKey].upNext[0].masked_name"></div>
-                                    <div class="mt-2 flex items-center justify-center gap-1.5">
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider"
-                                              :class="getCategoryClass(desks[deskKey].upNext[0].client_category)"
-                                              x-text="desks[deskKey].upNext[0].client_category"></span>
+                                    <div class="mt-3 flex flex-col items-center justify-center gap-2">
+                                        <span
+                                            class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
+                                            :class="getCategoryClass(desks[deskKey].upNext[0].client_category)"
+                                            x-text="desks[deskKey].upNext[0].client_category">
+                                        </span>
+
                                         <template x-if="desks[deskKey].upNext[0].priority">
-                                            <span class="bg-red-600 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full">⚡ PRIORITY</span>
+                                            <span class="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
+                                                ⚡ PRIORITY
+                                            </span>
                                         </template>
                                     </div>
                                 </div>
@@ -211,7 +219,7 @@
                         <span x-text="deskKey === 'validation' ? 'Up Next' : 'Waiting'"></span>
                     </p>
 
-                    <template x-for="(item, index) in (deskKey === 'validation' ? desks.validation.upNext : desks[deskKey].upNext.slice(1))" :key="item.queue_number">
+                    <template x-for="(item, index) in (deskKey === 'validation' ? desks.validation.upNext : desks[deskKey].upNext.slice(1))" :key="item.queue_id">
                         <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200/60 flex justify-between items-center">
                             <div class="flex items-center gap-1.5">
                                 <span class="font-mono text-sm font-bold text-slate-700" x-text="item.queue_number"></span>
@@ -251,7 +259,7 @@
 
                 audioCtx: null,
                 isKioskDisplay: false,
-                lastValidationNumber: null,
+                lastValidationQueueId: null,
                 allKnownNumbers: new Set(),
                 flashDesk: null,
 
@@ -298,10 +306,10 @@
                             } else {
                                 Object.keys(data.desks).forEach(deskKey => {
                                     [...data.desks[deskKey].serving, ...data.desks[deskKey].upNext].forEach(item => {
-                                        this.allKnownNumbers.add(deskKey + ':' + item.queue_number);
+                                        this.allKnownNumbers.add(deskKey + ':' + item.queue_id);
                                     });
                                 });
-                                this.lastValidationNumber = data.desks.validation.serving[0]?.queue_number ?? null;
+                                this.lastValidationQueueId = data.desks.validation.serving[0]?.queue_id ?? null;
                             }
 
                             this.desks = data.desks;
@@ -317,7 +325,7 @@
                     Object.keys(newDesks).forEach(deskKey => {
                         const allItems = [...newDesks[deskKey].serving, ...newDesks[deskKey].upNext];
                         allItems.forEach(item => {
-                            const key = deskKey + ':' + item.queue_number;
+                            const key = deskKey + ':' + item.queue_id;
                             if (!this.allKnownNumbers.has(key)) {
                                 this.allKnownNumbers.add(key);
                                 hasNewEntry = true;
@@ -325,11 +333,15 @@
                         });
                     });
 
-                    const newValidationNumber = newDesks.validation.serving[0]?.queue_number ?? null;
-                    const validationChanged = newValidationNumber && newValidationNumber !== this.lastValidationNumber;
+                    const newValidationQueueId =
+                        newDesks.validation.serving[0]?.queue_id ?? null;
+
+                    const validationChanged =
+                        newValidationQueueId &&
+                        newValidationQueueId !== this.lastValidationQueueId;
 
                     if (validationChanged) {
-                        this.lastValidationNumber = newValidationNumber;
+                        this.lastValidationQueueId = newValidationQueueId;
                         this.flashDesk = 'validation';
                         setTimeout(() => { this.flashDesk = null; }, 4000);
 
@@ -376,7 +388,7 @@
 
                 getCategoryClass(category) {
                     switch (category) {
-                        case 'Senior':
+                        case 'Senior Citizens':
                             return 'bg-blue-100 text-[#1d4ed8] border border-blue-200';
 
                         case 'Family heads and Other Needy Adult':

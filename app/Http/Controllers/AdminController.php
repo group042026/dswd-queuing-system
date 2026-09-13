@@ -137,7 +137,7 @@ class AdminController extends Controller
             'recentProcessings' => $recentProcessings->map(function ($p) {
                 return [
                     'queue_number' => $p->queue->queue_number,
-                    'queue_number_short' => substr($p->queue->queue_number, -3),
+                    'queue_number_short' => $p->queue->queue_number,
                     'full_name' => "{$p->client->first_name} {$p->client->last_name}",
                     'control_number' => $p->client->control_number,
                     'client_category' => $p->client->client_category,

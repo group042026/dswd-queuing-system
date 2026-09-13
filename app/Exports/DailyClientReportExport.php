@@ -67,8 +67,8 @@ class DailyClientReportExport implements
             'Mode of Release',
             'Client Category',
             'Subcategory',
-            'Occupation',
-            'Salary',
+            // 'Occupation',
+            // 'Salary',
             'Number of Family Members',
             'Service Modality',
         ];
@@ -117,8 +117,8 @@ class DailyClientReportExport implements
             // str_replace(', ', "\n", $client->subcategory ?? ''),
             $client->subcategory,
             strtoupper($client->occupation),
-            $client->salary,
-            $client->household_size,
+            // $client->salary,
+            // $client->household_size,
 
             $client->service_modality,
         ];
@@ -162,10 +162,10 @@ class DailyClientReportExport implements
             // Other information
             'V' => 20, // Client Category
             'W' => 20, // Subcategory
-            'X' => 24, // Occupation
-            'Y' => 14, // Salary
-            'Z' => 20, // Number of Family Members
-            'AA' => 20, // Service Modality
+            // 'X' => 24, // Occupation
+            // 'Y' => 14, // Salary
+            'X' => 20, // Number of Family Members
+            'Y' => 20, // Service Modality
         ];
     }
 
