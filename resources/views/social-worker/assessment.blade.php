@@ -300,7 +300,17 @@
                         <tbody>
                             @forelse($pendingAssessment as $item)
                                 <tr>
-                                    <td class="font-bold text-gray-900">{{ $item->queue->queue_number }}</td>
+                                    <td class="font-bold text-gray-900">
+                                        <div class="flex flex-col items-start gap-1">
+                                            <span>{{ $item->queue->queue_number }}</span>
+
+                                            @if ($item->is_returnee)
+                                                <span class="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-extrabold uppercase text-orange-700">
+                                                    RETURNEE
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
                                     <td>
                                         <div class="font-extrabold text-gray-800">{{ $item->client->first_name }} {{ $item->client->last_name }}</div>
                                         <div class="text-xs text-gray-400 font-mono mt-0.5">{{ $item->client->control_number }}</div>
@@ -318,10 +328,23 @@
                                             $isToday = $selectedDate === now()->format('Y-m-d');
                                         @endphp
 
-                                        @if($isToday)
-                                            <x-primary-button x-on:click="$dispatch('open-modal', 'assess-modal-{{ $item->id }}')" class="btn-primary">
-                                                {{ __('Assess') }}
-                                            </x-primary-button>
+                                        @if ($isToday)
+                                            <div class="flex flex-wrap gap-2">
+                                                <x-primary-button
+                                                    x-on:click="$dispatch('open-modal', 'assess-modal-{{ $item->id }}')"
+                                                    class="btn-primary"
+                                                >
+                                                    {{ __('Assess') }}
+                                                </x-primary-button>
+
+                                                <x-secondary-button
+                                                    type="button"
+                                                    x-on:click="$dispatch('open-modal', 'on-hold-modal-{{ $item->id }}')"
+                                                    class="border-amber-500 text-amber-700 hover:bg-amber-50"
+                                                >
+                                                    {{ __('Put On Hold') }}
+                                                </x-secondary-button>
+                                            </div>
                                         @else
                                             <x-secondary-button type="button" disabled class="opacity-50 cursor-not-allowed">
                                                 {{ __('View Only') }}
@@ -498,6 +521,80 @@
                                                         {{ __('Complete Assessment') }}
                                                     </x-primary-button>
                                                 @endif
+                                            </div>
+                                        </form>
+                                    </div>
+                                </x-modal>
+                                <x-modal name="on-hold-modal-{{ $item->id }}" maxWidth="md">
+                                    <div class="p-6">
+                                        <div class="mb-5">
+                                            <h2 class="text-lg font-extrabold text-gray-800">
+                                                {{ __('Put Client On Hold') }}
+                                            </h2>
+
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                {{ __('The client will keep the same queue number and can be resumed later.') }}
+                                            </p>
+                                        </div>
+
+                                        <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                                            <p class="text-xs font-bold uppercase text-amber-700">
+                                                {{ __('Client') }}
+                                            </p>
+
+                                            <p class="mt-1 font-bold text-gray-800">
+                                                {{ $item->client->first_name }} {{ $item->client->last_name }}
+                                            </p>
+
+                                            <p class="text-xs text-gray-600">
+                                                Queue #{{ $item->queue->queue_number }}
+                                            </p>
+                                        </div>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('social-worker.assessment.on-hold', $item->id) }}"
+                                        >
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <div>
+                                                <x-input-label
+                                                    for="on_hold_reason_{{ $item->id }}"
+                                                    :value="__('Reason for On Hold')"
+                                                    class="font-bold text-gray-700"
+                                                />
+
+                                                <textarea
+                                                    id="on_hold_reason_{{ $item->id }}"
+                                                    name="on_hold_reason"
+                                                    rows="4"
+                                                    maxlength="1000"
+                                                    required
+                                                    class="mt-1.5 block w-full rounded-md border-gray-300"
+                                                    placeholder="Example: Missing additional document..."
+                                                ></textarea>
+
+                                                <x-input-error
+                                                    :messages="$errors->get('on_hold_reason')"
+                                                    class="mt-2"
+                                                />
+                                            </div>
+
+                                            <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+                                                <x-secondary-button
+                                                    type="button"
+                                                    x-on:click="$dispatch('close-modal', 'on-hold-modal-{{ $item->id }}')"
+                                                >
+                                                    {{ __('Cancel') }}
+                                                </x-secondary-button>
+
+                                                <x-primary-button
+                                                    type="submit"
+                                                    class="bg-amber-500 hover:bg-amber-600"
+                                                >
+                                                    {{ __('Confirm On Hold') }}
+                                                </x-primary-button>
                                             </div>
                                         </form>
                                     </div>

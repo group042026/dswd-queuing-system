@@ -469,7 +469,7 @@
                                         @if($queue->priority)
                                             @php
                                                 $priorityModifier = match($queue->client->client_category) {
-                                                    'Senior'
+                                                    'Senior Citizens'
                                                         => 'badge-priority--senior',
 
                                                     'Family heads and Other Needy Adult'
@@ -542,13 +542,26 @@
                                     <td class="text-sm text-gray-500">{{ $queue->date_issued->format('M d, Y h:i A') }}</td>
                                     <td>
                                         @if(!in_array($queue->queue_status, ['Completed', 'Cancelled', 'Abondoned']))
-                                            <x-danger-button type="button" x-data="" x-on:click="$dispatch('open-modal', 'cancel-queue-modal-{{ $queue->id }}')"
-                                                class="inline-flex items-center gap-1.5" style="border-radius: 8px;">
+                                            <x-danger-button
+                                                type="button"
+                                                x-data=""
+                                                x-on:click="$dispatch('open-modal', 'cancel-queue-modal-{{ $queue->id }}')"
+                                                class="inline-flex items-center gap-1.5"
+                                                style="border-radius: 8px;"
+                                            >
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                                 {{ __('Cancel') }}
                                             </x-danger-button>
+                                        @elseif($queue->queue_status === 'Cancelled')
+                                            <x-secondary-button
+                                                type="button"
+                                                x-data=""
+                                                x-on:click="$dispatch('open-modal', 'view-cancellation-modal-{{ $queue->id }}')"
+                                            >
+                                                {{ __('View') }}
+                                            </x-secondary-button>
                                         @else
                                             <span class="text-gray-300 text-xs">—</span>
                                         @endif
@@ -571,37 +584,83 @@
                         @if(!in_array($queue->queue_status, ['Completed', 'Cancelled', 'Abondoned']))
                             <x-modal name="cancel-queue-modal-{{ $queue->id }}" focusable>
                                 <div class="p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
-                                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                            </svg>
-                                        </div>
-                                        <h2 class="text-lg font-bold text-gray-900">
-                                            {{ __('Cancel Queue Entry') }}
-                                        </h2>
-                                    </div>
+                                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                                        {{ __('Cancel Queue Entry') }}
+                                    </h2>
 
-                                    <p class="text-sm text-gray-600 mb-6 leading-relaxed">
-                                        Are you sure you want to cancel the queue entry for
-                                        <span class="font-bold text-gray-800">{{ $queue->client->first_name }} {{ $queue->client->last_name }}</span>
-                                        (<span class="font-mono text-gray-900 font-bold">Queue #{{ $queue->queue_number }}</span>)?
-                                        This action cannot be undone and will record the ticket as cancelled.
+                                    <p class="text-sm text-gray-600 mb-6">
+                                        {{ __('Are you sure you want to cancel queue') }}
+                                        <span class="font-mono font-bold text-gray-900">
+                                            #{{ $queue->queue_number }}
+                                        </span>?
                                     </p>
 
                                     <form method="POST" action="{{ route('admin.queue.cancel', $queue->id) }}">
                                         @csrf
                                         @method('PATCH')
 
+                                        <div class="mb-6">
+                                            <label
+                                                for="cancellation_reason_{{ $queue->id }}"
+                                                class="block text-sm font-semibold text-gray-700 mb-2"
+                                            >
+                                                {{ __('Reason for Cancellation') }}
+                                            </label>
+
+                                            <textarea
+                                                id="cancellation_reason_{{ $queue->id }}"
+                                                name="cancellation_reason"
+                                                rows="4"
+                                                maxlength="1000"
+                                                required
+                                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="{{ __('Enter the reason for cancelling this queue...') }}"
+                                            ></textarea>
+                                        </div>
+
                                         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                            <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'cancel-queue-modal-{{ $queue->id }}')">
+                                            <x-secondary-button
+                                                type="button"
+                                                x-on:click="$dispatch('close-modal', 'cancel-queue-modal-{{ $queue->id }}')"
+                                            >
                                                 {{ __('Close') }}
                                             </x-secondary-button>
+
                                             <x-danger-button type="submit" style="border-radius: 8px;">
                                                 {{ __('Cancel Queue') }}
                                             </x-danger-button>
                                         </div>
                                     </form>
+                                </div>
+                            </x-modal>
+                        @endif
+
+                        @if($queue->queue_status === 'Cancelled')
+                            <x-modal name="view-cancellation-modal-{{ $queue->id }}" focusable>
+                                <div class="p-6">
+                                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                                        {{ __('Cancellation Reason') }}
+                                    </h2>
+
+                                    <p class="text-sm text-gray-600 mb-4">
+                                        {{ __('Queue Number:') }}
+                                        <span class="font-mono font-bold text-gray-900">
+                                            {{ $queue->queue_number }}
+                                        </span>
+                                    </p>
+
+                                    <div class="rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-gray-700 whitespace-pre-line">
+                                        {{ $queue->cancellation_reason ?: __('No cancellation reason recorded.') }}
+                                    </div>
+
+                                    <div class="flex justify-end mt-6 pt-4 border-t border-gray-100">
+                                        <x-secondary-button
+                                            type="button"
+                                            x-on:click="$dispatch('close-modal', 'view-cancellation-modal-{{ $queue->id }}')"
+                                        >
+                                            {{ __('Close') }}
+                                        </x-secondary-button>
+                                    </div>
                                 </div>
                             </x-modal>
                         @endif
@@ -643,7 +702,7 @@
 
         function getPriorityClass(category) {
             const map = {
-                'Senior': 'badge-priority--senior',
+                'Senior Citizens': 'badge-priority--senior',
 
                 'Family heads and Other Needy Adult':
                     'badge-priority--family-heads',
@@ -688,13 +747,27 @@
                     : `<span class="text-gray-400 text-sm">—</span>`;
 
                 const cancelCell = q.can_cancel
-                    ? `<button type="button" class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150" style="border-radius: 8px;" x-data="" x-on:click="$dispatch('open-modal', 'cancel-queue-modal-${q.id}')">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Cancel
-                       </button>`
-                    : `<span class="text-gray-300 text-xs">—</span>`;
+                    ? `<button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 transition"
+                            style="border-radius: 8px;"
+                            x-data=""
+                            x-on:click="$dispatch('open-modal', 'cancel-queue-modal-${q.id}')"
+                    >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                    </button>`
+                    : q.queue_status === 'Cancelled'
+                        ? `<button
+                                type="button"
+                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50"
+                                x-data=""
+                                x-on:click="$dispatch('open-modal', 'view-cancellation-modal-${q.id}')"
+                        >
+                                View
+                        </button>`
 
                 rows += `
                     <tr>
@@ -711,57 +784,112 @@
 
                 if (q.can_cancel) {
                     modals += `
-                        <div x-data="{
-                                show: false,
-                                focusables() {
-                                    let selector = 'a, button, input:not([type=\\'hidden\\']), textarea, select, details, [tabindex]:not([tabindex=\\'-1\\'])'
-                                    return [...$el.querySelectorAll(selector)].filter(el => ! el.hasAttribute('disabled'))
-                                },
-                                firstFocusable() { return this.focusables()[0] },
-                            }"
-                            x-init="$watch('show', value => {
-                                if (value) { document.body.classList.add('overflow-y-hidden'); setTimeout(() => firstFocusable().focus(), 100) }
-                                else { document.body.classList.remove('overflow-y-hidden') }
-                            })"
+                        <div
+                            x-data="{ show: false }"
+                            x-show="show"
                             x-on:open-modal.window="$event.detail == 'cancel-queue-modal-${q.id}' ? show = true : null"
                             x-on:close-modal.window="$event.detail == 'cancel-queue-modal-${q.id}' ? show = false : null"
-                            x-on:close.stop="show = false"
-                            x-on:keydown.escape.window="show = false"
-                            x-show="show"
                             class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
                             style="display: none;"
                         >
-                            <div x-show="show" class="fixed inset-0 transform transition-all" x-on:click="show = false"
-                                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                            </div>
-                            <div x-show="show" class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:max-w-2xl sm:mx-auto"
-                                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                            <div class="fixed inset-0 bg-gray-500 opacity-75" x-on:click="show = false"></div>
+
+                            <div class="relative mb-6 bg-white rounded-lg shadow-xl sm:w-full sm:max-w-2xl sm:mx-auto">
                                 <div class="p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
-                                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                            </svg>
-                                        </div>
-                                        <h2 class="text-lg font-bold text-gray-900">Cancel Queue Entry</h2>
-                                    </div>
-                                    <p class="text-sm text-gray-600 mb-6 leading-relaxed">
-                                        Are you sure you want to cancel the queue entry for
-                                        <span class="font-bold text-gray-800">${q.client_name}</span>
-                                        (<span class="font-mono text-gray-900 font-bold">Queue #${q.queue_number}</span>)?
-                                        This action cannot be undone and will record the ticket as cancelled.
+                                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                                        Cancel Queue Entry
+                                    </h2>
+
+                                    <p class="text-sm text-gray-600 mb-6">
+                                        Queue #${q.queue_number} will be cancelled.
                                     </p>
+
                                     <form method="POST" action="${q.cancel_url}">
-                                        <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
+                                        <input
+                                            type="hidden"
+                                            name="_token"
+                                            value="${document.querySelector('meta[name=csrf-token]').content}"
+                                        >
+
                                         <input type="hidden" name="_method" value="PATCH">
-                                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                            <button type="button" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150" x-on:click="$dispatch('close-modal', 'cancel-queue-modal-${q.id}')">Close</button>
-                                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150" style="border-radius: 8px;">Cancel Queue</button>
+
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Reason for Cancellation
+                                        </label>
+
+                                        <textarea
+                                            name="cancellation_reason"
+                                            rows="4"
+                                            maxlength="1000"
+                                            required
+                                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            placeholder="Enter the reason for cancelling this queue..."
+                                        ></textarea>
+
+                                        <div class="flex justify-end gap-3 pt-4 mt-6 border-t border-gray-100">
+                                            <button
+                                                type="button"
+                                                class="px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase"
+                                                x-on:click="show = false"
+                                            >
+                                                Close
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                class="px-4 py-2 bg-red-600 text-white rounded-md font-semibold text-xs uppercase"
+                                            >
+                                                Cancel Queue
+                                            </button>
                                         </div>
                                     </form>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (q.queue_status === 'Cancelled') {
+                    modals += `
+                        <div
+                            x-data="{ show: false }"
+                            x-show="show"
+                            x-on:open-modal.window="$event.detail == 'view-cancellation-modal-${q.id}' ? show = true : null"
+                            x-on:close-modal.window="$event.detail == 'view-cancellation-modal-${q.id}' ? show = false : null"
+                            class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+                            style="display: none;"
+                        >
+                            <div
+                                class="fixed inset-0 bg-gray-500 opacity-75"
+                                x-on:click="show = false"
+                            ></div>
+
+                            <div class="relative mb-6 bg-white rounded-lg shadow-xl sm:w-full sm:max-w-2xl sm:mx-auto">
+                                <div class="p-6">
+                                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                                        Cancellation Reason
+                                    </h2>
+
+                                    <p class="text-sm text-gray-600 mb-4">
+                                        Queue #
+                                        <span class="font-mono font-bold text-gray-900">
+                                            ${q.queue_number}
+                                        </span>
+                                    </p>
+
+                                    <div class="rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-gray-700 whitespace-pre-line">
+                                        ${q.cancellation_reason || 'No cancellation reason recorded.'}
+                                    </div>
+
+                                    <div class="flex justify-end mt-6 pt-4 border-t border-gray-100">
+                                        <button
+                                            type="button"
+                                            class="px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase"
+                                            x-on:click="show = false"
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

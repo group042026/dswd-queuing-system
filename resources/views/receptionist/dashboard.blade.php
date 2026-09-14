@@ -539,7 +539,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card stat-card--red">
+                {{-- <div class="stat-card stat-card--red">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Pending Releasing</span>
                         <span class="stat-card__value" data-stat="pendingReleasingCount">{{ $pendingReleasingCount }}</span>
@@ -549,7 +549,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4M20 12l-6-6M20 12l-6 6" />
                         </svg>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Split Main/Sidebar Layout -->
@@ -607,8 +607,10 @@
                                                 </div>
                                             </div>
                                             <div class="queue-row__right">
-                                                <a href="{{ $isValidation ? route('receptionist.validation') : route('receptionist.releasing') }}" class="queue-row__action-btn">
-                                                    <span>{{ $isValidation ? 'Validate Docs' : 'Release' }}</span>
+                                                {{-- <a href="{{ $isValidation ? route('receptionist.validation') : route('approving-officer.releasing') }}" class="queue-row__action-btn">
+                                                    <span>{{ $isValidation ? 'Validate Docs' : 'Release' }}</span> --}}
+                                                <a href="{{ route('receptionist.validation') }}" class="queue-row__action-btn">
+                                                    <span>Validate Docs</span>
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                     </svg>
@@ -690,7 +692,9 @@
                     </div>
                     <div class="queue-row__right">
                         <a href="${item.action_url}" class="queue-row__action-btn">
-                            <span>${item.action_label}</span>
+                            <span>Validate Docs</span>
+
+                            
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
@@ -708,7 +712,7 @@
                         document.querySelector('[data-stat="registeredTodayCount"]').textContent = data.stats.registeredTodayCount;
                         document.querySelector('[data-stat="pendingValidationCount"]').textContent = data.stats.pendingValidationCount;
                         document.querySelector('[data-stat="completedValidationCount"]').textContent = data.stats.completedValidationCount;
-                        document.querySelector('[data-stat="pendingReleasingCount"]').textContent = data.stats.pendingReleasingCount;
+                        // document.querySelector('[data-stat="pendingReleasingCount"]').textContent = data.stats.pendingReleasingCount;
 
                         const queueEl = document.querySelector('[data-live-queue]');
                         queueEl.innerHTML = data.liveQueue.length > 0

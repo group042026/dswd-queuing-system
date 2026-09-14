@@ -83,6 +83,7 @@ class ValidationController extends Controller
             'current_step' => 'Assessment',
             'current_status' => 'Waiting',
             'start_time' => now(),
+            'is_returnee' => $clientProcessing->is_returnee,
         ]);
 
         ActivityLog::record(

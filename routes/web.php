@@ -13,6 +13,7 @@ use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ReleasingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SocialWorkerController;
+use App\Http\Controllers\TestQrController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidationController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,9 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
 
 });
 
+Route::get('/test/qr-scan', [TestQrController::class, 'show']);
+Route::post('/test/qr-scan', [TestQrController::class, 'decode']);
+
 Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(function () {
 
     Route::controller(ReceptionistController::class)->group(function () {
@@ -118,6 +122,11 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
         Route::get('/social-worker/assessment', 'pendingAssessment')->name('social-worker.assessment');
         Route::post('/social-worker/assessment/{clientProcessing}', 'storeAssessment')->name('social-worker.assessment.store');
         Route::get('/social-worker/returned', 'returnedAssessments')->name('social-worker.returned');
+
+        Route::get('/social-worker/on-hold', 'onHoldAssessments')->name('social-worker.on-hold');
+        Route::patch('/social-worker/assessment/{clientProcessing}/on-hold', 'onHold')->name('social-worker.assessment.on-hold');
+
+        Route::patch('/social-worker/assessment/{clientProcessing}/resume', 'resumeOnHold')->name('social-worker.assessment.resume');
         // Route::post('/social-worker/returned/{clientProcessing}/resume', 'resumeAssessment')->name('social-worker.returned.resume');
     });
 
@@ -134,6 +143,10 @@ Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group
         Route::get('/approving-officer/dashboard-data', 'dashboardData')->name('approving-officer.dashboard.data');
         Route::get('/approving-officer/review', 'pendingReview')->name('approving-officer.review');
         Route::post('/approving-officer/review/{clientProcessing}/decide', 'decide')->name('approving-officer.review.decide');
+
+        Route::get('/approving-officer/on-hold', 'onHoldReviews')->name('approving-officer.on-hold');
+        Route::patch('/approving-officer/review/{clientProcessing}/on-hold', 'onHold')->name('approving-officer.review.on-hold');
+        Route::patch('/approving-officer/review/{clientProcessing}/resume', 'resumeOnHold')->name('approving-officer.review.resume');
     });
 
 });

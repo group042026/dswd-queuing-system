@@ -307,7 +307,7 @@
                             setTimeout(() => {
                                 const ticketPart = newValidationNumber.split('-')[1] || newValidationNumber;
                                 const readableNo = ticketPart.replace(/^0+/, '') || '0';
-                                const phrase = `Queue number, ${ticketPart}, please proceed to, Document Validation, Counter 1. Numero, ${readableNo}, pumunta sa Document Validation.`;
+                                const phrase = `Queue number, ${ticketPart}, please proceed to, Document Validation, Counter 1. Numero, ${readableNo}.`;
                                 this.announceText(phrase);
                             }, 800);
                         }

@@ -61,17 +61,25 @@ class QueueController extends Controller
                     'date_issued' => $queue->date_issued->format('M d, Y h:i A'),
                     'can_cancel' => $isToday && !in_array($queue->queue_status, ['Completed', 'Cancelled', 'Abondoned']),
                     'cancel_url' => route('admin.queue.cancel', $queue->id),
+                    'cancellation_reason' => $queue->cancellation_reason,
                 ];
             }),
             'pagination' => (string) $queues->links(),
         ]);
     }
 
-    public function cancelQueue(Queue $queue)
+    public function cancelQueue(Request $request, Queue $queue)
     {
         Gate::authorize('access-admin');
 
-        $queue->update(['queue_status' => 'Cancelled']);
+        $validated = $request->validate([
+            'cancellation_reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $queue->update([
+            'queue_status' => 'Cancelled',
+            'cancellation_reason' => $validated['cancellation_reason'],
+        ]);
 
         $queue->latestProcessing?->update([
             'current_status' => 'Cancelled',
@@ -84,8 +92,6 @@ class QueueController extends Controller
         );
 
         event(new DashboardUpdated());
-
-
 
         return back()->with('success', 'Queue entry cancelled.');
     }
@@ -110,6 +116,8 @@ class QueueController extends Controller
                     . substr($processing->client->last_name, 0, 1)
                     . '.',
                 'client_category' => $processing->client->client_category,
+                'is_returnee' => (bool) $processing->is_returnee,
+                'current_status' => $processing->current_status,
             ];
         };
 

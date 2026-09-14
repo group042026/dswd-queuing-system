@@ -23,29 +23,37 @@ class ReceptionistController extends Controller
             ->whereDate('end_time', $today)
             ->count();
 
-        $pendingReleasingCount = ClientProcessing::where('current_step', 'Releasing')
-            ->where('current_status', 'Waiting')
-            ->whereDate('start_time', $today)
-            ->count();
+        // $pendingReleasingCount = ClientProcessing::where('current_step', 'Releasing')
+        //     ->where('current_status', 'Waiting')
+        //     ->whereDate('start_time', $today)
+        //     ->count();
 
         // Pinagsamang Live Queue — Validation AT Releasing
+        // $liveQueue = ClientProcessing::with(['client', 'queue'])
+        //     ->where(function ($q) {
+        //         $q->where(function ($sub) {
+        //             $sub->where('current_step', 'Validation')->where('current_status', 'Processing');
+        //         })->orWhere(function ($sub) {
+        //             $sub->where('current_step', 'Releasing')->where('current_status', 'Waiting');
+        //         });
+        //     })
+        //     ->whereDate('start_time', $today)
+        //     ->orderBy('start_time', 'asc')
+        //     ->paginate(8);
+
         $liveQueue = ClientProcessing::with(['client', 'queue'])
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('current_step', 'Validation')->where('current_status', 'Processing');
-                })->orWhere(function ($sub) {
-                    $sub->where('current_step', 'Releasing')->where('current_status', 'Waiting');
-                });
-            })
+            ->where('current_step', 'Validation')
+            ->where('current_status', 'Processing')
             ->whereDate('start_time', $today)
             ->orderBy('start_time', 'asc')
             ->paginate(8);
+
 
         return view('receptionist.dashboard', [
             'registeredTodayCount' => $registeredTodayCount,
             'pendingValidationCount' => $pendingValidationCount,
             'completedValidationCount' => $completedValidationCount,
-            'pendingReleasingCount' => $pendingReleasingCount,
+            // 'pendingReleasingCount' => $pendingReleasingCount,
             'liveQueue' => $liveQueue,
         ]);
     }
@@ -66,30 +74,37 @@ class ReceptionistController extends Controller
             ->whereDate('end_time', $today)
             ->count();
 
-        $pendingReleasingCount = ClientProcessing::where('current_step', 'Releasing')
-            ->where('current_status', 'Waiting')
-            ->whereDate('start_time', $today)
-            ->count();
+        // $pendingReleasingCount = ClientProcessing::where('current_step', 'Releasing')
+        //     ->where('current_status', 'Waiting')
+        //     ->whereDate('start_time', $today)
+        //     ->count();
+
+        // $liveQueue = ClientProcessing::with(['client', 'queue'])
+        //     ->where(function ($q) {
+        //         $q->where(function ($sub) {
+        //             $sub->where('current_step', 'Validation')->where('current_status', 'Processing');
+        //         })->orWhere(function ($sub) {
+        //             $sub->where('current_step', 'Releasing')->where('current_status', 'Waiting');
+        //         });
+        //     })
+        //     ->whereDate('start_time', $today)
+        //     ->orderBy('start_time', 'asc')
+        //     ->limit(8)
+        //     ->get();
 
         $liveQueue = ClientProcessing::with(['client', 'queue'])
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('current_step', 'Validation')->where('current_status', 'Processing');
-                })->orWhere(function ($sub) {
-                    $sub->where('current_step', 'Releasing')->where('current_status', 'Waiting');
-                });
-            })
+            ->where('current_step', 'Validation')
+            ->where('current_status', 'Processing')
             ->whereDate('start_time', $today)
             ->orderBy('start_time', 'asc')
-            ->limit(8)
-            ->get();
+            ->paginate(8);
 
         return response()->json([
             'stats' => [
                 'registeredTodayCount' => $registeredTodayCount,
                 'pendingValidationCount' => $pendingValidationCount,
                 'completedValidationCount' => $completedValidationCount,
-                'pendingReleasingCount' => $pendingReleasingCount,
+                // 'pendingReleasingCount' => $pendingReleasingCount,
             ],
             'liveQueue' => $liveQueue->map(function ($item) {
                 $isValidation = $item->current_step === 'Validation';
@@ -104,7 +119,8 @@ class ReceptionistController extends Controller
                     'step_label' => $item->current_step,
                     'step_class' => $isValidation ? 'step-badge--validation' : 'step-badge--releasing',
                     'action_label' => $isValidation ? 'Validate Docs' : 'Release',
-                    'action_url' => $isValidation ? route('receptionist.validation') : route('receptionist.releasing'),
+                    // 'action_url' => $isValidation ? route('receptionist.validation') : route('approving-officer.releasing'),
+                    'action_url' => route('receptionist.validation'),
                 ];
             }),
         ]);

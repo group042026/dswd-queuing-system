@@ -18,10 +18,17 @@ class ClientProcessing extends Model
         'start_time',
         'end_time',
         'remarks',
+        'is_returnee',
+        'on_hold_reason',
+        'on_hold_at',
+        'resumed_at',
     ];
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'is_returnee' => 'boolean',
+        'on_hold_at' => 'datetime',
+        'resumed_at' => 'datetime',
     ];
     
     public function client(): BelongsTo{

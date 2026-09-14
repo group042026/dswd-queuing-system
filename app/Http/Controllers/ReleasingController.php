@@ -58,6 +58,7 @@ class ReleasingController extends Controller
                     'category_class' => strtolower(str_replace([' ', '/'], ['', '-'], $item->client->client_category)),
                     'program_requested' => $item->client->program_requested,
                     'release_url' => route('approving-officer.releasing.release', $item->id),
+                    'is_returnee' => (bool) $item->is_returnee,
                 ];
             }),
             'pagination' => (string) $pendingReleasing->links(),

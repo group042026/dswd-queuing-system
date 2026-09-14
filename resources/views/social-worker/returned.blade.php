@@ -253,8 +253,7 @@
                     <div>
                         <h3 class="text-lg font-extrabold text-gray-800">{{ __('Returned Applications Queue') }}</h3>
                         <p class="text-xs text-gray-500 mt-1">
-                            {{ __('Review suggestions and resume client assessments.') }}
-                        </p>
+                            {{ __('Historical records of applications returned by the Approving Officer.') }}                        </p>
                     </div>
                 </div>
 

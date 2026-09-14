@@ -300,7 +300,18 @@
                             @php $isToday = $selectedDate === now()->format('Y-m-d'); @endphp
                             @forelse($pendingReleasing as $item)
                                 <tr>
-                                    <td class="font-bold text-gray-900">{{ $item->queue->queue_number }}</td>
+                                    <td class="font-bold text-gray-900">
+                                        <div class="flex flex-row items-start gap-2">
+                                            <span>{{ $item->queue->queue_number }}</span>
+
+                                            @if ($item->is_returnee)
+                                                <span class="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-extrabold uppercase text-orange-700">
+                                                    RETURNEE
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
+
                                     <td>
                                         <div class="font-extrabold text-gray-800">{{ $item->client->first_name }} {{ $item->client->last_name }}</div>
                                         <div class="text-xs text-gray-400 font-mono mt-0.5">{{ $item->client->control_number ?? '' }}</div>
@@ -407,7 +418,17 @@
 
             return `
                 <tr>
-                    <td class="font-bold text-gray-900">${item.queue_number}</td>
+                    <td class="font-bold text-gray-900">
+                        <div class="flex flex-col items-start gap-1">
+                            <span>${item.queue_number}</span>
+
+                            ${item.is_returnee ? `
+                                <span class="rounded-full border border-orange-200 bg-orange-100 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
+                                    RETURNEE
+                                </span>
+                            ` : ''}
+                        </div>
+                    </td>
                     <td>
                         <div class="font-extrabold text-gray-800">${item.full_name}</div>
                         <div class="text-xs text-gray-400 font-mono mt-0.5">${item.control_number}</div>

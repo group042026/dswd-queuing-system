@@ -16,6 +16,7 @@ class Queue extends Model
         'client_id',
         'priority',
         'queue_status',
+        'cancellation_reason',
     ];
     
     protected $casts = [

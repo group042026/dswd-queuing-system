@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\RedirectResponse;
 
 class ApprovingOfficerController extends Controller
 {
@@ -166,6 +167,8 @@ class ApprovingOfficerController extends Controller
                 'current_step' => 'Releasing',
                 'current_status' => 'Waiting',
                 'start_time' => now(),
+                'is_returnee' => $clientProcessing->is_returnee,
+
             ]);
 
             ActivityLog::record(
@@ -189,5 +192,76 @@ class ApprovingOfficerController extends Controller
         event(new DashboardUpdated()); //for real time
 
         return redirect()->route('approving-officer.releasing')->with('success', $message);
+    }
+
+    public function onHold(Request $request, ClientProcessing $clientProcessing)
+    {
+        Gate::authorize('access-approving-officer');
+
+        abort_unless(
+            $clientProcessing->current_step === 'Review'
+            && $clientProcessing->current_status === 'Waiting',
+            422
+        );
+
+        $validated = $request->validate([
+            'on_hold_reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $clientProcessing->update([
+            'current_status' => 'On Hold',
+            'on_hold_reason' => $validated['on_hold_reason'],
+            'on_hold_at' => now(),
+        ]);
+
+        ActivityLog::record(
+            'Review Put On Hold',
+            "Put {$clientProcessing->client->first_name} {$clientProcessing->client->last_name} on hold during review. Reason: {$validated['on_hold_reason']}"
+        );
+
+        event(new DashboardUpdated());
+
+        return back()->with('success', 'Application was placed on hold.');
+    }
+
+    public function onHoldReviews()
+    {
+        Gate::authorize('access-approving-officer');
+
+        $onHoldReviews = ClientProcessing::with(['client', 'queue', 'client.assessment'])
+            ->where('current_step', 'Review')
+            ->where('current_status', 'On Hold')
+            ->latest('on_hold_at')
+            ->paginate(10);
+
+        return view('approving-officer.on-hold', [
+            'onHoldReviews' => $onHoldReviews,
+        ]);
+    }
+
+    public function resumeOnHold(ClientProcessing $clientProcessing)
+    {
+        Gate::authorize('access-approving-officer');
+
+        abort_unless(
+            $clientProcessing->current_step === 'Review'
+            && $clientProcessing->current_status === 'On Hold',
+            422
+        );
+
+        $clientProcessing->update([
+            'current_status' => 'Waiting',
+            'is_returnee' => true,
+            'resumed_at' => now(),
+        ]);
+
+        ActivityLog::record(
+            'Review Resumed',
+            "Resumed review for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name}"
+        );
+
+        event(new DashboardUpdated());
+
+        return back()->with('success', 'Application returned to the review queue.');
     }
 }

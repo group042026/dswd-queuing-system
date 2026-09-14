@@ -199,7 +199,7 @@
             display: inline-block;
         }
 
-        .category-badge--senior {
+        .category-badge--seniorcitizens {
             color: #1d4ed8;
             background-color: #eff6ff;
             border: 1px solid #bfdbfe;
@@ -533,8 +533,16 @@
                             @forelse($pendingReview as $item)
                                 <tr>
                                     <td class="font-bold text-gray-900">
-                                        {{ $item->queue->queue_number }}
+                                        <div class="flex flex-row items-center gap-2">
+                                            <span>{{ $item->queue->queue_number }}</span>
+                                            @if ($item->is_returnee)
+                                                <span class="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-extrabold uppercase text-orange-700">
+                                                    RETURNEE
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
+
                                     <td>
                                         <div class="font-extrabold text-gray-800">
                                             {{ $item->client->first_name }}
@@ -554,12 +562,22 @@
                                     </td>
                                     <td>
                                         @if($isToday)
-                                            <x-primary-button
-                                                x-on:click="$dispatch('open-modal', 'review-modal-{{ $item->id }}')"
-                                                class="btn-primary"
-                                            >
-                                                {{ __('Review') }}
-                                            </x-primary-button>
+                                            <div class="flex flex-wrap gap-2">
+                                                <x-primary-button
+                                                    x-on:click="$dispatch('open-modal', 'review-modal-{{ $item->id }}')"
+                                                    class="btn-primary"
+                                                >
+                                                    {{ __('Review') }}
+                                                </x-primary-button>
+
+                                                <x-secondary-button
+                                                    type="button"
+                                                    x-on:click="$dispatch('open-modal', 'review-on-hold-modal-{{ $item->id }}')"
+                                                    class="border-amber-500 text-amber-700 hover:bg-amber-50"
+                                                >
+                                                    {{ __('Put On Hold') }}
+                                                </x-secondary-button>
+                                            </div>
                                         @else
                                             <x-secondary-button
                                                 type="button"
@@ -702,6 +720,83 @@
                                                     class="btn-primary"
                                                 >
                                                     {{ __('Approve Application') }}
+                                                </x-primary-button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </x-modal>
+
+                                <x-modal
+                                    name="review-on-hold-modal-{{ $item->id }}"
+                                    maxWidth="md"
+                                >
+                                    <div class="p-6">
+                                        <div class="mb-5">
+                                            <h2 class="text-lg font-extrabold text-gray-800">
+                                                {{ __('Put Application On Hold') }}
+                                            </h2>
+
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                {{ __('The application will keep the same queue number and can be resumed later.') }}
+                                            </p>
+                                        </div>
+
+                                        <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                                            <p class="text-xs font-bold uppercase text-amber-700">
+                                                {{ __('Client') }}
+                                            </p>
+
+                                            <p class="mt-1 font-bold text-gray-800">
+                                                {{ $item->client->first_name }}
+                                                {{ $item->client->last_name }}
+                                            </p>
+
+                                            <p class="text-xs text-gray-600">
+                                                Queue #{{ $item->queue->queue_number }}
+                                            </p>
+                                        </div>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('approving-officer.review.on-hold', $item->id) }}"
+                                        >
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <x-input-label
+                                                for="review_on_hold_reason_{{ $item->id }}"
+                                                :value="__('Reason for On Hold')"
+                                                class="font-bold text-gray-700"
+                                            />
+
+                                            <textarea
+                                                id="review_on_hold_reason_{{ $item->id }}"
+                                                name="on_hold_reason"
+                                                rows="4"
+                                                maxlength="1000"
+                                                required
+                                                class="mt-1.5 block w-full rounded-md border-gray-300"
+                                                placeholder="Example: Additional verification is required..."
+                                            ></textarea>
+
+                                            <x-input-error
+                                                :messages="$errors->get('on_hold_reason')"
+                                                class="mt-2"
+                                            />
+
+                                            <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+                                                <x-secondary-button
+                                                    type="button"
+                                                    x-on:click="$dispatch('close-modal', 'review-on-hold-modal-{{ $item->id }}')"
+                                                >
+                                                    {{ __('Cancel') }}
+                                                </x-secondary-button>
+
+                                                <x-primary-button
+                                                    type="submit"
+                                                    class="bg-amber-500 hover:bg-amber-600"
+                                                >
+                                                    {{ __('Confirm On Hold') }}
                                                 </x-primary-button>
                                             </div>
                                         </form>

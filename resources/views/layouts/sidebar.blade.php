@@ -184,6 +184,15 @@
                     <span>Returned</span>
                 </a>
 
+                <!-- On-hold -->
+                <a href="{{ route('social-worker.on-hold') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('social-worker.on-hold*') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('social-worker.on-hold*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                    </svg>
+                    <span>On-Hold</span>
+                </a>
+
             @elseif (Auth::user()->hasRole('approving officer'))
                 <!-- Dashboard -->
                 <a href="{{ route('approving-officer.dashboard') }}" 
@@ -210,6 +219,15 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                     </svg>
                     <span>Releasing</span>
+                </a>
+
+                <!-- On-hold -->
+                <a href="{{ route('approving-officer.on-hold') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('approving-officer.on-hold*') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('approving-officer.on-hold*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                    </svg>
+                    <span>On-Hold</span>
                 </a>
                 
             @elseif (Auth::user()->hasRole('cashier'))

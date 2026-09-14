@@ -8,6 +8,7 @@ use App\Models\Assessment;
 use App\Models\ClientProcessing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\RedirectResponse;
 
 class SocialWorkerController extends Controller
 {
@@ -165,6 +166,8 @@ class SocialWorkerController extends Controller
             'current_step' => 'Review',
             'current_status' => 'Waiting',
             'start_time' => now(),
+            'is_returnee' => $clientProcessing->is_returnee,
+
         ]);
 
         ActivityLog::record(
@@ -237,4 +240,76 @@ class SocialWorkerController extends Controller
 
     //     return redirect()->route('social-worker.returned')->with('success', 'Client moved back to Pending Assessment.');
     // }
+
+    public function onHold(Request $request, ClientProcessing $clientProcessing)
+    {
+        Gate::authorize('access-social-worker');
+
+        abort_unless(
+            $clientProcessing->current_step === 'Assessment'
+            && $clientProcessing->current_status === 'Waiting',
+            422
+        );
+
+        $validated = $request->validate([
+            'on_hold_reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $clientProcessing->update([
+            'current_status' => 'On Hold',
+            'on_hold_reason' => $validated['on_hold_reason'],
+            'on_hold_at' => now(),
+        ]);
+
+        ActivityLog::record(
+            'Assessment Put On Hold',
+            "Put {$clientProcessing->client->first_name} {$clientProcessing->client->last_name} on hold. Reason: {$validated['on_hold_reason']}"
+        );
+
+        event(new DashboardUpdated());
+
+        return back()->with('success', 'Client was placed on hold.');
+    }
+
+    public function onHoldAssessments()
+    {
+        Gate::authorize('access-social-worker');
+
+        $onHoldAssessments = ClientProcessing::with(['client', 'queue'])
+            ->where('current_step', 'Assessment')
+            ->where('current_status', 'On Hold')
+            ->latest('on_hold_at')
+            ->paginate(10);
+
+        return view('social-worker.on-hold', [
+            'onHoldAssessments' => $onHoldAssessments,
+        ]);
+    }
+
+    public function resumeOnHold(ClientProcessing $clientProcessing)
+    {
+        Gate::authorize('access-social-worker');
+
+        abort_unless(
+            $clientProcessing->current_step === 'Assessment'
+            && $clientProcessing->current_status === 'On Hold',
+            422
+        );
+
+        $clientProcessing->update([
+            'current_status' => 'Waiting',
+            'is_returnee' => true,
+            'resumed_at' => now(),
+        ]);
+
+        ActivityLog::record(
+            'Assessment Resumed',
+            "Resumed on-hold assessment for {$clientProcessing->client->first_name} {$clientProcessing->client->last_name}"
+        );
+
+        event(new DashboardUpdated());
+
+        return back()->with('success', 'Client returned to the assessment queue.');
+    }
+
 }

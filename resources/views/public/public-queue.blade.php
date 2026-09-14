@@ -161,17 +161,33 @@
                                         <span x-text="desks.validation.serving[0].queue_number"></span>
                                     </div>
                                     <div class="mt-3 flex flex-col items-center justify-center gap-2">
+                                        {{-- Category --}}
                                         <span
                                             class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
                                             :class="getCategoryClass(desks.validation.serving[0].client_category)"
                                             x-text="desks.validation.serving[0].client_category">
                                         </span>
 
-                                        <template x-if="desks.validation.serving[0].priority">
-                                            <span class="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                                                ⚡ PRIORITY
-                                            </span>
-                                        </template>
+                                        {{-- Returnee and priority/regular badges --}}
+                                        <div class="flex flex-wrap items-center justify-center gap-2">
+                                            <template x-if="desks.validation.serving[0].is_returnee">
+                                                <span class="rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
+                                                    RETURNEE
+                                                </span>
+                                            </template>
+
+                                            <template x-if="desks.validation.serving[0].priority">
+                                                <span class="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-red-700">
+                                                    PRIORITY
+                                                </span>
+                                            </template>
+
+                                            <template x-if="!desks.validation.serving[0].priority">
+                                                <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
+                                                    REGULAR
+                                                </span>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -192,18 +208,32 @@
                                     <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-700 font-mono select-none">
                                         <span x-text="desks[deskKey].upNext[0].queue_number"></span>
                                     </div>
-                                    <div class="mt-3 flex flex-col items-center justify-center gap-2">
+                                   <div class="mt-3 flex flex-col items-center justify-center gap-2">
                                         <span
                                             class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
                                             :class="getCategoryClass(desks[deskKey].upNext[0].client_category)"
                                             x-text="desks[deskKey].upNext[0].client_category">
                                         </span>
 
-                                        <template x-if="desks[deskKey].upNext[0].priority">
-                                            <span class="bg-red-600 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-                                                ⚡ PRIORITY
-                                            </span>
-                                        </template>
+                                        <div class="flex flex-wrap items-center justify-center gap-2">
+                                            <template x-if="desks[deskKey].upNext[0].is_returnee">
+                                                <span class="rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
+                                                    RETURNEE
+                                                </span>
+                                            </template>
+
+                                            <template x-if="desks[deskKey].upNext[0].priority">
+                                                <span class="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-red-700">
+                                                    PRIORITY
+                                                </span>
+                                            </template>
+
+                                            <template x-if="!desks[deskKey].upNext[0].priority">
+                                                <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
+                                                    REGULAR
+                                                </span>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -223,8 +253,23 @@
                         <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200/60 flex justify-between items-center">
                             <div class="flex items-center gap-1.5">
                                 <span class="font-mono text-sm font-bold text-slate-700" x-text="item.queue_number"></span>
+
+                                <template x-if="item.is_returnee">
+                                    <span class="rounded-full bg-orange-100 px-2 py-1 text-[9px] font-extrabold uppercase text-orange-700">
+                                        RETURNEE
+                                    </span>
+                                </template>
+
                                 <template x-if="item.priority">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    <span class="rounded-full bg-red-600 px-2 py-1 text-[9px] font-extrabold uppercase text-white">
+                                        PRIORITY
+                                    </span>
+                                </template>
+
+                                <template x-if="!item.priority">
+                                    <span class="rounded-full bg-slate-200 px-2 py-1 text-[9px] font-extrabold uppercase text-slate-600">
+                                        REGULAR
+                                    </span>
                                 </template>
                             </div>
                             <span class="text-[9px] font-bold uppercase text-slate-400" x-text="item.client_category"></span>
@@ -351,7 +396,7 @@
                             setTimeout(() => {
                                 const ticketPart = newValidationNumber.split('-')[1] || newValidationNumber;
                                 const readableNo = ticketPart.replace(/^0+/, '') || '0';
-                                const phrase = `Queue number, ${ticketPart}, please proceed to, Document Validation, Counter 1. Numero, ${readableNo}, pumunta sa Document Validation.`;
+                                const phrase = `Queue number, ${ticketPart}, please proceed to, Document Validation, Counter 1. Numero, ${readableNo}.`;
                                 this.announceText(phrase);
                             }, 800);
                         }
