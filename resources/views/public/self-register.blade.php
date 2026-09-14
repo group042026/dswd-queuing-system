@@ -150,7 +150,8 @@
                 <input type="date" id="birthdate" name="birthdate" x-data x-model="birthdate" required>
 
                 <label for="age">Age</label>
-                <input type="number" id="age" name="age" required>
+                <input type="number" id="age" name="age" value="{{ old('age') }}" readonly required style="background-color: #f1f5f9; color: #64748b;">
+                <p class="hint">Automatically computed from birthdate</p>
 
                 <label for="civil_status">Civil Status</label>
                 <select id="civil_status" name="civil_status" required>
@@ -296,25 +297,142 @@
 
         // Dynamic ID format hint
         const idFormats = {
-            'Philippine National ID': { placeholder: 'e.g. 123456789012', hint: '12 digits, no dashes', maxlength: 12 },
-            'SSS ID': { placeholder: 'e.g. 12-3456789-0', hint: 'Format: 12-3456789-0', maxlength: 12 },
-            'PhilHealth ID': { placeholder: 'e.g. 12-345678901-2', hint: 'Format: 12-345678901-2', maxlength: 14 },
-            "Driver's License": { placeholder: 'e.g. N01-12-345678', hint: 'Format: N01-12-345678', maxlength: 11 },
-            'Passport': { placeholder: 'e.g. P12345678', hint: '1 letter + 8 digits', maxlength: 9 },
-            "Voter's ID": { placeholder: 'Enter ID number', hint: 'No fixed format', maxlength: 20 },
-            'Barangay ID': { placeholder: 'Enter ID number', hint: 'Varies per barangay', maxlength: 20 },
-            'Other': { placeholder: 'Enter ID number', hint: '', maxlength: 50 },
+            'Philippine National ID': {
+                pattern: '\\d{12}',
+                maxlength: 12,
+                placeholder: 'e.g. 123456789012',
+                hint: '12 digits, no dashes',
+            },
+
+            'SSS ID': {
+                pattern: '\\d{2}-\\d{7}-\\d{1}',
+                maxlength: 12,
+                placeholder: 'e.g. 12-3456789-0',
+                hint: 'Format: 12-3456789-0',
+                format: value => {
+                    const digits = value.replace(/\D/g, '').slice(0, 10);
+
+                    if (digits.length <= 2) {
+                        return digits;
+                    }
+
+                    if (digits.length <= 9) {
+                        return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+                    }
+
+                    return `${digits.slice(0, 2)}-${digits.slice(2, 9)}-${digits.slice(9)}`;
+                },
+            },
+
+            'PhilHealth ID': {
+                pattern: '\\d{2}-\\d{9}-\\d{1}',
+                maxlength: 14,
+                placeholder: 'e.g. 12-345678901-2',
+                hint: 'Format: 12-345678901-2',
+                format: value => {
+                    const digits = value.replace(/\D/g, '').slice(0, 12);
+
+                    if (digits.length <= 2) {
+                        return digits;
+                    }
+
+                    if (digits.length <= 11) {
+                        return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+                    }
+
+                    return `${digits.slice(0, 2)}-${digits.slice(2, 11)}-${digits.slice(11)}`;
+                },
+            },
+
+            "Driver's License": {
+                pattern: '[A-Za-z]\\d{2}-\\d{2}-\\d{6}',
+                maxlength: 13,
+                placeholder: 'e.g. N01-12-345678',
+                hint: 'Format: N01-12-345678',
+                format: value => {
+                    const cleaned = value
+                        .toUpperCase()
+                        .replace(/[^A-Z0-9]/g, '');
+
+                    const letter = cleaned.match(/^[A-Z]/)?.[0] ?? '';
+                    const digits = cleaned
+                        .slice(letter ? 1 : 0)
+                        .replace(/\D/g, '')
+                        .slice(0, 10);
+
+                    if (!letter) {
+                        return '';
+                    }
+
+                    if (digits.length <= 2) {
+                        return `${letter}${digits}`;
+                    }
+
+                    if (digits.length <= 4) {
+                        return `${letter}${digits.slice(0, 2)}-${digits.slice(2)}`;
+                    }
+
+                    return `${letter}${digits.slice(0, 2)}-${digits.slice(2, 4)}-${digits.slice(4)}`;
+                },
+            },
+
+            'Passport': {
+                pattern: '[A-Za-z]\\d{8}',
+                maxlength: 9,
+                placeholder: 'e.g. P12345678',
+                hint: '1 letter followed by 8 digits',
+            },
+
+            "Voter's ID": {
+                pattern: '.{1,20}',
+                maxlength: 20,
+                placeholder: "Enter Voter's ID number",
+                hint: 'No fixed format',
+            },
+
+            'Barangay ID': {
+                pattern: '.{1,20}',
+                maxlength: 20,
+                placeholder: 'Enter Barangay ID number',
+                hint: 'Varies per barangay',
+            },
+
+            'Other': {
+                pattern: '.{1,50}',
+                maxlength: 50,
+                placeholder: 'Enter ID number',
+                hint: 'No specific format required',
+            },
         };
 
         document.getElementById('valid_id_type').addEventListener('change', function () {
             const config = idFormats[this.value];
             const input = document.getElementById('valid_id_number');
             const hint = document.getElementById('valid_id_number_hint');
+
             input.value = '';
-            if (config) {
-                input.placeholder = config.placeholder;
-                input.maxLength = config.maxlength;
-                hint.textContent = config.hint;
+
+            if (!config) {
+                input.removeAttribute('pattern');
+                input.removeAttribute('maxlength');
+                input.placeholder = '';
+                hint.textContent = 'Select an ID type first';
+
+                return;
+            }
+
+            input.setAttribute('pattern', config.pattern);
+            input.setAttribute('maxlength', config.maxlength);
+            input.placeholder = config.placeholder;
+            hint.textContent = config.hint;
+        });
+
+        document.getElementById('valid_id_number').addEventListener('input', function () {
+            const idType = document.getElementById('valid_id_type').value;
+            const config = idFormats[idType];
+
+            if (config?.format) {
+                this.value = config.format(this.value);
             }
         });
 
