@@ -33,6 +33,8 @@ class ValidationController extends Controller
 
         $client = $clientProcessing->client;
 
+        // $isOnlineRegistration = $client->mode_of_admission === 'Offsite';
+
         if ($client->documents->isEmpty()) {
             return back()->withErrors(['documents' => 'Upload requirements first']);
         }
@@ -59,17 +61,18 @@ class ValidationController extends Controller
             'Means of Verification (MOV)'
         );
 
+
         if (! $hasMovDocument) {
             return back()->withErrors([
                 'documents' => 'Upload the Means of Verification (MOV) first.',
             ]);
         }
 
-        if ($documents->contains('verified', false)) {
-            return back()->withErrors([
-                'documents' => 'Not all documents are verified.',
-            ]);
-        }
+        // if ($documents->contains('verified', false)) {
+        //     return back()->withErrors([
+        //         'documents' => 'Not all documents are verified.',
+        //     ]);
+        // }
         
         $clientProcessing->update([
             'current_status' => 'Completed',

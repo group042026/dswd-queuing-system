@@ -34,6 +34,9 @@ class AdminController extends Controller
             ->pluck('total', 'client_category')
             ->toArray();
 
+        $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
+            ->count();
+
         // $seniorsCount = $categoryCounts['Senior'] ?? 0;
         // $pwdsCount = $categoryCounts['PWD'] ?? 0;
         // $soloParentsCount = $categoryCounts['Solo Parent'] ?? 0;
@@ -80,7 +83,8 @@ class AdminController extends Controller
             'menWomenInSpeciallyDifficultCircumstancesCount',
             'totalUsers',
             'roleCounts',
-            'recentProcessings'
+            'recentProcessings',
+            'pendingOnlineRegistrationsCount',
         ));
     }
 
@@ -104,6 +108,9 @@ class AdminController extends Controller
             ->groupBy('client_category')
             ->pluck('total', 'client_category')
             ->toArray();
+
+        $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
+            ->count();
 
         // $seniorsCount = $categoryCounts['Senior'] ?? 0;
         // $pwdsCount = $categoryCounts['PWD'] ?? 0;
@@ -129,6 +136,7 @@ class AdminController extends Controller
                 'cancelledQueuesToday' => $cancelledQueuesToday,
                 'completedTodayCount' => $completedTodayCount,
                 'seniorsCount' => $seniorsCount,
+                'pendingOnlineRegistrationsCount' => $pendingOnlineRegistrationsCount,
                 'familyHeadsAndOtherNeedyAdultsCount' => $familyHeadsAndOtherNeedyAdultsCount,
                 'youthInNeedAndOtherNeedyAdultsCount' => $youthInNeedAndOtherNeedyAdultsCount,
                 'youthInNeedOfSpecialProtectionsCount' => $youthInNeedOfSpecialProtectionsCount,

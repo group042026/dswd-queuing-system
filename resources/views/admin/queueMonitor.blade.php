@@ -390,6 +390,12 @@
             border-color: var(--dswd-red-border);
         }
 
+        .badge-status--pending-arrival {
+            color: #1d4ed8;
+            background-color: #dbeafe;
+            border-color: #93c5fd;
+        }
+
         /* Pagination container */
         .monitor-pagination {
             padding: 20px 24px;
@@ -466,37 +472,20 @@
                                     </td>
                                     <td>{{ $queue->client->first_name }} {{ $queue->client->last_name }}</td>
                                     <td>
-                                        @if($queue->priority)
-                                            @php
-                                                $priorityModifier = match($queue->client->client_category) {
-                                                    'Senior Citizens'
-                                                        => 'badge-priority--senior',
+                                        @php
+                                            $categoryModifier = match($queue->client->client_category) {
+                                                'Senior Citizens' => 'badge-priority--senior',
+                                                'Family heads and Other Needy Adult' => 'badge-priority--family-heads',
+                                                'Youth in Need and Other Needy Adult' => 'badge-priority--youth-needy-adult',
+                                                'Youth in Need of Special Protection' => 'badge-priority--youth-protection',
+                                                'Men/Women in specially difficult circumstances' => 'badge-priority--difficult-circumstances',
+                                                default => 'badge-priority--default',
+                                            };
+                                        @endphp
 
-                                                    'Family heads and Other Needy Adult'
-                                                        => 'badge-priority--family-heads',
-
-                                                    'Youth in Need and Other Needy Adult'
-                                                        => 'badge-priority--youth-needy-adult',
-
-                                                    'Youth in Need of Special Protection'
-                                                        => 'badge-priority--youth-protection',
-
-                                                    'Men/Women in specially difficult circumstances'
-                                                        => 'badge-priority--difficult-circumstances',
-
-                                                    default
-                                                        => 'badge-priority--default',
-                                                };
-                                            @endphp
-
-                                            <span class="badge-priority {{ $priorityModifier }}">
-                                                {{ $queue->client->client_category }}
-                                            </span>
-                                        @else
-                                            <span class="badge-priority badge-priority--default">
-                                                {{ $queue->client->client_category }}
-                                            </span>
-                                        @endif
+                                        <span class="badge-priority {{ $categoryModifier }}">
+                                            {{ $queue->client->client_category }}
+                                        </span>
                                     </td>
                                     <td>
                                         @if($queue->latestProcessing)
@@ -529,6 +518,7 @@
                                             $qStatus = $queue->queue_status;
                                             $qClass = match($qStatus) {
                                                 'Serving'               => 'badge-status--serving',
+                                                'Pending Arrival'       => 'badge-status--pending-arrival',
                                                 'Waiting'               => 'badge-status--waiting',
                                                 'Completed'             => 'badge-status--completed',
                                                 'Cancelled', 'No Show'  => 'badge-status--cancelled',
@@ -692,6 +682,7 @@
         function getQueueStatusClass(status) {
             const map = {
                 'Serving': 'badge-status--serving',
+                'Pending Arrival': 'badge-status--pending-arrival',
                 'Waiting': 'badge-status--waiting',
                 'Completed': 'badge-status--completed',
                 'Cancelled': 'badge-status--cancelled',
@@ -700,19 +691,12 @@
             return map[status] || '';
         }
 
-        function getPriorityClass(category) {
+        function getCategoryClass(category) {
             const map = {
                 'Senior Citizens': 'badge-priority--senior',
-
-                'Family heads and Other Needy Adult':
-                    'badge-priority--family-heads',
-
-                'Youth in Need and Other Needy Adult':
-                    'badge-priority--youth-needy-adult',
-
-                'Youth in Need of Special Protection':
-                    'badge-priority--youth-protection',
-
+                'Family heads and Other Needy Adult': 'badge-priority--family-heads',
+                'Youth in Need and Other Needy Adult': 'badge-priority--youth-needy-adult',
+                'Youth in Need of Special Protection': 'badge-priority--youth-protection',
                 'Men/Women in specially difficult circumstances':
                     'badge-priority--difficult-circumstances',
             };
@@ -733,7 +717,7 @@
 
             queues.forEach(q => {
                 const priorityBadge = `
-                    <span class="badge-priority ${getPriorityClass(q.client_category)}">
+                    <span class="badge-priority ${getCategoryClass(q.client_category)}">
                         ${q.client_category}
                     </span>
                 `;
@@ -755,7 +739,7 @@
                             x-on:click="$dispatch('open-modal', 'cancel-queue-modal-${q.id}')"
                     >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             Cancel
                     </button>`
@@ -768,6 +752,7 @@
                         >
                                 View
                         </button>`
+                        : `<span class="text-gray-300 text-xs">—</span>`;
 
                 rows += `
                     <tr>

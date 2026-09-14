@@ -39,9 +39,16 @@ class Client extends Model
         'amount',                
         'program_requested',
         'type_of_assistance',    //'reason_for_assistance'
+        'date_registered',
     ];
 
+    protected $casts = [
+        'birthdate' => 'date',
+        'date_registered' => 'datetime',
+    ];
+    
     public $timestamps = false;
+
 
     // public function assessment(): HasMany
     // {

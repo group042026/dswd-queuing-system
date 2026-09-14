@@ -402,28 +402,6 @@
                     </div>
                 </div>
 
-                {{-- SECTION 3: Household & Financial Background --}}
-                {{-- <div class="reg-card">
-                    <h3 class="reg-card__title">
-                        <span class="reg-card__title-number">3</span>
-                        {{ __('Household & Financial Background') }}
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <x-input-label for="salary" :value="__('Salary')" class="font-semibold text-gray-700" />
-                            <x-text-input id="salary" name="salary" type="number" step="0.01" class="mt-1.5 block w-full" :value="old('salary')" />
-                            <x-input-error :messages="$errors->get('salary')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="household_size" :value="__('Household Size')" class="font-semibold text-gray-700" />
-                            <x-text-input id="household_size" name="household_size" type="number" min="1" class="mt-1.5 block w-full" :value="old('household_size')" required />
-                            <x-input-error :messages="$errors->get('household_size')" class="mt-2" />
-                        </div>
-                    </div>
-                </div> --}}
-
                 {{-- SECTION 4: Valid ID --}}
                 <div class="reg-card">
                     <h3 class="reg-card__title">

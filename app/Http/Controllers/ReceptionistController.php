@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DashboardUpdated;
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\ClientProcessing;
+use App\Models\Queue;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class ReceptionistController extends Controller
 {
@@ -16,6 +22,9 @@ class ReceptionistController extends Controller
         $pendingValidationCount = ClientProcessing::where('current_step', 'Validation')
             ->where('current_status', 'Processing')
             ->whereDate('start_time', $today)
+            ->count();
+
+        $pendingOnlineRegistrationsCount = Queue::where('queue_status',  'Pending Arrival')
             ->count();
 
         $completedValidationCount = ClientProcessing::where('current_step', 'Validation')
@@ -55,6 +64,7 @@ class ReceptionistController extends Controller
             'completedValidationCount' => $completedValidationCount,
             // 'pendingReleasingCount' => $pendingReleasingCount,
             'liveQueue' => $liveQueue,
+            'pendingOnlineRegistrationsCount' => $pendingOnlineRegistrationsCount,
         ]);
     }
 
@@ -67,6 +77,8 @@ class ReceptionistController extends Controller
         $pendingValidationCount = ClientProcessing::where('current_step', 'Validation')
             ->where('current_status', 'Processing')
             ->whereDate('start_time', $today)
+            ->count();
+        $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
             ->count();
 
         $completedValidationCount = ClientProcessing::where('current_step', 'Validation')
@@ -105,6 +117,7 @@ class ReceptionistController extends Controller
                 'pendingValidationCount' => $pendingValidationCount,
                 'completedValidationCount' => $completedValidationCount,
                 // 'pendingReleasingCount' => $pendingReleasingCount,
+                'pendingOnlineRegistrationsCount' => $pendingOnlineRegistrationsCount,
             ],
             'liveQueue' => $liveQueue->map(function ($item) {
                 $isValidation = $item->current_step === 'Validation';
@@ -143,5 +156,93 @@ class ReceptionistController extends Controller
                 'action_url' => $actionUrl,
             ];
         });
+    }
+
+    public function onlineRegistrations()
+    {
+        Gate::authorize('access-receptionist');
+
+        $onlineRegistrations = Queue::with([
+            'client.documents',
+        ])
+            ->where('queue_status', 'Pending Arrival')
+            ->orderByDesc('priority')
+            ->orderBy('date_issued')
+            ->paginate(10);
+
+        return view('receptionist.online-registrations', [
+            'onlineRegistrations' => $onlineRegistrations,
+        ]);
+    }
+
+    public function onlineRegistrationsData()
+    {
+        Gate::authorize('access-receptionist');
+
+        $registrations = Queue::with(['client.documents'])
+            ->where('queue_status', 'Pending Arrival')
+            ->orderByDesc('priority')
+            ->orderBy('date_issued')
+            ->get();
+
+        return response()->json([
+            'registrations' => $registrations->map(function ($queue) {
+                return [
+                    'id' => $queue->id,
+                    'queue_number' => $queue->queue_number,
+                    'priority' => $queue->priority,
+                    'client_name' => "{$queue->client->first_name} {$queue->client->last_name}",
+                    'control_number' => $queue->client->control_number,
+                    'client_category' => $queue->client->client_category,
+                    'contact_number' => $queue->client->contact_number,
+                    'documents_count' => $queue->client->documents->count(),
+                    'verified_documents_count' => $queue->client->documents
+                        ->where('verified', true)
+                        ->count(),
+                    'date_issued' => $queue->date_issued?->format('M d, Y h:i A'),
+                ];
+            }),
+        ]);
+    }
+
+    public function confirmOnlineArrival(Queue $queue)
+    {
+        Gate::authorize('access-receptionist');
+
+        DB::transaction(function () use ($queue) {
+            $lockedQueue = Queue::query()
+                ->lockForUpdate()
+                ->with('client')
+                ->findOrFail($queue->id);
+
+            if ($lockedQueue->queue_status !== 'Pending Arrival') {
+                abort(409, 'This online registration has already been processed.');
+            }
+
+            $lockedQueue->update([
+                'queue_status' => 'Serving',
+            ]);
+
+            ClientProcessing::create([
+                'client_id' => $lockedQueue->client_id,
+                'user_id' => auth()->id(),
+                'queue_id' => $lockedQueue->id,
+                'current_step' => 'Validation',
+                'current_status' => 'Processing',
+                'start_time' => now(),
+            ]);
+
+            ActivityLog::record(
+                'Online Registration Confirmed',
+                "Confirmed arrival of online client {$lockedQueue->client->first_name} {$lockedQueue->client->last_name} " .
+                "(Control #: {$lockedQueue->client->control_number}, Queue #: {$lockedQueue->queue_number})"
+            );
+
+            event(new DashboardUpdated());
+        });
+
+        return redirect()
+            ->route('receptionist.validation')
+            ->with('success', 'Client arrival confirmed and moved to validation.');
     }
 }

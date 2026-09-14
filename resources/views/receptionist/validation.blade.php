@@ -483,6 +483,7 @@
                                                 </form>
                                             </div>
 
+
                                             {{-- Means of Verification (MOV) --}}
                                             <div class="mb-4 pt-4 border-t border-slate-100">
                                                 <p class="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{{ __('Means of Verification (MOV)') }}</p>

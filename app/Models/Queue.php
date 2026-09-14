@@ -17,6 +17,7 @@ class Queue extends Model
         'priority',
         'queue_status',
         'cancellation_reason',
+        'date_issued',
     ];
     
     protected $casts = [

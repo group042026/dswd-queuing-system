@@ -8,6 +8,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\MovController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicRegistrationController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ReceptionistController;
 use App\Http\Controllers\ReleasingController;
@@ -30,13 +31,15 @@ Route::get('/', function () {
 Route::get('/public/queue-board', [QueueController::class, 'publicQueue'])->name('public.public-queue');
 Route::get('/public/queue-board/data', [QueueController::class, 'liveQueueData'])->name('public.public-queue.data');
 
-Route::get('/mov-capture/{client}', [MovController::class, 'showCaptureForm'])
-    ->name('mov.capture')
-    ->middleware('signed');
+Route::get('/mov-capture/{client}', [MovController::class, 'showCaptureForm'])->name('mov.capture')->middleware('signed');
+Route::post('/mov-capture/{client}', [MovController::class, 'upload'])->name('mov.upload')->middleware('signed');
 
-Route::post('/mov-capture/{client}', [MovController::class, 'upload'])
-    ->name('mov.upload')
-    ->middleware('signed');
+Route::get('/apply', [PublicRegistrationController::class, 'create'])->name('public.register');
+Route::post('/apply', [PublicRegistrationController::class, 'store'])->name('public.register.store');
+Route::get('/apply/success', [PublicRegistrationController::class, 'success'])->name('public.register.success');
+
+Route::get('/track-application', [PublicRegistrationController::class, 'trackForm'])->middleware('throttle:10,1')->name('public.track');
+Route::post('/track-application', [PublicRegistrationController::class, 'track'])->middleware('throttle:10,1')->name('public.track.search');
 
 Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function () {
 
@@ -88,6 +91,10 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
     Route::controller(ReceptionistController::class)->group(function () {
         Route::get('/receptionist/dashboard', 'index')->name('receptionist.dashboard');
         Route::get('/receptionist/dashboard-data', 'dashboardData')->name('receptionist.dashboard.data');
+
+        Route::get('/receptionist/online-registrations', 'onlineRegistrations')->name('receptionist.online-registrations');
+        Route::get('/receptionist/online-registrations/data', 'onlineRegistrationsData')->name('receptionist.online-registrations.data');
+        Route::post('/receptionist/online-registrations/{queue}/confirm', 'confirmOnlineArrival')->name('receptionist.online-registrations.confirm');
     });
 
     Route::controller(ClientController::class)->group(function () {

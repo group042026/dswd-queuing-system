@@ -660,6 +660,28 @@
                                     <div class="actions-card__btn-desc">Verify requirements & proceed.</div>
                                 </div>
                             </a>
+
+                            <a href="{{ route('receptionist.online-registrations') }}" class="actions-card__btn">
+                                <div class="actions-card__btn-icon">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-7a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0" />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <div class="actions-card__btn-title">
+                                        Online Pre-Registrations
+                                    </div>
+
+                                    <div class="actions-card__btn-desc">
+                                        Pending arrivals:
+                                        <span data-stat="pendingOnlineRegistrationsCount">
+                                            {{ $pendingOnlineRegistrationsCount }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -714,6 +736,15 @@
                         document.querySelector('[data-stat="completedValidationCount"]').textContent = data.stats.completedValidationCount;
                         // document.querySelector('[data-stat="pendingReleasingCount"]').textContent = data.stats.pendingReleasingCount;
 
+                        const pendingOnlineCount = document.querySelector(
+                            '[data-stat="pendingOnlineRegistrationsCount"]'
+                        );
+
+                        if (pendingOnlineCount) {
+                            pendingOnlineCount.textContent =
+                                data.stats.pendingOnlineRegistrationsCount;
+                        }
+                        
                         const queueEl = document.querySelector('[data-live-queue]');
                         queueEl.innerHTML = data.liveQueue.length > 0
                             ? data.liveQueue.map(renderQueueRow).join('')
