@@ -95,11 +95,15 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
         Route::get('/receptionist/online-registrations', 'onlineRegistrations')->name('receptionist.online-registrations');
         Route::get('/receptionist/online-registrations/data', 'onlineRegistrationsData')->name('receptionist.online-registrations.data');
         Route::post('/receptionist/online-registrations/{queue}/confirm', 'confirmOnlineArrival')->name('receptionist.online-registrations.confirm');
+
+
     });
 
     Route::controller(ClientController::class)->group(function () {
         Route::get('/receptionist/clients/create', 'create')->name('receptionist.clients.create');
         Route::post('/receptionist/clients', 'store')->name('receptionist.clients.store');
+
+        Route::get('/receptionist/clients/returning', 'returningClients')->name('receptionist.clients.returning');
     });
 
     Route::controller(ValidationController::class)->group(function () {

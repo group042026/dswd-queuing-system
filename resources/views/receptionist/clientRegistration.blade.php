@@ -254,9 +254,63 @@
                 </div>
             @endif
 
+            <div class="mb-6 flex justify-end">
+                <button
+                    type="button"
+                    id="find_returning_client"
+                    class="btn-submit"
+                    x-data=""
+                    x-on:click="$dispatch('open-modal', 'returning-client-modal')"
+                >
+                    {{ __('Find Previous Client') }}
+                </button>
+            </div>
+
+            <x-modal name="returning-client-modal" maxWidth="2xl">
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-4 border-b pb-4">
+                        <div>
+                            <h2 class="text-lg font-extrabold text-gray-800">{{ __('Previous Clients') }}</h2>
+                            <p class="mt-1 text-sm text-gray-500">{{ __('Only clients with completed transactions are shown.') }}</p>
+                        </div>
+                        <button type="button" class="text-gray-400 hover:text-gray-700" x-on:click="$dispatch('close-modal', 'returning-client-modal')" aria-label="{{ __('Close') }}">&times;</button>
+                    </div>
+
+                    <div class="mt-4 flex gap-2">
+                        <input id="returning_client_search" type="search" placeholder="{{ __('Search name or ID number') }}" class="block w-full">
+                        <button type="button" id="search_returning_clients" class="btn-submit">{{ __('Search') }}</button>
+                    </div>
+
+                    <p id="returning_clients_status" class="mt-3 text-sm text-gray-500"></p>
+
+                    <div class="mt-3 max-h-[55vh] overflow-y-auto rounded-lg border">
+                        <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                            <thead class="sticky top-0 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+                                <tr>
+                                    <th class="px-4 py-3">{{ __('Name') }}</th>
+                                    <th class="px-4 py-3">{{ __('Birthday') }}</th>
+                                    <th class="px-4 py-3">{{ __('ID Used') }}</th>
+                                    <th class="px-4 py-3 text-right">{{ __('Action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="returning_clients_table" class="divide-y divide-gray-100 bg-white"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 flex justify-end">
+                        <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'returning-client-modal')">
+                            {{ __('Close') }}
+                        </x-secondary-button>
+                    </div>
+                </div>
+            </x-modal>
+
             <form method="POST" action="{{ route('receptionist.clients.store') }}">
                 @csrf
 
+                <input type="hidden" name="returning_client_id" id="returning_client_id">
+
+                
                 {{-- SECTION 1: Personal Information --}}
                 <div class="reg-card">
                     <h3 class="reg-card__title">
@@ -267,19 +321,19 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <x-input-label for="first_name" :value="__('First Name')" class="font-semibold text-gray-700" />
-                            <x-text-input id="first_name" name="first_name" type="text" class="mt-1.5 block w-full" :value="old('first_name')" required autofocus />
+                            <x-text-input id="first_name" name="first_name" type="text" class="mt-1.5 block w-full" :value="old('first_name')" maxlength="50" pattern="[A-Za-zÑñ\s\-'.]+" required autofocus />
                             <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="middle_name" :value="__('Middle Name')" class="font-semibold text-gray-700" />
-                            <x-text-input id="middle_name" name="middle_name" type="text" class="mt-1.5 block w-full" :value="old('middle_name')" />
+                            <x-text-input id="middle_name" name="middle_name" type="text" class="mt-1.5 block w-full" :value="old('middle_name')" maxlength="50" pattern="[A-Za-zÑñ\s\-'.]+" />
                             <x-input-error :messages="$errors->get('middle_name')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="last_name" :value="__('Last Name')" class="font-semibold text-gray-700" />
-                            <x-text-input id="last_name" name="last_name" type="text" class="mt-1.5 block w-full" :value="old('last_name')" required />
+                            <x-text-input id="last_name" name="last_name" type="text" class="mt-1.5 block w-full" :value="old('last_name')" maxlength="50" pattern="[A-Za-zÑñ\s\-'.]+" required />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                         </div>
                     </div>
@@ -420,8 +474,26 @@
                                 <option value="Voter's ID" {{ old('valid_id_type') == "Voter's ID" ? 'selected' : '' }}>Voter's ID</option>
                                 <option value="SSS ID" {{ old('valid_id_type') == 'SSS ID' ? 'selected' : '' }}>SSS ID</option>
                                 <option value="PhilHealth ID" {{ old('valid_id_type') == 'PhilHealth ID' ? 'selected' : '' }}>PhilHealth ID</option>
+                                <option value="UMID ID" {{ old('valid_id_type') == 'UMID ID' ? 'selected' : '' }}>UMID ID</option>
+                                <option value="GSIS ID" {{ old('valid_id_type') == 'GSIS ID' ? 'selected' : '' }}>GSIS ID</option>
+                                <option value="PRC ID" {{ old('valid_id_type') == 'PRC ID' ? 'selected' : '' }}>PRC ID</option>
+                                <option value="OWWA/OFW ID" {{ old('valid_id_type') == 'OWWA/OFW ID' ? 'selected' : '' }}>OWWA/OFW ID</option>
+                                <option value="DOLE ID" {{ old('valid_id_type') == 'DOLE ID' ? 'selected' : '' }}>DOLE ID</option>
+                                <option value="Postal ID" {{ old('valid_id_type') == 'Postal ID' ? 'selected' : '' }}>Postal ID</option>
+                                <option value="NBI Clearance" {{ old('valid_id_type') == 'NBI Clearance' ? 'selected' : '' }}>NBI Clearance</option>
+                                <option value="BI Clearance" {{ old('valid_id_type') == 'BI Clearance' ? 'selected' : '' }}>BI Clearance</option>
+                                <option value="Police Clearance" {{ old('valid_id_type') == 'Police Clearance' ? 'selected' : '' }}>Police Clearance</option>
+                                <option value="4Ps ID" {{ old('valid_id_type') == '4Ps ID' ? 'selected' : '' }}>4Ps ID</option>
+                                <option value="PWD ID" {{ old('valid_id_type') == 'PWD ID' ? 'selected' : '' }}>PWD ID</option>
+                                <option value="Solo Parent ID" {{ old('valid_id_type') == 'Solo Parent ID' ? 'selected' : '' }}>Solo Parent ID</option>
+                                <option value="City/Municipal ID" {{ old('valid_id_type') == 'City/Municipal ID' ? 'selected' : '' }}>City/Municipal ID</option>
+                                <option value="OSCA ID (Senior Citizen)" {{ old('valid_id_type') == 'OSCA ID (Senior Citizen)' ? 'selected' : '' }}>OSCA ID (Senior Citizen)</option>
+                                <option value="LSWDO/MSWDO ID" {{ old('valid_id_type') == 'LSWDO/MSWDO ID' ? 'selected' : '' }}>LSWDO/MSWDO ID</option>
+                                <option value="DSWD Certification" {{ old('valid_id_type') == 'DSWD Certification' ? 'selected' : '' }}>DSWD Certification</option>
+                                <option value="PSA Document" {{ old('valid_id_type') == 'PSA Document' ? 'selected' : '' }}>PSA Document</option>
+                                <option value="Pag-IBIG ID" {{ old('valid_id_type') == 'Pag-IBIG ID' ? 'selected' : '' }}>Pag-IBIG ID</option>
                                 <option value="Barangay ID" {{ old('valid_id_type') == 'Barangay ID' ? 'selected' : '' }}>Barangay ID</option>
-                                <option value="Other" {{ old('valid_id_type') == 'Other' ? 'selected' : '' }}>Other</option>
+                                {{-- <option value="Other" {{ old('valid_id_type') == 'Other' ? 'selected' : '' }}>Other</option> --}}
                             </select>
                             <x-input-error :messages="$errors->get('valid_id_type')" class="mt-2" />
                         </div>
@@ -440,6 +512,7 @@
                             <p class="text-xs text-gray-400 mt-1" id="valid_id_number_hint">{{ __('Select an ID type first') }}</p>
                             <x-input-error :messages="$errors->get('valid_id_number')" class="mt-2" />
                         </div>
+
                     </div>
                 </div>
 
@@ -716,7 +789,10 @@
             municipalitySelect.disabled = false;
         });
 
+        let barangayRequestId = 0;
+
         municipalitySelect.addEventListener('change', () => {
+            const requestId = ++barangayRequestId; // bagong request, pinaka-bago
             const selectedOption = municipalitySelect.options[municipalitySelect.selectedIndex];
             const municipalityCode = selectedOption.dataset.code;
 
@@ -728,6 +804,8 @@
             fetch(`https://psgc.cloud/api/cities-municipalities/${municipalityCode}/barangays`)
                 .then(res => res.json())
                 .then(barangays => {
+                    if (requestId !== barangayRequestId) return; // luma na 'to, i-ignore
+
                     barangaySelect.innerHTML = '<option value="">-- Select Barangay --</option>';
                     barangays
                         .sort((a, b) => a.name.localeCompare(b.name))
@@ -745,6 +823,259 @@
         const idTypeSelect = document.getElementById('valid_id_type');
         const idNumberInput = document.getElementById('valid_id_number');
         const idNumberHint = document.getElementById('valid_id_number_hint');
+
+        const findReturningClientButton = document.getElementById('find_returning_client');
+        const returningClientMessage = document.getElementById('returning_clients_status');
+
+        // ---- Search modal: Find Previous Client ----
+        const searchInput = document.getElementById('returning_client_search');
+        const searchButton = document.getElementById('search_returning_clients');
+        const resultsTable = document.getElementById('returning_clients_table');
+        const resultsStatus = document.getElementById('returning_clients_status');
+        const returningClientIdInput = document.getElementById('returning_client_id');
+
+        function searchReturningClients() {
+            const search = searchInput.value.trim();
+
+            resultsStatus.textContent = 'Searching...';
+            resultsTable.innerHTML = '';
+
+            fetch(`{{ route('receptionist.clients.returning') }}?search=${encodeURIComponent(search)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to search clients.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const clients = data.clients || [];
+
+                    if (clients.length === 0) {
+                        resultsStatus.textContent = 'No matching clients found.';
+                        return;
+                    }
+
+                    resultsStatus.textContent = `${clients.length} client(s) found.`;
+
+                    clients.forEach(client => {
+                        const fullName = [client.first_name, client.middle_name, client.last_name, client.suffix]
+                            .filter(Boolean)
+                            .join(' ');
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-3">${fullName}</td>
+                            <td class="px-4 py-3">${client.birthdate ?? ''}</td>
+                            <td class="px-4 py-3">${client.valid_id_type ?? ''}: ${client.valid_id_number ?? ''}</td>
+                            <td class="px-4 py-3 text-right">
+                                <button type="button" class="btn-submit select-returning-client">
+                                    {{ __('Use') }}
+                                </button>
+                            </td>
+                        `;
+
+                        row.querySelector('.select-returning-client').addEventListener('click', () => {
+                            fillReturningClient(client);
+                        });
+
+                        resultsTable.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                    resultsStatus.textContent = 'An error occurred while searching.';
+                });
+        }
+
+        function fillReturningClient(client) {
+            returningClientIdInput.value = client.id;
+
+            document.getElementById('first_name').value = client.first_name ?? '';
+            document.getElementById('middle_name').value = client.middle_name ?? '';
+            document.getElementById('last_name').value = client.last_name ?? '';
+            document.getElementById('suffix').value = client.suffix ?? '';
+            document.getElementById('sex').value = client.sex ?? '';
+            document.getElementById('civil_status').value = client.civil_status ?? '';
+            document.getElementById('contact_number').value = client.contact_number ?? '';
+            document.getElementById('valid_id_type').value = client.valid_id_type ?? '';
+            idTypeSelect.dispatchEvent(new Event('change'));
+            document.getElementById('valid_id_number').value = client.valid_id_number ?? '';
+            document.getElementById('district').value = client.district ?? '';
+            document.getElementById('client_category').value = client.client_category ?? '';
+
+            const savedSubcategories = (client.subcategory ?? '')
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            document.querySelectorAll('input[name="subcategory[]"]').forEach(checkbox => {
+                checkbox.checked = savedSubcategories.includes(checkbox.value);
+            });
+            // --- FIX: Birthdate ---
+            const birthdateInput = document.getElementById('birthdate');
+            if (client.birthdate) {
+                // Kunin lang yung "YYYY-MM-DD" part, kahit ano pa format galing sa backend
+                birthdateInput.value = client.birthdate.substring(0, 10);
+
+                // 'input' event -> para ma-sync si Alpine's x-model="birthdate"
+                birthdateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                // 'change' event -> para ma-trigger yung x-on:change="computeAge()"
+                birthdateInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // --- Cascading location fill ---
+            fillLocationCascade(client);
+
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: 'returning-client-modal' }));
+        }
+
+        searchButton.addEventListener('click', searchReturningClients);
+
+        // Para pag pinindot yung Enter key sa search box, mag-search din agad
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchReturningClients();
+            }
+        });
+
+        findReturningClientButton.addEventListener('click', () => {
+            const validIdType = idTypeSelect.value;
+            const validIdNumber = idNumberInput.value;
+            const birthdate = document.getElementById('birthdate').value;
+
+            if (!validIdType || !validIdNumber || !birthdate) {
+                returningClientMessage.textContent = 'search existing client';
+                returningClientMessage.className = 'mt-2 text-sm text-red-500';
+                return;
+            }
+
+            returningClientMessage.textContent = 'Searching...';
+            returningClientMessage.className = 'mt-2 text-sm text-gray-500';
+
+            fetch(`{{ route('receptionist.clients.returning') }}?valid_id_type=${encodeURIComponent(validIdType)}&valid_id_number=${encodeURIComponent(validIdNumber)}&birthdate=${encodeURIComponent(birthdate)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to find returning client.');
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.found) {
+                        returningClientMessage.textContent = 'Returning client found.';
+                        returningClientMessage.className = 'mt-2 text-sm text-green-600';
+
+                        console.log('Returning client:', data);
+                    } else {
+                        returningClientMessage.textContent = 'No previous client found.';
+                        returningClientMessage.className = 'mt-2 text-sm text-red-500';
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+
+                    returningClientMessage.textContent = 'An error occurred while searching for the client.';
+                    returningClientMessage.className = 'mt-2 text-sm text-red-500';
+                });
+        });
+
+        function waitFor(conditionFn, callback, attempts = 0) {
+            if (conditionFn()) {
+                callback();
+                return;
+            }
+            if (attempts > 50) { 
+                console.warn('waitFor: timed out waiting for condition.');
+                return;
+            }
+            setTimeout(() => waitFor(conditionFn, callback, attempts + 1), 100);
+        }
+
+        function normalizeLocationName(value) {
+            return (value ?? '')
+                .toString()
+                .trim()                          // para umayos yung mga munisipal namay space tulad ng Baler "
+                .toLowerCase()
+                .replace(/\s*\(.*?\)\s*/g, '');  // extra safety kung may (Capital) suffix sa ibang lugar
+        }
+
+        function selectOptionByValue(selectEl, value) {
+            if (!value) return false;
+
+            const target = normalizeLocationName(value);
+
+            const match = Array.from(selectEl.options).find(
+                opt => normalizeLocationName(opt.value) === target
+            );
+
+            if (match) {
+                selectEl.value = match.value; // gamitin yung ACTUAL option value (may space pa rin, "Baler ")
+                return true;
+            }
+
+            return false;
+        }
+
+        function fillLocationCascade(client) {
+            // console.log('Client address data:', {
+            //     region: client.region,
+            //     province: client.province,
+            //     municipality: client.municipality,
+            //     barangay: client.barangay,
+            // });
+        regionSelect.value = '';
+        provinceSelect.value = '';
+        municipalitySelect.innerHTML = '<option value="">-- Loading... --</option>';
+        barangaySelect.innerHTML = '<option value="">-- Loading... --</option>';
+        municipalitySelect.disabled = true;
+        barangaySelect.disabled = true;
+
+        if (!client.region && !client.province && !client.municipality && !client.barangay) {
+            municipalitySelect.innerHTML = '<option value="">-- Select Province First --</option>';
+            barangaySelect.innerHTML = '<option value="">-- Select Municipality First --</option>';
+            return;
+        }
+
+        waitFor(
+            
+            () => regionSelect.options.length > 1,
+            () => {
+                if (!selectOptionByValue(regionSelect, client.region)) return;
+                regionSelect.dispatchEvent(new Event('change'));
+
+                waitFor(
+                    () => !provinceSelect.disabled,
+                    () => {
+                        const provinceHasOptions = provinceSelect.options.length > 1;
+
+                        if (provinceHasOptions) {
+                            if (!selectOptionByValue(provinceSelect, client.province)) return;
+                            provinceSelect.dispatchEvent(new Event('change'));
+                        }
+
+                        waitFor(
+                            () => !municipalitySelect.disabled && municipalitySelect.options.length > 1,
+                            () => {
+
+                                // console.log('Available municipalities:', Array.from(municipalitySelect.options).map(o => o.value));
+                                // console.log('Looking for:', client.municipality);
+                                if (!selectOptionByValue(municipalitySelect, client.municipality)) return;
+                                municipalitySelect.dispatchEvent(new Event('change'));
+
+                                waitFor(
+                                    () => !barangaySelect.disabled && barangaySelect.options.length > 1,
+                                    () => {
+                                        selectOptionByValue(barangaySelect, client.barangay);
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    }
 
         const idFormats = {
             'Philippine National ID': {
@@ -840,12 +1171,41 @@
                 placeholder: 'Enter Barangay ID number',
                 hint: 'Varies per barangay',
             },
-            'Other': {
-                pattern: '.{1,50}',
-                maxlength: 20,
-                placeholder: 'Enter ID number',
-                hint: 'No specific format required',
+            'UMID ID': {
+                pattern: '\\d{4}-\\d{7}-\\d{1}',
+                maxlength: 14,
+                placeholder: 'e.g. 1234-5678901-2',
+                hint: 'Format: 1234-5678901-2 (CRN)',
+                format: value => {
+                    const digits = value.replace(/\D/g, '').slice(0, 12);
+                    if (digits.length <= 4) return digits;
+                    if (digits.length <= 11) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+                    return `${digits.slice(0, 4)}-${digits.slice(4, 11)}-${digits.slice(11)}`;
+                },
             },
+            'GSIS ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'No fixed format' },
+            'PRC ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'No fixed format' },
+            'OWWA/OFW ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'No fixed format' },
+            'DOLE ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'No fixed format' },
+            'Postal ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'No fixed format' },
+            'NBI Clearance': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter clearance number', hint: 'No fixed format' },
+            'BI Clearance': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter clearance number', hint: 'No fixed format' },
+            'Police Clearance': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter clearance number', hint: 'No fixed format' },
+            '4Ps ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter Household ID number', hint: 'No fixed format' },
+            'PWD ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'Varies per LGU' },
+            'Solo Parent ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'Varies per LGU' },
+            'City/Municipal ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'Varies per LGU' },
+            'OSCA ID (Senior Citizen)': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'Varies per LGU' },
+            'LSWDO/MSWDO ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'Varies per office' },
+            'DSWD Certification': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter reference number', hint: 'No fixed format' },
+            'PSA Document': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter document number', hint: 'No fixed format' },
+            'Pag-IBIG ID': { pattern: '.{1,17}', maxlength: 17, placeholder: 'Enter ID number', hint: 'No fixed format' },
+            // 'Other': {
+            //     pattern: '.{1,20}',
+            //     maxlength: 20,
+            //     placeholder: 'Enter ID number',
+            //     hint: 'No specific format required',
+            // },
         };
 
         let selectedIdFormat = null;
@@ -876,6 +1236,17 @@
                 idNumberInput.value = selectedIdFormat.format(idNumberInput.value);
             }
         });
+
+        function restrictToLetters(input) {
+            if (!input) return;
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/[^A-Za-zÑñ\s\-'.]/g, '');
+            });
+        }
+
+        restrictToLetters(document.getElementById('first_name'));
+        restrictToLetters(document.getElementById('middle_name'));
+        restrictToLetters(document.getElementById('last_name'));
     });
 </script>
 @endpush

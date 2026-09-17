@@ -135,155 +135,328 @@
 
     <main class="flex-1 p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 overflow-y-auto scroll-hidden">
         <template x-for="deskKey in ['validation', 'assessment', 'review', 'releasing']" :key="deskKey">
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 flex flex-col overflow-hidden transition-all duration-300"
-                 :class="[getDeskBorderClass(deskKey), { 'flash-card': flashDesk === deskKey }]">
 
+            <div
+                class="bg-white rounded-2xl shadow-md border border-slate-200 flex flex-col overflow-hidden transition-all duration-300"
+                :class="[getDeskBorderClass(deskKey), { 'flash-card': flashDesk === deskKey }]"
+            >
+
+                {{-- COUNTER HEADER --}}
                 <div class="p-4 flex justify-between items-center border-b border-slate-100 flex-shrink-0">
+
                     <div class="flex items-center gap-2">
-                        <span class="text-white text-[9px] font-black tracking-wider px-2 py-1 rounded uppercase shadow-sm"
-                              :class="getDeskBadgeColor(deskKey)"
-                              x-text="desks[deskKey].counter">
-                        </span>
+                        <span
+                            class="text-white text-[9px] font-black tracking-wider px-2 py-1 rounded uppercase shadow-sm"
+                            :class="getDeskBadgeColor(deskKey)"
+                            x-text="desks[deskKey].counter"
+                        ></span>
                     </div>
-                    <span class="text-[9px] font-black tracking-wider uppercase text-slate-400" x-text="desks[deskKey].label"></span>
+
+                    <span
+                        class="text-[9px] font-black tracking-wider uppercase text-slate-400"
+                        x-text="desks[deskKey].label"
+                    ></span>
+
                 </div>
 
-                <div class="p-5 flex flex-col items-center justify-center border-b border-slate-100 min-h-[180px]">
-                    <template x-if="deskKey === 'validation'">
-                        <div class="text-center w-full">
-                            <div class="flex items-center justify-center gap-1.5 mb-2">
-                                <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
-                                <span class="text-[9px] font-black tracking-widest text-red-600 uppercase">NOW SERVING</span>
-                            </div>
-                            <template x-if="desks.validation.serving.length > 0">
-                                <div>
-                                    <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-900 font-mono select-none">
-                                        <span x-text="desks.validation.serving[0].queue_number"></span>
-                                    </div>
-                                    <div class="mt-3 flex flex-col items-center justify-center gap-2">
-                                        {{-- Category --}}
-                                        <span
-                                            class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
-                                            :class="getCategoryClass(desks.validation.serving[0].client_category)"
-                                            x-text="desks.validation.serving[0].client_category">
-                                        </span>
 
-                                        {{-- Returnee and priority/regular badges --}}
-                                        <div class="flex flex-wrap items-center justify-center gap-2">
-                                            <template x-if="desks.validation.serving[0].is_returnee">
-                                                <span class="rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
+                {{-- TWO LANES --}}
+                <div class="grid grid-cols-2 min-h-[420px]">
+
+                    {{-- ============================================ --}}
+                    {{-- REGULAR LANE --}}
+                    {{-- ============================================ --}}
+                    <template x-for="laneKey in ['regular', 'priority']" :key="laneKey">
+
+                        <div
+                            class="flex flex-col min-w-0"
+                            :class="laneKey === 'priority'
+                                ? 'border-l border-slate-200 bg-red-50/20'
+                                : 'bg-white'"
+                        >
+
+                            {{-- LANE HEADER --}}
+                            <div
+                                class="px-4 py-3 border-b border-slate-100"
+                                :class="laneKey === 'priority'
+                                    ? 'bg-red-50'
+                                    : 'bg-slate-50'"
+                            >
+
+                                <div class="flex items-center justify-center gap-2">
+
+                                    <span
+                                        class="w-2 h-2 rounded-full"
+                                        :class="laneKey === 'priority'
+                                            ? 'bg-red-600'
+                                            : 'bg-slate-500'"
+                                    ></span>
+
+                                    <span
+                                        class="text-[10px] font-black uppercase tracking-widest"
+                                        :class="laneKey === 'priority'
+                                            ? 'text-red-700'
+                                            : 'text-slate-600'"
+                                        x-text="laneKey === 'priority' ? 'PRIORITY' : 'REGULAR'"
+                                    ></span>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- MAIN QUEUE DISPLAY --}}
+                            <div class="p-4 border-b border-slate-100 min-h-[190px] flex flex-col items-center justify-center">
+
+                                {{-- VALIDATION = NOW SERVING --}}
+                                <template x-if="deskKey === 'validation'">
+
+                                    <div class="text-center w-full">
+
+                                        <div class="flex items-center justify-center gap-1.5 mb-2">
+
+                                            <span
+                                                class="w-2 h-2 rounded-full animate-ping"
+                                                :class="laneKey === 'priority'
+                                                    ? 'bg-red-600'
+                                                    : 'bg-slate-500'"
+                                            ></span>
+
+                                            <span
+                                                class="text-[9px] font-black tracking-widest uppercase"
+                                                :class="laneKey === 'priority'
+                                                    ? 'text-red-600'
+                                                    : 'text-slate-600'"
+                                            >
+                                                NOW SERVING
+                                            </span>
+
+                                        </div>
+
+
+                                        <template x-if="getLane(deskKey, laneKey).serving.length > 0">
+
+                                            <div>
+
+                                                <div class="text-3xl lg:text-4xl xl:text-5xl font-black tracking-tight text-slate-900 font-mono select-none">
+                                                    <span x-text="getLane(deskKey, laneKey).serving[0].queue_number"></span>
+                                                </div>
+
+                                                <div class="mt-3 flex flex-col items-center justify-center gap-2">
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                                                        :class="getCategoryClass(getLane(deskKey, laneKey).serving[0].client_category)"
+                                                        x-text="getLane(deskKey, laneKey).serving[0].client_category"
+                                                    ></span>
+
+                                                    <div class="flex flex-wrap items-center justify-center gap-2">
+
+                                                        <template x-if="getLane(deskKey, laneKey).serving[0].is_returnee">
+                                                            <span class="rounded-full border border-orange-200 bg-orange-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-orange-700">
+                                                                RETURNEE
+                                                            </span>
+                                                        </template>
+
+                                                        <span
+                                                            class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide"
+                                                            :class="laneKey === 'priority'
+                                                                ? 'border border-red-200 bg-red-100 text-red-700'
+                                                                : 'border border-slate-200 bg-slate-100 text-slate-600'"
+                                                            x-text="laneKey === 'priority' ? 'PRIORITY' : 'REGULAR'"
+                                                        ></span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </template>
+
+
+                                        <template x-if="getLane(deskKey, laneKey).serving.length === 0">
+
+                                            <div class="text-slate-400 font-extrabold text-[10px] uppercase tracking-wider py-4">
+                                                No Active Ticket
+                                            </div>
+
+                                        </template>
+
+                                    </div>
+
+                                </template>
+
+
+                                {{-- OTHER DESKS = NEXT IN LINE --}}
+                                <template x-if="deskKey !== 'validation'">
+
+                                    <div class="text-center w-full">
+
+                                        <div class="flex items-center justify-center gap-1.5 mb-2">
+
+                                            <span
+                                                class="w-2 h-2 rounded-full animate-pulse"
+                                                :class="laneKey === 'priority'
+                                                    ? 'bg-red-500'
+                                                    : 'bg-amber-500'"
+                                            ></span>
+
+                                            <span
+                                                class="text-[9px] font-black tracking-widest uppercase"
+                                                :class="laneKey === 'priority'
+                                                    ? 'text-red-600'
+                                                    : 'text-amber-600'"
+                                            >
+                                                NEXT IN LINE
+                                            </span>
+
+                                        </div>
+
+
+                                        <template x-if="getLane(deskKey, laneKey).upNext.length > 0">
+
+                                            <div>
+
+                                                <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-700 font-mono select-none">
+                                                    <span x-text="getLane(deskKey, laneKey).upNext[0].queue_number"></span>
+                                                </div>
+
+                                                <div class="mt-3 flex flex-col items-center justify-center gap-2">
+
+                                                    <span
+                                                        class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                                                        :class="getCategoryClass(getLane(deskKey, laneKey).upNext[0].client_category)"
+                                                        x-text="getLane(deskKey, laneKey).upNext[0].client_category"
+                                                    ></span>
+
+                                                    <span
+                                                        class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide"
+                                                        :class="laneKey === 'priority'
+                                                            ? 'border border-red-200 bg-red-100 text-red-700'
+                                                            : 'border border-slate-200 bg-slate-100 text-slate-600'"
+                                                        x-text="laneKey === 'priority' ? 'PRIORITY' : 'REGULAR'"
+                                                    ></span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </template>
+
+
+                                        <template x-if="getLane(deskKey, laneKey).upNext.length === 0">
+
+                                            <div class="text-slate-400 font-extrabold text-[10px] uppercase tracking-wider py-4">
+                                                No Active Ticket
+                                            </div>
+
+                                        </template>
+
+                                    </div>
+
+                                </template>
+
+                            </div>
+
+
+                            {{-- WAITING LIST --}}
+                            <div class="p-3 flex-1 overflow-y-auto scroll-hidden space-y-2 min-h-[220px]">
+
+                                <div class="flex items-center justify-between mb-2">
+
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                                        Waiting
+                                    </p>
+
+                                    <span
+                                        class="text-[8px] font-black uppercase tracking-wider"
+                                        :class="laneKey === 'priority'
+                                            ? 'text-red-400'
+                                            : 'text-slate-400'"
+                                        x-text="laneKey === 'priority' ? 'Priority Lane' : 'Regular Lane'"
+                                    ></span>
+
+                                </div>
+
+
+                                <template
+                                    x-for="item in getWaitingItems(deskKey, laneKey)"
+                                    :key="item.queue_id"
+                                >
+
+                                    <div
+                                        class="rounded-lg p-2.5 border flex justify-between items-center transition-all"
+                                        :class="item.is_on_hold
+                                            ? 'bg-amber-50 border-amber-200'
+                                            : laneKey === 'priority'
+                                                ? 'bg-red-50/50 border-red-100'
+                                                : 'bg-slate-50 border-slate-200/60'"
+                                    >
+
+                                        <div class="flex items-center gap-1.5 min-w-0">
+
+                                            <span
+                                                class="font-mono text-sm font-bold text-slate-700"
+                                                x-text="item.queue_number"
+                                            ></span>
+
+
+                                            {{-- ON HOLD --}}
+                                            <template x-if="item.is_on_hold">
+
+                                                <span class="rounded-full bg-amber-100 px-2 py-1 text-[8px] font-extrabold uppercase text-amber-700 border border-amber-200">
+                                                    ON HOLD
+                                                </span>
+
+                                            </template>
+
+
+                                            {{-- RETURNEE --}}
+                                            <template x-if="!item.is_on_hold && item.is_returnee">
+
+                                                <span class="rounded-full bg-orange-100 px-2 py-1 text-[8px] font-extrabold uppercase text-orange-700">
                                                     RETURNEE
                                                 </span>
+
                                             </template>
 
-                                            <template x-if="desks.validation.serving[0].priority">
-                                                <span class="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-red-700">
-                                                    PRIORITY
-                                                </span>
-                                            </template>
-
-                                            <template x-if="!desks.validation.serving[0].priority">
-                                                <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
-                                                    REGULAR
-                                                </span>
-                                            </template>
                                         </div>
-                                    </div>
-                                </div>
-                            </template>
-                            <template x-if="desks.validation.serving.length === 0">
-                                <div class="text-slate-400 font-extrabold text-xs uppercase tracking-wider py-4">No Active Ticket</div>
-                            </template>
-                        </div>
-                    </template>
 
-                    <template x-if="deskKey !== 'validation'">
-                        <div class="text-center w-full">
-                            <div class="flex items-center justify-center gap-1.5 mb-2">
-                                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                <span class="text-[9px] font-black tracking-widest text-amber-600 uppercase">NEXT IN LINE</span>
-                            </div>
-                            <template x-if="desks[deskKey].upNext.length > 0">
-                                <div>
-                                    <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-700 font-mono select-none">
-                                        <span x-text="desks[deskKey].upNext[0].queue_number"></span>
-                                    </div>
-                                   <div class="mt-3 flex flex-col items-center justify-center gap-2">
+
                                         <span
-                                            class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
-                                            :class="getCategoryClass(desks[deskKey].upNext[0].client_category)"
-                                            x-text="desks[deskKey].upNext[0].client_category">
+                                            class="text-[8px] font-bold uppercase text-slate-400 text-right ml-2"
+                                            x-text="item.client_category"
+                                        ></span>
+
+                                    </div>
+
+                                </template>
+
+
+                                <template x-if="getWaitingItems(deskKey, laneKey).length === 0">
+
+                                    <div class="text-center py-6">
+
+                                        <span class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+                                            No Waiting Ticket
                                         </span>
 
-                                        <div class="flex flex-wrap items-center justify-center gap-2">
-                                            <template x-if="desks[deskKey].upNext[0].is_returnee">
-                                                <span class="rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-orange-700">
-                                                    RETURNEE
-                                                </span>
-                                            </template>
-
-                                            <template x-if="desks[deskKey].upNext[0].priority">
-                                                <span class="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-red-700">
-                                                    PRIORITY
-                                                </span>
-                                            </template>
-
-                                            <template x-if="!desks[deskKey].upNext[0].priority">
-                                                <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
-                                                    REGULAR
-                                                </span>
-                                            </template>
-                                        </div>
                                     </div>
-                                </div>
-                            </template>
-                            <template x-if="desks[deskKey].upNext.length === 0">
-                                <div class="text-slate-400 font-extrabold text-xs uppercase tracking-wider py-4">No Active Ticket</div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
 
-                <div class="p-4 flex-1 overflow-y-auto scroll-hidden space-y-2 min-h-[140px]">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-2">
-                        <span x-text="deskKey === 'validation' ? 'Up Next' : 'Waiting'"></span>
-                    </p>
-
-                    <template x-for="(item, index) in (deskKey === 'validation' ? desks.validation.upNext : desks[deskKey].upNext.slice(1))" :key="item.queue_id">
-                        <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200/60 flex justify-between items-center">
-                            <div class="flex items-center gap-1.5">
-                                <span class="font-mono text-sm font-bold text-slate-700" x-text="item.queue_number"></span>
-
-                                <template x-if="item.is_returnee">
-                                    <span class="rounded-full bg-orange-100 px-2 py-1 text-[9px] font-extrabold uppercase text-orange-700">
-                                        RETURNEE
-                                    </span>
                                 </template>
 
-                                <template x-if="item.priority">
-                                    <span class="rounded-full bg-red-600 px-2 py-1 text-[9px] font-extrabold uppercase text-white">
-                                        PRIORITY
-                                    </span>
-                                </template>
-
-                                <template x-if="!item.priority">
-                                    <span class="rounded-full bg-slate-200 px-2 py-1 text-[9px] font-extrabold uppercase text-slate-600">
-                                        REGULAR
-                                    </span>
-                                </template>
                             </div>
-                            <span class="text-[9px] font-bold uppercase text-slate-400" x-text="item.client_category"></span>
+
                         </div>
+
                     </template>
 
-                    <template x-if="(deskKey === 'validation' ? desks.validation.upNext : desks[deskKey].upNext.slice(1)).length === 0">
-                        <div class="text-center py-6">
-                            <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No Active Ticket</span>
-                        </div>
-                    </template>
                 </div>
+
             </div>
+
         </template>
+
     </main>
 
     <footer class="h-1 w-full flex flex-shrink-0">
@@ -296,15 +469,41 @@
         function queueBoard() {
             return {
                 desks: {
-                    validation: { label: '', counter: '', serving: [], upNext: [] },
-                    assessment: { label: '', counter: '', serving: [], upNext: [] },
-                    review: { label: '', counter: '', serving: [], upNext: [] },
-                    releasing: { label: '', counter: '', serving: [], upNext: [] },
+                    validation: {
+                        label: '',
+                        counter: '',
+                        regular: { serving: [], upNext: [], onHold: [] },
+                        priority: { serving: [], upNext: [], onHold: [] },
+                    },
+
+                    assessment: {
+                        label: '',
+                        counter: '',
+                        regular: { serving: [], upNext: [], onHold: [] },
+                        priority: { serving: [], upNext: [], onHold: [] },
+                    },
+
+                    review: {
+                        label: '',
+                        counter: '',
+                        regular: { serving: [], upNext: [], onHold: [] },
+                        priority: { serving: [], upNext: [], onHold: [] },
+                    },
+
+                    releasing: {
+                        label: '',
+                        counter: '',
+                        regular: { serving: [], upNext: [], onHold: [] },
+                        priority: { serving: [], upNext: [], onHold: [] },
+                    },
                 },
 
                 audioCtx: null,
                 isKioskDisplay: false,
-                lastValidationQueueId: null,
+                lastValidationQueueIds: {
+                    regular: null,
+                    priority: null,
+                },
                 allKnownNumbers: new Set(),
                 flashDesk: null,
 
@@ -350,11 +549,31 @@
                                 this.detectChangesAndNotify(data.desks);
                             } else {
                                 Object.keys(data.desks).forEach(deskKey => {
-                                    [...data.desks[deskKey].serving, ...data.desks[deskKey].upNext].forEach(item => {
-                                        this.allKnownNumbers.add(deskKey + ':' + item.queue_id);
+
+                                    ['regular', 'priority'].forEach(laneKey => {
+
+                                        const lane = data.desks[deskKey][laneKey];
+
+                                        [
+                                            ...(lane.serving || []),
+                                            ...(lane.upNext || []),
+                                            ...(lane.onHold || [])
+                                        ].forEach(item => {
+
+                                            this.allKnownNumbers.add(
+                                                deskKey + ':' + laneKey + ':' + item.queue_id
+                                            );
+
+                                        });
+
                                     });
+
                                 });
-                                this.lastValidationQueueId = data.desks.validation.serving[0]?.queue_id ?? null;
+
+                                this.lastValidationQueueIds = {
+                                    regular: data.desks.validation.regular.serving[0]?.queue_id ?? null,
+                                    priority: data.desks.validation.priority.serving[0]?.queue_id ?? null,
+                                };
                             }
 
                             this.desks = data.desks;
@@ -366,45 +585,131 @@
                     if (!this.isKioskDisplay) return;
 
                     let hasNewEntry = false;
+                    let validationChanged = false;
+                    let changedValidationItem = null;
 
                     Object.keys(newDesks).forEach(deskKey => {
-                        const allItems = [...newDesks[deskKey].serving, ...newDesks[deskKey].upNext];
-                        allItems.forEach(item => {
-                            const key = deskKey + ':' + item.queue_id;
-                            if (!this.allKnownNumbers.has(key)) {
-                                this.allKnownNumbers.add(key);
-                                hasNewEntry = true;
-                            }
+
+                        ['regular', 'priority'].forEach(laneKey => {
+
+                            const lane = newDesks[deskKey][laneKey];
+
+                            const allItems = [
+                                ...(lane.serving || []),
+                                ...(lane.upNext || []),
+                                ...(lane.onHold || [])
+                            ];
+
+                            allItems.forEach(item => {
+
+                                const key =
+                                    deskKey + ':' +
+                                    laneKey + ':' +
+                                    item.queue_id;
+
+                                if (!this.allKnownNumbers.has(key)) {
+                                    this.allKnownNumbers.add(key);
+                                    hasNewEntry = true;
+                                }
+
+                            });
+
                         });
+
                     });
 
-                    const newValidationQueueId =
-                        newDesks.validation.serving[0]?.queue_id ?? null;
 
-                    const validationChanged =
-                        newValidationQueueId &&
-                        newValidationQueueId !== this.lastValidationQueueId;
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Validation lane changes
+                    |--------------------------------------------------------------------------
+                    */
+                    ['regular', 'priority'].forEach(laneKey => {
+
+                        const newQueueId =
+                            newDesks.validation[laneKey].serving[0]?.queue_id ?? null;
+
+                        if (
+                            newQueueId &&
+                            newQueueId !== this.lastValidationQueueIds[laneKey]
+                        ) {
+
+                            validationChanged = true;
+
+                            changedValidationItem =
+                                newDesks.validation[laneKey].serving[0];
+
+                            this.lastValidationQueueIds[laneKey] = newQueueId;
+
+                        }
+
+                    });
+
 
                     if (validationChanged) {
-                        this.lastValidationQueueId = newValidationQueueId;
+
                         this.flashDesk = 'validation';
-                        setTimeout(() => { this.flashDesk = null; }, 4000);
 
-                        if (this.soundEnabled) this.playChimeTone();
+                        setTimeout(() => {
+                            this.flashDesk = null;
+                        }, 4000);
 
-                        if (this.voiceEnabled) {
+                        if (this.soundEnabled) {
+                            this.playChimeTone();
+                        }
+
+                        if (this.voiceEnabled && changedValidationItem) {
+
                             setTimeout(() => {
-                                const ticketPart = newValidationNumber.split('-')[1] || newValidationNumber;
-                                const readableNo = ticketPart.replace(/^0+/, '') || '0';
-                                const phrase = `Queue number, ${ticketPart}, please proceed to, Document Validation, Counter 1. Numero, ${readableNo}.`;
+
+                                const newValidationNumber =
+                                    changedValidationItem.queue_number;
+
+                                const ticketPart =
+                                    newValidationNumber.split('-')[1] ||
+                                    newValidationNumber;
+
+                                const readableNo =
+                                    ticketPart.replace(/^0+/, '') || '0';
+
+                                const counterText =
+                                    changedValidationItem.priority
+                                        ? 'Priority Document Validation, Counter 1'
+                                        : 'Document Validation, Counter 1';
+
+                                const phrase =
+                                    `Queue number, ${ticketPart}, please proceed to, ${counterText}. Numero, ${readableNo}.`;
+
                                 this.announceText(phrase);
+
                             }, 800);
                         }
+
                     } else if (hasNewEntry && this.soundEnabled) {
+
                         this.playChimeTone();
+
                     }
                 },
 
+                getLane(deskKey, laneKey) {
+                    return this.desks?.[deskKey]?.[laneKey] ?? {
+                        serving: [],
+                        upNext: [],
+                        onHold: []
+                    };
+                },
+
+                getWaitingItems(deskKey, laneKey) {
+                    const lane = this.getLane(deskKey, laneKey);
+
+                    if (!lane) return [];
+
+                    return [
+                        ...(lane.upNext || []).slice(deskKey === 'validation' ? 0 : 1),
+                        ...(lane.onHold || [])
+                    ];
+                },
                 updateClock() {
                     const now = new Date();
                     this.timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });

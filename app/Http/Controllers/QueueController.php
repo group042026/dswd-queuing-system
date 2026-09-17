@@ -105,7 +105,7 @@ class QueueController extends Controller
     {
         $today = now()->toDateString();
 
-        // Helper: i-map papunta sa SAFE fields lang — walang PII maliban sa masked name
+        // Safe fields lang para sa public queue board
         $mapSafe = function ($processing) {
             return [
                 'queue_id' => $processing->queue->id,
@@ -118,65 +118,192 @@ class QueueController extends Controller
                 'client_category' => $processing->client->client_category,
                 'is_returnee' => (bool) $processing->is_returnee,
                 'current_status' => $processing->current_status,
+                'is_on_hold' => $processing->current_status === 'On Hold',
             ];
         };
 
-        // Validation — MERON totoong "Processing" state, kaya totoo ang "Now Serving" dito
         $validationQueue = ClientProcessing::with(['client', 'queue'])
             ->join('queues', 'client_processings.queue_id', '=', 'queues.id')
             ->where('queues.queue_status', '!=', 'Cancelled')
             ->where('client_processings.current_step', 'Validation')
             ->where('client_processings.current_status', 'Processing')
             ->whereDate('client_processings.start_time', $today)
-            ->orderBy('queues.priority', 'desc')
             ->orderBy('client_processings.start_time', 'asc')
             ->select('client_processings.*')
             ->get();
 
-        // Assessment/Review/Releasing — WALANG "Processing" state, "Waiting" lang
-        // kaya hindi natin ito ilalagay sa "serving" — listahan lang ng "Next in Line"
-        $getWaitingForStep = function ($step) use ($today) {
-            return ClientProcessing::with(['client', 'queue'])
+        $validationRegular = $validationQueue
+            ->filter(fn ($item) => !(bool) $item->queue->priority)
+            ->values();
+
+        $validationPriority = $validationQueue
+            ->filter(fn ($item) => (bool) $item->queue->priority)
+            ->values();
+
+        $getQueuesForStep = function ($step) use ($today) {
+            $baseQuery = ClientProcessing::with(['client', 'queue'])
                 ->join('queues', 'client_processings.queue_id', '=', 'queues.id')
                 ->where('queues.queue_status', '!=', 'Cancelled')
                 ->where('client_processings.current_step', $step)
-                ->where('client_processings.current_status', 'Waiting')
                 ->whereDate('client_processings.start_time', $today)
-                ->orderBy('queues.priority', 'desc')
+                ->select('client_processings.*');
+
+            $waiting = (clone $baseQuery)
+                ->where('client_processings.current_status', 'Waiting')
                 ->orderBy('client_processings.start_time', 'asc')
-                ->select('client_processings.*')
                 ->get();
+
+            $onHold = (clone $baseQuery)
+                ->where('client_processings.current_status', 'On Hold')
+                ->orderBy('client_processings.on_hold_at', 'asc')
+                ->get();
+
+            return [
+                'regular' => [
+                    'waiting' => $waiting
+                        ->filter(fn ($item) => !(bool) $item->queue->priority)
+                        ->values(),
+
+                    'onHold' => $onHold
+                        ->filter(fn ($item) => !(bool) $item->queue->priority)
+                        ->values(),
+                ],
+
+                'priority' => [
+                    'waiting' => $waiting
+                        ->filter(fn ($item) => (bool) $item->queue->priority)
+                        ->values(),
+
+                    'onHold' => $onHold
+                        ->filter(fn ($item) => (bool) $item->queue->priority)
+                        ->values(),
+                ],
+            ];
         };
 
-        $assessmentQueue = $getWaitingForStep('Assessment');
-        $reviewQueue = $getWaitingForStep('Review');
-        $releasingQueue = $getWaitingForStep('Releasing');
+        $assessmentQueues = $getQueuesForStep('Assessment');
+        $reviewQueues = $getQueuesForStep('Review');
+        $releasingQueues = $getQueuesForStep('Releasing');
 
         return response()->json([
             'desks' => [
                 'validation' => [
                     'label' => 'DOCUMENT VALIDATION',
                     'counter' => 'Counter 1',
-                    'serving' => $validationQueue->take(1)->map($mapSafe)->values(),
-                    'upNext' => $validationQueue->slice(1)->take(5)->map($mapSafe)->values(),
+
+                    'regular' => [
+                        'serving' => $validationRegular
+                            ->take(1)
+                            ->map($mapSafe)
+                            ->values(),
+
+                        'upNext' => $validationRegular
+                            ->slice(1)
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+
+                        'onHold' => [],
+                    ],
+
+                    'priority' => [
+                        'serving' => $validationPriority
+                            ->take(1)
+                            ->map($mapSafe)
+                            ->values(),
+
+                        'upNext' => $validationPriority
+                            ->slice(1)
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+
+                        'onHold' => [],
+                    ],
                 ],
                 'assessment' => [
                     'label' => 'INTERVIEW & ASSESSMENT',
                     'counter' => 'Counter 2',
-                    'serving' => [],
-                    'upNext' => $assessmentQueue->take(5)->map($mapSafe)->values(),
+
+                    'regular' => [
+                        'serving' => [],
+                        'upNext' => $assessmentQueues['regular']['waiting']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                        'onHold' => $assessmentQueues['regular']['onHold']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                    ],
+
+                    'priority' => [
+                        'serving' => [],
+                        'upNext' => $assessmentQueues['priority']['waiting']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                        'onHold' => $assessmentQueues['priority']['onHold']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                    ],
                 ],
                 'review' => [
                     'label' => 'OFFICER REVIEW',
                     'counter' => 'Counter 3',
-                    'serving' => [],
-                    'upNext' => $reviewQueue->take(5)->map($mapSafe)->values(),
+
+                    'regular' => [
+                        'serving' => [],
+                        'upNext' => $reviewQueues['regular']['waiting']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                        'onHold' => $reviewQueues['regular']['onHold']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                    ],
+
+                    'priority' => [
+                        'serving' => [],
+                        'upNext' => $reviewQueues['priority']['waiting']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                        'onHold' => $reviewQueues['priority']['onHold']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                    ],
                 ],
                 'releasing' => [
                     'label' => 'ASSISTANCE RELEASING',
                     'counter' => 'Counter 4',
-                    'serving' => [],
-                    'upNext' => $releasingQueue->take(5)->map($mapSafe)->values(),
+
+                    'regular' => [
+                        'serving' => [],
+                        'upNext' => $releasingQueues['regular']['waiting']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                        'onHold' => $releasingQueues['regular']['onHold']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                    ],
+
+                    'priority' => [
+                        'serving' => [],
+                        'upNext' => $releasingQueues['priority']['waiting']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                        'onHold' => $releasingQueues['priority']['onHold']
+                            ->take(5)
+                            ->map($mapSafe)
+                            ->values(),
+                    ],
                 ],
             ],
         ]);

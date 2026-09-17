@@ -25,12 +25,13 @@ class PublicRegistrationController extends Controller
             'PhilHealth ID' => '/^\d{2}-\d{9}-\d{1}$/',
             "Driver's License" => '/^[A-Za-z]\d{2}-\d{2}-\d{6}$/',
             'Passport' => '/^[A-Za-z]\d{8}$/',
+            'UMID ID' => '/^\d{4}-\d{7}-\d{1}$/',
         ];
 
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'middle_name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:50', 'regex:/^[A-Za-zÑñ\s\-\'\.]+$/'],
+            'middle_name' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-zÑñ\s\-\'\.]+$/'],
+            'last_name' => ['required', 'string', 'max:50', 'regex:/^[A-Za-zÑñ\s\-\'\.]+$/'],
             'suffix' => ['nullable', 'string', 'max:10'],
             'sex' => ['required', 'in:Male,Female'],
             'birthdate' => ['required', 'date', 'before:today', 'after:' . now()->subYears(130)->format('Y-m-d')],
