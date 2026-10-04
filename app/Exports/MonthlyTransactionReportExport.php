@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\DefaultValueBinder;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -18,23 +19,17 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Maatwebsite\Excel\DefaultValueBinder;
 
-class MonthlyTransactionReportExport extends DefaultValueBinder implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithColumnWidths,
-    WithEvents,
-    WithCustomValueBinder
+class MonthlyTransactionReportExport extends DefaultValueBinder implements FromCollection, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping
 {
     protected string $month;
+
     protected string $enteredBy;
 
     public function __construct(string $month)
     {
         $this->month = $month;
-        $this->enteredBy = auth()->user()->first_name . ' ' . auth()->user()->last_name;
+        $this->enteredBy = auth()->user()->first_name.' '.auth()->user()->last_name;
     }
 
     public function collection(): Enumerable
@@ -78,7 +73,7 @@ class MonthlyTransactionReportExport extends DefaultValueBinder implements
             'Subcategory',
             // 'Occupation',
             // 'Salary',
-            'Number of Family Members',
+            // 'Number of Family Members',
         ];
     }
 
@@ -125,7 +120,7 @@ class MonthlyTransactionReportExport extends DefaultValueBinder implements
             $client->client_category,
             $client->subcategory,
             // $client->occupation ? strtoupper($client->occupation) : null,
-            $client->salary,
+            // $client->salary,
             // $client->household_size,
         ];
     }
@@ -253,12 +248,12 @@ class MonthlyTransactionReportExport extends DefaultValueBinder implements
                 Date::PHPToExcel($value),
                 DataType::TYPE_NUMERIC
             );
+
             return true;
         }
 
         return parent::bindValue($cell, $value);
     }
-
 
     public function registerEvents(): array
     {

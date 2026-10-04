@@ -1196,7 +1196,7 @@
                             document.querySelector('[data-stat="totalQueuesToday"]').textContent = data.stats.totalQueuesToday;
                             document.querySelector('[data-stat="servingQueuesToday"]').textContent = data.stats.servingQueuesToday;
                             document.querySelector('[data-stat="completedTodayCount"]').textContent = data.stats.completedTodayCount;
-                            document.querySelector('[data-stat="cancelledQueuesToday"]').textContent = data.stats.cancelledQueuesToday;
+                            document.querySelector('[data-stat="cancelledQueuesToday"]').textContent = data.stats.cancelledQueuesToday;ma
 
                             // Update demographics
                             // document.querySelector('[data-stat="seniorsCount"]').textContent = data.stats.seniorsCount;

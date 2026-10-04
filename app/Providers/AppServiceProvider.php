@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('access-admin', function (User $user) {
-        return $user->hasRole('admin');
+            return $user->hasRole('admin');
         });
 
         Gate::define('access-receptionist', function (User $user) {
@@ -37,12 +37,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('approving officer');
         });
 
-        Gate::define('access-cashier', function (User $user) {
-            return $user->hasRole('cashier');
+        Gate::define('access-paymaster', function (User $user) {
+            return $user->hasRole('paymaster');
         });
 
         Gate::define('access-releasing', function (User $user) {
-            return $user->hasRole('approving officer') || $user->hasRole('cashier');
+            return $user->hasRole('approving officer') || $user->hasRole('paymaster');
         });
 
         Gate::define('manage-documents', function ($user) {

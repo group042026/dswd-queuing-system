@@ -32,7 +32,7 @@
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mt-0.5">Social Worker</span>
                     @elseif(Auth::user()->hasRole('approving officer'))
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 mt-0.5">Approving Officer</span>
-                    @elseif(Auth::user()->hasRole('cashier'))
+                    @elseif(Auth::user()->hasRole('paymaster'))
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800 mt-0.5">Cashier</span>
                     @endif
                 </div>
@@ -239,7 +239,7 @@
                     <span>On-Hold</span>
                 </a>
                 
-            @elseif (Auth::user()->hasRole('cashier'))
+            @elseif (Auth::user()->hasRole('paymaster'))
                 <!-- Dashboard -->
                 <a href="{{ route('cashier.dashboard') }}" 
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('cashier.dashboard') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">

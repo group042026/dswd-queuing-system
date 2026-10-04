@@ -13,6 +13,120 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        /* ==========================================================================
+        Queue Board Dark Mode
+        ========================================================================== */
+
+        .queue-dark {
+            background-color: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+
+        .queue-dark main {
+            background-color: #0f172a;
+        }
+
+        .queue-dark .bg-white {
+            background-color: #1e293b !important;
+        }
+
+        .queue-dark .border-slate-200,
+        .queue-dark .border-slate-100 {
+            border-color: #334155 !important;
+        }
+
+        .queue-dark .shadow-md {
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Card header and lane sections */
+        .queue-dark .bg-slate-50 {
+            background-color: #273449 !important;
+        }
+
+        .queue-dark .bg-slate-100 {
+            background-color: #0f172a !important;
+        }
+
+        .queue-dark .bg-red-50 {
+            background-color: rgba(127, 29, 29, 0.28) !important;
+        }
+
+        .queue-dark .bg-red-50\/20 {
+            background-color: rgba(127, 29, 29, 0.18) !important;
+        }
+
+        .queue-dark .bg-red-50\/50 {
+            background-color: rgba(127, 29, 29, 0.25) !important;
+        }
+
+        /* Waiting tickets */
+        .queue-dark .border-slate-200\/60 {
+            border-color: #475569 !important;
+        }
+
+        .queue-dark .border-red-100 {
+            border-color: rgba(248, 113, 113, 0.35) !important;
+        }
+
+        .queue-dark .bg-amber-50 {
+            background-color: rgba(120, 53, 15, 0.28) !important;
+        }
+
+        .queue-dark .border-amber-200 {
+            border-color: rgba(251, 191, 36, 0.4) !important;
+        }
+
+        /* Text colors */
+        .queue-dark .text-slate-900 {
+            color: #f8fafc !important;
+        }
+
+        .queue-dark .text-slate-800,
+        .queue-dark .text-slate-700 {
+            color: #e2e8f0 !important;
+        }
+
+        .queue-dark .text-slate-600 {
+            color: #cbd5e1 !important;
+        }
+
+        .queue-dark .text-slate-500,
+        .queue-dark .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+
+        .queue-dark .text-slate-300 {
+            color: #64748b !important;
+        }
+
+        /* Preserve the colored counter badges and lane indicators */
+        .queue-dark .bg-\[\#0038a8\] {
+            background-color: #0038a8 !important;
+        }
+
+        .queue-dark .bg-\[\#fcd116\] {
+            background-color: #fcd116 !important;
+        }
+
+        .queue-dark .bg-\[\#ce1126\] {
+            background-color: #ce1126 !important;
+        }
+
+        .queue-dark .bg-emerald-600 {
+            background-color: #059669 !important;
+        }
+
+        .queue-dark .text-\[\#854d0e\] {
+            color: #854d0e !important;
+        }
+
+        /* Keep footer/header colors unchanged */
+        .queue-dark header,
+        .queue-dark footer {
+            filter: none;
+        }
         .flash-card {
             animation: bgFlash 0.6s ease-in-out 3;
         }
@@ -24,9 +138,12 @@
         .scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen lg:h-full lg:overflow-hidden flex flex-col" 
-      x-data="queueBoard()"
-      x-init="initBoard()">
+<body
+    class="bg-slate-100 text-slate-800 font-sans min-h-screen lg:h-full lg:overflow-hidden flex flex-col transition-colors duration-300"
+    :class="{ 'queue-dark': darkMode }"
+    x-data="queueBoard()"
+    x-init="initBoard()"
+>
 
     <header class="bg-[#0038a8] text-white shadow-md z-10 flex-shrink-0 relative">
         <div class="px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row gap-3 md:gap-0 justify-between items-center">
@@ -81,12 +198,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-sm sm:text-base md:text-xl font-extrabold tracking-tight">
-                        DEPARTMENT OF SOCIAL WELFARE AND DEVELOPMENT
-                    </h1>
-                    <p class="text-[9px] md:text-xs font-bold text-slate-200 uppercase tracking-wider leading-none mt-1">
-                        AICS Queue Management System • Live Monitor
-                    </p>
+                    <h1 class="text-sm sm:text-base md:text-xl font-extrabold tracking-tight" x-text="t('dept_name')"></h1>
+                    <p class="text-[9px] md:text-xs font-bold text-slate-200 uppercase tracking-wider leading-none mt-1" x-text="t('system_subtitle')"></p>
                 </div>
             </div>
 
@@ -106,6 +219,17 @@
                 </div> --}}
 
                 <div class="flex items-center gap-3">
+                    <button
+                        @click="toggleDarkMode()"
+                        class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white text-[10px] md:text-xs font-black uppercase tracking-wide flex items-center gap-1.5"
+                        type="button"
+                    >
+                        <span x-text="darkMode ? '☀️ Light' : '🌙 Dark'"></span>
+                    </button>
+                    <button @click="toggleLanguage()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white text-[10px] md:text-xs font-black uppercase tracking-wide flex items-center gap-1.5">
+                        <span x-text="language === 'en' ? '🇵🇭 Tagalog' : '🇬🇧 English'"></span>
+                    </button>
+
                     <button @click="toggleFullscreen()"
                             class="p-1.5 md:p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white flex items-center justify-center">
                         <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -119,10 +243,27 @@
                 </div>
             </div>
 
-            {{-- Clock lang — MOBILE --}}
-            <div class="text-right flex-shrink-0 lg:hidden">
-                <p class="text-xs sm:text-sm font-bold tracking-tight text-white leading-none" x-text="timeString"></p>
-                <p class="text-[8px] font-semibold text-slate-200 uppercase tracking-widest mt-1" x-text="dateString"></p>
+            {{-- Clock + darkmode + Language — MOBILE --}}
+           <div class="text-right flex-shrink-0 lg:hidden flex items-center gap-2">
+                <button
+                    @click="toggleDarkMode()"
+                    class="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase transition-all"
+                    type="button"
+                >
+                    <span x-text="darkMode ? '☀️' : '🌙'"></span>
+                </button>
+
+                <button
+                    @click="toggleLanguage()"
+                    class="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase transition-all"
+                >
+                    <span x-text="language === 'en' ? 'TL' : 'EN'"></span>
+                </button>
+
+                <div>
+                    <p class="text-xs sm:text-sm font-bold tracking-tight text-white leading-none" x-text="timeString"></p>
+                    <p class="text-[8px] font-semibold text-slate-200 uppercase tracking-widest mt-1" x-text="dateString"></p>
+                </div>
             </div>
         </div>
 
@@ -146,16 +287,18 @@
 
                     <div class="flex items-center gap-2">
                         <span
-                            class="text-white text-[9px] font-black tracking-wider px-2 py-1 rounded uppercase shadow-sm"
-                            :class="getDeskBadgeColor(deskKey)"
+                            class="text-[9px] font-black tracking-wider px-2 py-1 rounded uppercase shadow-sm"
+                            :class="[
+                                getDeskBadgeColor(deskKey),
+                                deskKey === 'assessment'
+                                    ? 'text-[#854d0e]'
+                                    : 'text-white'
+                            ]"
                             x-text="desks[deskKey].counter"
                         ></span>
                     </div>
 
-                    <span
-                        class="text-[9px] font-black tracking-wider uppercase text-slate-400"
-                        x-text="desks[deskKey].label"
-                    ></span>
+                    <span class="text-[9px] font-black tracking-wider uppercase text-slate-400" x-text="translateDeskLabel(desks[deskKey].label)"></span>
 
                 </div>
 
@@ -192,13 +335,7 @@
                                             : 'bg-slate-500'"
                                     ></span>
 
-                                    <span
-                                        class="text-[10px] font-black uppercase tracking-widest"
-                                        :class="laneKey === 'priority'
-                                            ? 'text-red-700'
-                                            : 'text-slate-600'"
-                                        x-text="laneKey === 'priority' ? 'PRIORITY' : 'REGULAR'"
-                                    ></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest" :class="laneKey === 'priority' ? 'text-red-700' : 'text-slate-600'" x-text="laneKey === 'priority' ? t('priority') : t('regular')"></span>
 
                                 </div>
 
@@ -222,14 +359,7 @@
                                                     : 'bg-slate-500'"
                                             ></span>
 
-                                            <span
-                                                class="text-[9px] font-black tracking-widest uppercase"
-                                                :class="laneKey === 'priority'
-                                                    ? 'text-red-600'
-                                                    : 'text-slate-600'"
-                                            >
-                                                NOW SERVING
-                                            </span>
+                                            <span class="text-[9px] font-black tracking-widest uppercase" :class="laneKey === 'priority' ? 'text-red-600' : 'text-slate-600'" x-text="t('now_serving')"></span>
 
                                         </div>
 
@@ -252,18 +382,11 @@
                                                     <div class="flex flex-wrap items-center justify-center gap-2">
 
                                                         <template x-if="getLane(deskKey, laneKey).serving[0].is_returnee">
-                                                            <span class="rounded-full border border-orange-200 bg-orange-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-orange-700">
-                                                                RETURNEE
-                                                            </span>
+                                                            <span class="rounded-full border border-orange-200 bg-orange-100 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-orange-700"
+                                                                  x-text="t('returnee')"></span>
                                                         </template>
 
-                                                        <span
-                                                            class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide"
-                                                            :class="laneKey === 'priority'
-                                                                ? 'border border-red-200 bg-red-100 text-red-700'
-                                                                : 'border border-slate-200 bg-slate-100 text-slate-600'"
-                                                            x-text="laneKey === 'priority' ? 'PRIORITY' : 'REGULAR'"
-                                                        ></span>
+                                                        <span class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide" :class="laneKey === 'priority' ? 'border border-red-200 bg-red-100 text-red-700' : 'border border-slate-200 bg-slate-100 text-slate-600'" x-text="laneKey === 'priority' ? t('priority') : t('regular')"></span>
 
                                                     </div>
 
@@ -276,9 +399,7 @@
 
                                         <template x-if="getLane(deskKey, laneKey).serving.length === 0">
 
-                                            <div class="text-slate-400 font-extrabold text-[10px] uppercase tracking-wider py-4">
-                                                No Active Ticket
-                                            </div>
+                                            <div class="text-slate-400 font-extrabold text-[10px] uppercase tracking-wider py-4" x-text="t('no_active_ticket')"></div>
 
                                         </template>
 
@@ -301,14 +422,7 @@
                                                     : 'bg-amber-500'"
                                             ></span>
 
-                                            <span
-                                                class="text-[9px] font-black tracking-widest uppercase"
-                                                :class="laneKey === 'priority'
-                                                    ? 'text-red-600'
-                                                    : 'text-amber-600'"
-                                            >
-                                                NEXT IN LINE
-                                            </span>
+                                            <span class="text-[9px] font-black tracking-widest uppercase" :class="laneKey === 'priority' ? 'text-red-600' : 'text-amber-600'" x-text="t('next_in_line')"></span>
 
                                         </div>
 
@@ -329,13 +443,7 @@
                                                         x-text="getLane(deskKey, laneKey).upNext[0].client_category"
                                                     ></span>
 
-                                                    <span
-                                                        class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide"
-                                                        :class="laneKey === 'priority'
-                                                            ? 'border border-red-200 bg-red-100 text-red-700'
-                                                            : 'border border-slate-200 bg-slate-100 text-slate-600'"
-                                                        x-text="laneKey === 'priority' ? 'PRIORITY' : 'REGULAR'"
-                                                    ></span>
+                                                    <span class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide" :class="laneKey === 'priority' ? 'border border-red-200 bg-red-100 text-red-700' : 'border border-slate-200 bg-slate-100 text-slate-600'" x-text="laneKey === 'priority' ? t('priority') : t('regular')"></span>
 
                                                 </div>
 
@@ -346,9 +454,7 @@
 
                                         <template x-if="getLane(deskKey, laneKey).upNext.length === 0">
 
-                                            <div class="text-slate-400 font-extrabold text-[10px] uppercase tracking-wider py-4">
-                                                No Active Ticket
-                                            </div>
+                                            <div class="text-slate-400 font-extrabold text-[10px] uppercase tracking-wider py-4" x-text="t('no_active_ticket')"></div>
 
                                         </template>
 
@@ -364,17 +470,9 @@
 
                                 <div class="flex items-center justify-between mb-2">
 
-                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-                                        Waiting
-                                    </p>
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider" x-text="t('waiting')"></p>
 
-                                    <span
-                                        class="text-[8px] font-black uppercase tracking-wider"
-                                        :class="laneKey === 'priority'
-                                            ? 'text-red-400'
-                                            : 'text-slate-400'"
-                                        x-text="laneKey === 'priority' ? 'Priority Lane' : 'Regular Lane'"
-                                    ></span>
+                                    <span class="text-[8px] font-black uppercase tracking-wider" :class="laneKey === 'priority' ? 'text-red-400' : 'text-slate-400'" x-text="laneKey === 'priority' ? t('priority_lane') : t('regular_lane')"></span>
 
                                 </div>
 
@@ -404,9 +502,7 @@
                                             {{-- ON HOLD --}}
                                             <template x-if="item.is_on_hold">
 
-                                                <span class="rounded-full bg-amber-100 px-2 py-1 text-[8px] font-extrabold uppercase text-amber-700 border border-amber-200">
-                                                    ON HOLD
-                                                </span>
+                                                <span class="rounded-full bg-amber-100 px-2 py-1 text-[8px] font-extrabold uppercase text-amber-700 border border-amber-200" x-text="t('on_hold')"></span>
 
                                             </template>
 
@@ -414,9 +510,7 @@
                                             {{-- RETURNEE --}}
                                             <template x-if="!item.is_on_hold && item.is_returnee">
 
-                                                <span class="rounded-full bg-orange-100 px-2 py-1 text-[8px] font-extrabold uppercase text-orange-700">
-                                                    RETURNEE
-                                                </span>
+                                                <span class="rounded-full bg-orange-100 px-2 py-1 text-[8px] font-extrabold uppercase text-orange-700" x-text="t('returnee')"></span>
 
                                             </template>
 
@@ -437,9 +531,7 @@
 
                                     <div class="text-center py-6">
 
-                                        <span class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
-                                            No Waiting Ticket
-                                        </span>
+                                        <span class="text-[9px] font-bold text-slate-300 uppercase tracking-widest" x-text="t('no_waiting_ticket')"></span>
 
                                     </div>
 
@@ -510,10 +602,22 @@
                 soundEnabled: true,
                 voiceEnabled: true,
 
+                language: 'en',
+                darkMode: false,
+                translations: {
+                    en: { dept_name: 'DEPARTMENT OF SOCIAL WELFARE AND DEVELOPMENT', system_subtitle: 'AICS Queue Management System • Live Monitor', now_serving: 'NOW SERVING', next_in_line: 'NEXT IN LINE', no_active_ticket: 'No Active Ticket', waiting: 'Waiting', priority_lane: 'Priority Lane', regular_lane: 'Regular Lane', no_waiting_ticket: 'No Waiting Ticket', on_hold: 'ON HOLD', returnee: 'RETURNEE', priority: 'PRIORITY', regular: 'REGULAR' },
+                    tl: { dept_name: 'KAGAWARAN NG KAGALINGANG PANLIPUNAN AT PAGPAPAUNLAD', system_subtitle: 'Sistema ng Pila ng AICS • Live na Pagmamanman', now_serving: 'KASALUKUYANG SINISILBIHAN', next_in_line: 'SUSUNOD SA PILA', no_active_ticket: 'Walang Aktibong Tiket', waiting: 'Naghihintay', priority_lane: 'Linyang Priyoridad', regular_lane: 'Regular na Linya', no_waiting_ticket: 'Walang Naghihintay na Tiket', on_hold: 'NAKA-HOLD', returnee: 'BUMALIK', priority: 'PRIYORIDAD', regular: 'REGULAR' }
+                },
+                deskLabelMap: { 'DOCUMENT VALIDATION': 'PAGPAPATUNAY NG DOKUMENTO', 'INTERVIEW & ASSESSMENT': 'PANAYAM AT PAGTATASA', 'OFFICER REVIEW': 'PAGSUSURI NG OPISYAL', 'ASSISTANCE RELEASING': 'PAGBIBIGAY NG TULONG' },
+
                 timeString: '',
                 dateString: '',
 
                 initBoard() {
+                    this.language = localStorage.getItem('queue_board_language') || 'en';
+
+                    this.darkMode = localStorage.getItem('queue_board_dark_mode') === 'true';
+
                     this.updateClock();
                     setInterval(() => this.updateClock(), 1000);
 
@@ -674,11 +778,21 @@
 
                                 const counterText =
                                     changedValidationItem.priority
-                                        ? 'Priority Document Validation, Counter 1'
-                                        : 'Document Validation, Counter 1';
+                                        ? (
+                                            this.language === 'tl'
+                                                ? 'Priyoridad na Pagpapatunay ng Dokumento, Counter 1'
+                                                : 'Priority Document Validation, Counter 1'
+                                        )
+                                        : (
+                                            this.language === 'tl'
+                                                ? 'Pagpapatunay ng Dokumento, Counter 1'
+                                                : 'Document Validation, Counter 1'
+                                        );
 
                                 const phrase =
-                                    `Queue number, ${ticketPart}, please proceed to, ${counterText}. Numero, ${readableNo}.`;
+                                    this.language === 'tl'
+                                        ? `Numero ng pila, ${ticketPart}, mangyaring pumunta sa, ${counterText}. Numero, ${readableNo}.`
+                                        : `Queue number, ${ticketPart}, please proceed to, ${counterText}. Number, ${readableNo}.`;
 
                                 this.announceText(phrase);
 
@@ -713,7 +827,38 @@
                 updateClock() {
                     const now = new Date();
                     this.timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-                    this.dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    if (this.language === 'tl') {
+                        const days = ['Linggo', 'Lunes', 'Martes', 'Miyerkules', 'Huwebes', 'Biyernes', 'Sabado'];
+                        const months = ['Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo', 'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre'];
+                        this.dateString = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+                    } else {
+                        this.dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                },
+
+                t(key) {
+                    return this.translations[this.language]?.[key] ?? key;
+                },
+
+                translateDeskLabel(label) {
+                    if (this.language === 'en') return label;
+                    const normalizedLabel = String(label || '').trim().toUpperCase();
+                    return this.deskLabelMap[normalizedLabel] ?? label;
+                },
+
+                toggleDarkMode() {
+                    this.darkMode = !this.darkMode;
+
+                    localStorage.setItem(
+                        'queue_board_dark_mode',
+                        this.darkMode
+                    );
+                },
+
+                toggleLanguage() {
+                    this.language = this.language === 'en' ? 'tl' : 'en';
+                    localStorage.setItem('queue_board_language', this.language);
+                    this.updateClock();
                 },
 
                 toggleSound() {
@@ -755,26 +900,44 @@
 
                         default:
                             return 'bg-slate-100 text-slate-600 border border-slate-200';
-                    }
+                    }   
                 },
 
-                getDeskBadgeColor(deskKey) {
+               getDeskBadgeColor(deskKey) {
                     switch (deskKey) {
-                        case 'validation': return 'bg-[#0038a8]';
-                        case 'assessment': return 'bg-indigo-600';
-                        case 'review': return 'bg-[#ce1126]';
-                        case 'releasing': return 'bg-emerald-600';
-                        default: return 'bg-slate-500';
+                        case 'validation':
+                            return 'bg-[#0038a8]';
+
+                        case 'assessment':
+                            return 'bg-[#fcd116]';
+
+                        case 'review':
+                            return 'bg-[#ce1126]';
+
+                        case 'releasing':
+                            return 'bg-emerald-600';
+
+                        default:
+                            return 'bg-slate-500';
                     }
                 },
 
                 getDeskBorderClass(deskKey) {
                     switch (deskKey) {
-                        case 'validation': return 'border-t-[6px] border-t-[#0038a8]';
-                        case 'assessment': return 'border-t-[6px] border-t-indigo-600';
-                        case 'review': return 'border-t-[6px] border-t-[#ce1126]';
-                        case 'releasing': return 'border-t-[6px] border-t-emerald-600';
-                        default: return '';
+                        case 'validation':
+                            return 'border-t-[6px] border-t-[#0038a8]';
+
+                        case 'assessment':
+                            return 'border-t-[6px] border-t-[#fcd116]';
+
+                        case 'review':
+                            return 'border-t-[6px] border-t-[#ce1126]';
+
+                        case 'releasing':
+                            return 'border-t-[6px] border-t-emerald-600';
+
+                        default:
+                            return '';
                     }
                 },
 
@@ -816,9 +979,28 @@
                         utterance.volume = 1.0;
 
                         const voices = window.speechSynthesis.getVoices();
-                        let defaultVoice = voices.find(v => v.lang.includes('PH') || v.lang.includes('en-PH'));
-                        if (!defaultVoice) defaultVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
-                        if (defaultVoice) utterance.voice = defaultVoice;
+                        let defaultVoice;
+
+                        if (this.language === 'tl') {
+                            defaultVoice =
+                                voices.find(v => /^fil(-|_)/i.test(v.lang)) ||
+                                voices.find(v => /filipino|tagalog/i.test(v.name));
+                        }
+
+                        if (!defaultVoice) {
+                            defaultVoice =
+                                voices.find(v => v.lang.includes('PH') || v.lang.includes('en-PH'));
+                        }
+
+                        if (!defaultVoice) {
+                            defaultVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+                        }
+
+                        if (defaultVoice) {
+                            utterance.voice = defaultVoice;
+                        }
+
+                        utterance.lang = this.language === 'tl' ? 'fil-PH' : 'en-PH';
 
                         window.speechSynthesis.speak(utterance);
                     }

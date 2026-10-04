@@ -35,6 +35,7 @@ class AdminController extends Controller
             ->toArray();
 
         $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
+            ->whereDate('date_issued', $today)
             ->count();
 
         // $seniorsCount = $categoryCounts['Senior'] ?? 0;
@@ -47,7 +48,6 @@ class AdminController extends Controller
         $youthInNeedAndOtherNeedyAdultsCount = $categoryCounts['Youth in Need and Other Needy Adult'] ?? 0;
         $youthInNeedOfSpecialProtectionsCount = $categoryCounts['Youth in Need of Special Protection'] ?? 0;
         $menWomenInSpeciallyDifficultCircumstancesCount = $categoryCounts['Men/Women in specially difficult circumstances'] ?? 0;
-
 
         // 3. User distribution
         $totalUsers = User::whereKeyNot(auth()->id())->count();
@@ -110,6 +110,7 @@ class AdminController extends Controller
             ->toArray();
 
         $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
+            ->whereDate('date_issued', $today)
             ->count();
 
         // $seniorsCount = $categoryCounts['Senior'] ?? 0;

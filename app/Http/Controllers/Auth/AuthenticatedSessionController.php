@@ -36,19 +36,19 @@ class AuthenticatedSessionController extends Controller
             "{$user->name} Logged in"
         );
 
-        if($user->hasRole('admin')){
+        if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
         }
-        if($user->hasRole('receptionist')){
+        if ($user->hasRole('receptionist')) {
             return redirect()->route('receptionist.dashboard');
         }
-        if($user->hasRole('social worker')){
+        if ($user->hasRole('social worker')) {
             return redirect()->route('social-worker.dashboard');
         }
-        if($user->hasRole('approving officer')){
+        if ($user->hasRole('approving officer')) {
             return redirect()->route('approving-officer.dashboard');
         }
-        if($user->hasRole('cashier')){
+        if ($user->hasRole('paymaster')) {
             return redirect()->route('cashier.dashboard');
         }
 
@@ -62,7 +62,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
-        
+
         return redirect()
             ->route('login')
             ->withErrors([

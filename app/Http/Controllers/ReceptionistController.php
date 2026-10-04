@@ -24,7 +24,8 @@ class ReceptionistController extends Controller
             ->whereDate('start_time', $today)
             ->count();
 
-        $pendingOnlineRegistrationsCount = Queue::where('queue_status',  'Pending Arrival')
+        $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
+            ->whereDate('date_issued', $today)
             ->count();
 
         $completedValidationCount = ClientProcessing::where('current_step', 'Validation')
@@ -57,7 +58,6 @@ class ReceptionistController extends Controller
             ->orderBy('start_time', 'asc')
             ->paginate(8);
 
-
         return view('receptionist.dashboard', [
             'registeredTodayCount' => $registeredTodayCount,
             'pendingValidationCount' => $pendingValidationCount,
@@ -79,6 +79,7 @@ class ReceptionistController extends Controller
             ->whereDate('start_time', $today)
             ->count();
         $pendingOnlineRegistrationsCount = Queue::where('queue_status', 'Pending Arrival')
+            ->whereDate('date_issued', $today)
             ->count();
 
         $completedValidationCount = ClientProcessing::where('current_step', 'Validation')
@@ -158,29 +159,37 @@ class ReceptionistController extends Controller
         });
     }
 
-    public function onlineRegistrations()
+    public function onlineRegistrations(Request $request)
     {
         Gate::authorize('access-receptionist');
+
+        $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
         $onlineRegistrations = Queue::with([
             'client.documents',
         ])
             ->where('queue_status', 'Pending Arrival')
+            ->whereDate('date_issued', $selectedDate)
             ->orderByDesc('priority')
             ->orderBy('date_issued')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends(['date' => $selectedDate]);
 
         return view('receptionist.online-registrations', [
             'onlineRegistrations' => $onlineRegistrations,
+            'selectedDate' => $selectedDate,
         ]);
     }
 
-    public function onlineRegistrationsData()
+    public function onlineRegistrationsData(Request $request)
     {
         Gate::authorize('access-receptionist');
 
+        $selectedDate = $request->input('date', now()->format('Y-m-d'));
+
         $registrations = Queue::with(['client.documents'])
             ->where('queue_status', 'Pending Arrival')
+            ->whereDate('date_issued', $selectedDate)
             ->orderByDesc('priority')
             ->orderBy('date_issued')
             ->get();
@@ -234,11 +243,11 @@ class ReceptionistController extends Controller
 
             ActivityLog::record(
                 'Online Registration Confirmed',
-                "Confirmed arrival of online client {$lockedQueue->client->first_name} {$lockedQueue->client->last_name} " .
+                "Confirmed arrival of online client {$lockedQueue->client->first_name} {$lockedQueue->client->last_name} ".
                 "(Control #: {$lockedQueue->client->control_number}, Queue #: {$lockedQueue->queue_number})"
             );
 
-            event(new DashboardUpdated());
+            event(new DashboardUpdated);
         });
 
         return redirect()

@@ -113,6 +113,25 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
+        .filter-card {
+            margin-bottom: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-card input[type="date"] {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #0f172a;
+            background: #ffffff;
+            font-size: 14px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
         .online-table {
             width: 100%;
             border-collapse: collapse;
@@ -296,11 +315,38 @@
                 </div>
             @endif
 
+            <div class="filter-card">
+                <form method="GET" action="{{ route('receptionist.online-registrations') }}" class="flex items-end gap-3 flex-wrap">
+                    <div class="flex flex-col gap-1.5">
+                        <x-input-label for="date" :value="__('Select Queue Date')" class="font-semibold text-gray-700 text-xs" />
+                        <x-text-input id="date" name="date" type="date" class="block" value="{{ $selectedDate }}" />
+                    </div>
+
+                    <x-primary-button type="submit" class="h-[42px] px-5 btn-primary">
+                        {{ __('Filter Queue') }}
+                    </x-primary-button>
+
+                    @if($selectedDate !== now()->format('Y-m-d'))
+                        <a href="{{ route('receptionist.online-registrations') }}">
+                            <x-secondary-button type="button" class="h-[42px] px-5">
+                                {{ __('Back to Today') }}
+                            </x-secondary-button>
+                        </a>
+                    @endif
+                </form>
+            </div>
+
             <div class="online-card">
                 <div class="mb-6 flex items-center justify-between gap-4 border-b pb-4">
                     <div>
                         <h2 class="text-lg font-extrabold text-gray-800">Pending Online Arrivals</h2>
                         <p class="mt-1 text-xs text-gray-500">Confirm arrival only after checking the client&apos;s control number and original valid ID.</p>
+                        <div class="mt-1 text-xs text-gray-500">
+                            {{ __('Showing pending registrations for:') }}
+                            <span class="font-bold text-gray-700">
+                                {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}
+                            </span>
+                        </div>
                     </div>
                     <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
                         {{ $onlineRegistrations->total() }} Pending
@@ -358,67 +404,75 @@
                                     </td>
 
                                     <td>
-                                        <x-primary-button
-                                            type="button"
-                                            class="btn-primary"
-                                            x-on:click="$dispatch('open-modal', 'confirm-arrival-{{ $queue->id }}')"
-                                        >
-                                            {{ __('Confirm Arrival') }}
-                                        </x-primary-button>
+                                        @if($selectedDate === now()->format('Y-m-d'))
+                                            <x-primary-button
+                                                type="button"
+                                                class="btn-primary"
+                                                x-on:click="$dispatch('open-modal', 'confirm-arrival-{{ $queue->id }}')"
+                                            >
+                                                {{ __('Confirm Arrival') }}
+                                            </x-primary-button>
+                                        @else
+                                            <x-secondary-button type="button" disabled class="opacity-50 cursor-not-allowed">
+                                                {{ __('Today Only') }}
+                                            </x-secondary-button>
+                                        @endif
                                     </td>
                                 </tr>
 
-                                <x-modal name="confirm-arrival-{{ $queue->id }}" maxWidth="lg">
-                                    <div class="modal-heading">
-                                        <h2>{{ __('Confirm Client Arrival') }}</h2>
-                                        <p class="mt-1 text-xs text-blue-100">Review the registration before adding the client to document validation.</p>
-                                    </div>
-
-                                    <div class="modal-body">
-                                        <dl class="modal-summary">
-                                            <div>
-                                                <dt>Client Name</dt>
-                                                <dd>{{ $queue->client->first_name }} {{ $queue->client->last_name }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Queue Number</dt>
-                                                <dd class="font-mono text-blue-700">{{ $queue->queue_number }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Control Number</dt>
-                                                <dd class="font-mono">{{ $queue->client->control_number }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Valid ID</dt>
-                                                <dd>{{ $queue->client->valid_id_type }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Category</dt>
-                                                <dd>{{ $queue->client->client_category }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Documents</dt>
-                                                <dd>{{ $totalDocuments }} uploaded, {{ $verifiedDocuments }} verified</dd>
-                                            </div>
-                                        </dl>
-
-                                        <div class="modal-notice">
-                                            Confirm this only when the client is physically present and has shown the original valid ID. The queue will move to <strong>Serving</strong> and the client will enter document validation.
+                                @if($selectedDate === now()->format('Y-m-d'))
+                                    <x-modal name="confirm-arrival-{{ $queue->id }}" maxWidth="lg">
+                                        <div class="modal-heading">
+                                            <h2>{{ __('Confirm Client Arrival') }}</h2>
+                                            <p class="mt-1 text-xs text-blue-100">Review the registration before adding the client to document validation.</p>
                                         </div>
 
-                                        <form method="POST" action="{{ route('receptionist.online-registrations.confirm', $queue) }}">
-                                            @csrf
-                                            <div class="modal-actions">
-                                                <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'confirm-arrival-{{ $queue->id }}')">
-                                                    {{ __('Cancel') }}
-                                                </x-secondary-button>
-                                                <x-primary-button type="submit" class="btn-primary">
-                                                    {{ __('Confirm and Proceed to Validation') }}
-                                                </x-primary-button>
+                                        <div class="modal-body">
+                                            <dl class="modal-summary">
+                                                <div>
+                                                    <dt>Client Name</dt>
+                                                    <dd>{{ $queue->client->first_name }} {{ $queue->client->last_name }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Queue Number</dt>
+                                                    <dd class="font-mono text-blue-700">{{ $queue->queue_number }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Control Number</dt>
+                                                    <dd class="font-mono">{{ $queue->client->control_number }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Valid ID</dt>
+                                                    <dd>{{ $queue->client->valid_id_type }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Category</dt>
+                                                    <dd>{{ $queue->client->client_category }}</dd>
+                                                </div>
+                                                <div>
+                                                    <dt>Documents</dt>
+                                                    <dd>{{ $totalDocuments }} uploaded, {{ $verifiedDocuments }} verified</dd>
+                                                </div>
+                                            </dl>
+
+                                            <div class="modal-notice">
+                                                Confirm this only when the client is physically present and has shown the original valid ID. The queue will move to <strong>Serving</strong> and the client will enter document validation.
                                             </div>
-                                        </form>
-                                    </div>
-                                </x-modal>
+
+                                            <form method="POST" action="{{ route('receptionist.online-registrations.confirm', $queue) }}">
+                                                @csrf
+                                                <div class="modal-actions">
+                                                    <x-secondary-button type="button" x-on:click="$dispatch('close-modal', 'confirm-arrival-{{ $queue->id }}')">
+                                                        {{ __('Cancel') }}
+                                                    </x-secondary-button>
+                                                    <x-primary-button type="submit" class="btn-primary">
+                                                        {{ __('Confirm and Proceed to Validation') }}
+                                                    </x-primary-button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </x-modal>
+                                @endif
                             @empty
                                 <tr>
                                     <td colspan="6" class="p-10 text-center text-gray-500">

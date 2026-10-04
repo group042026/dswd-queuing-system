@@ -5,8 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -31,7 +31,7 @@ class User extends Authenticatable
         'password',
         'status',
         'contact_number',
-        'profile_image'
+        'profile_image',
     ];
 
     /**
@@ -57,44 +57,59 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles(): BelongsToMany{
+    public function roles(): BelongsToMany
+    {
         return $this->belongsToMany(Role::class)
             ->withTimestamps();
     }
 
-    public function activity_logs(): HasMany{
+    public function activity_logs(): HasMany
+    {
         return $this->hasMany(ActivityLog::class);
     }
 
-    public function reports(): HasMany{
+    public function reports(): HasMany
+    {
         return $this->hasMany(Report::class);
     }
 
-    public function clientProcessing(): HasMany{
+    public function clientProcessing(): HasMany
+    {
         return $this->hasMany(ClientProcessing::class);
     }
 
-    //chinecheck nito if yung user ay may roles
-    //gagamitin yan for gates at role-based redirects
-    //sa code na ito gumamit ng query builder
+    // chinecheck nito if yung user ay may roles
+    // gagamitin yan for gates at role-based redirects
+    // sa code na ito gumamit ng query builder
     // public function hasRole(string $roleName): bool{
     //     return $this->roles()
-    //         ->where('roles.role_name', $roleName) 
+    //         ->where('roles.role_name', $roleName)
     //         ->exists();
     // }
 
-    //standard approach
-    public function hasRole(string $roleName): bool{
+    // standard approach
+    public function hasRole(string $roleName): bool
+    {
         return $this->roles->contains('role_name', $roleName);
     }
 
     public function dashboardRoute(): string
     {
-        if ($this->hasRole('admin')) return route('admin.dashboard');
-        if ($this->hasRole('receptionist')) return route('receptionist.dashboard');
-        if ($this->hasRole('social worker')) return route('social-worker.dashboard');
-        if ($this->hasRole('approving officer')) return route('approving-officer.dashboard');
-        if ($this->hasRole('cashier')) return route('cashier.dashboard');
+        if ($this->hasRole('admin')) {
+            return route('admin.dashboard');
+        }
+        if ($this->hasRole('receptionist')) {
+            return route('receptionist.dashboard');
+        }
+        if ($this->hasRole('social worker')) {
+            return route('social-worker.dashboard');
+        }
+        if ($this->hasRole('approving officer')) {
+            return route('approving-officer.dashboard');
+        }
+        if ($this->hasRole('paymaster')) {
+            return route('cashier.dashboard');
+        }
 
         return route('login');
     }

@@ -15,14 +15,10 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class DailyClientReportExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithColumnWidths,
-    WithEvents
+class DailyClientReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping
 {
     protected string $date;
+
     protected string $enteredBy;
 
     public function __construct(string $date)
@@ -30,7 +26,7 @@ class DailyClientReportExport implements
         $this->date = $date;
 
         $this->enteredBy =
-            auth()->user()->first_name . ' ' .
+            auth()->user()->first_name.' '.
             auth()->user()->last_name;
     }
 
@@ -69,7 +65,7 @@ class DailyClientReportExport implements
             'Subcategory',
             // 'Occupation',
             // 'Salary',
-            'Number of Family Members',
+            // 'Number of Family Members',
             'Service Modality',
         ];
     }
@@ -116,7 +112,7 @@ class DailyClientReportExport implements
             $client->client_category,
             // str_replace(', ', "\n", $client->subcategory ?? ''),
             $client->subcategory,
-            strtoupper($client->occupation),
+            // strtoupper($client->occupation),
             // $client->salary,
             // $client->household_size,
 
@@ -164,8 +160,8 @@ class DailyClientReportExport implements
             'W' => 20, // Subcategory
             // 'X' => 24, // Occupation
             // 'Y' => 14, // Salary
-            'X' => 20, // Number of Family Members
-            'Y' => 20, // Service Modality
+            // 'X' => 20, // Number of Family Members
+            'X' => 20, // Service Modality
         ];
     }
 
@@ -212,7 +208,7 @@ class DailyClientReportExport implements
             ],
         ]);
 
-        //BODY
+        // BODY
 
         if ($highestRow >= 2) {
 
@@ -270,7 +266,7 @@ class DailyClientReportExport implements
             ]);
         }
 
-        //ROW HEIGHT
+        // ROW HEIGHT
 
         // Header
         $sheet->getRowDimension(1)->setRowHeight(30);
@@ -280,7 +276,7 @@ class DailyClientReportExport implements
             $sheet->getRowDimension($row)->setRowHeight(25);
         }
 
-        //DATE FORMATTING
+        // DATE FORMATTING
 
         if ($highestRow >= 2) {
 
@@ -295,7 +291,7 @@ class DailyClientReportExport implements
                 ->setFormatCode('mmmm d, yyyy');
         }
 
-        //NUMBER FORMATTING
+        // NUMBER FORMATTING
 
         if ($highestRow >= 2) {
             // Amount
@@ -304,18 +300,18 @@ class DailyClientReportExport implements
                 ->setFormatCode('#,##0.00');
         }
 
-        //AUTOFILTER
+        // AUTOFILTER
 
         $sheet->setAutoFilter(
             "A1:{$highestColumn}{$highestRow}"
         );
 
-        //FREEZE HEADER
+        // FREEZE HEADER
 
         $sheet->freezePane('A2');
     }
 
-    //EVENTS
+    // EVENTS
     public function registerEvents(): array
     {
         return [

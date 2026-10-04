@@ -93,14 +93,23 @@
 
     <main class="flex-1 p-3 sm:p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
         <template x-for="deskKey in ['validation', 'assessment', 'review', 'releasing']" :key="deskKey">
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 flex flex-col overflow-hidden transition-all duration-300"
-                 :class="[getDeskBorderClass(deskKey), { 'flash-card': flashDesk === deskKey }]">
+            <div
+                class="bg-white rounded-2xl shadow-md border border-slate-200 flex flex-col overflow-hidden transition-all duration-300"
+                :class="[getDeskBorderClass(deskKey), { 'flash-card': flashDesk === deskKey }]"
+                :style="deskKey === 'assessment'
+                    ? 'border-top: 6px solid #fcd116;'
+                    : ''"
+            >
 
                 <div class="p-3 sm:p-4 flex justify-between items-center border-b border-slate-100 flex-shrink-0">
-                    <span class="text-white text-[9px] sm:text-[10px] font-black tracking-wider px-2 py-1 rounded uppercase shadow-sm"
-                          :class="getDeskBadgeColor(deskKey)"
-                          x-text="desks[deskKey].counter">
-                    </span>
+                    <span
+                        class="text-[9px] sm:text-[10px] font-black tracking-wider px-2 py-1 rounded uppercase shadow-sm"
+                        :class="getDeskBadgeColor(deskKey)"
+                        :style="deskKey === 'assessment'
+                            ? 'background-color: #fcd116; color: #854d0e;'
+                            : ''"
+                        x-text="desks[deskKey].counter"
+                    ></span>
                     <span class="text-[9px] sm:text-[10px] font-black tracking-wider uppercase text-slate-400 text-right" x-text="desks[deskKey].label"></span>
                 </div>
 
@@ -367,7 +376,7 @@
                 getDeskBadgeColor(deskKey) {
                     switch (deskKey) {
                         case 'validation': return 'bg-[#0038a8]';
-                        case 'assessment': return 'bg-indigo-600';
+                        case 'assessment': return 'bg-[#fcd116]';
                         case 'review': return 'bg-[#ce1126]';
                         case 'releasing': return 'bg-emerald-600';
                         default: return 'bg-slate-500';
@@ -377,7 +386,7 @@
                 getDeskBorderClass(deskKey) {
                     switch (deskKey) {
                         case 'validation': return 'border-t-[6px] border-t-[#0038a8]';
-                        case 'assessment': return 'border-t-[6px] border-t-indigo-600';
+                        case 'assessment': return 'border-t-[6px] border-t-[#fcd116]';
                         case 'review': return 'border-t-[6px] border-t-[#ce1126]';
                         case 'releasing': return 'border-t-[6px] border-t-emerald-600';
                         default: return '';

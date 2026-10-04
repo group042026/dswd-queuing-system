@@ -801,7 +801,11 @@
                         </svg>
                         {{ __('View Report') }}
                     </button>
-                    <a href="{{ route('admin.monthly-transaction.export', ['month' => $selectedMonth]) }}"class="monthly-btn monthly-btn--red">
+                    <button
+                        type="button"
+                        x-on:click="$dispatch('open-modal', 'monthly-transaction-export-modal')"
+                        class="monthly-btn monthly-btn--red"
+                    >
                         <svg
                             width="16"
                             height="16"
@@ -819,10 +823,116 @@
                                 01-2 2v12a2 2 0 002 2z"
                             />
                         </svg>
-                        {{ __('Download Excel') }}
-                    </a>
+
+                        {{ __('Download') }}
+                    </button>
                 </form>
             </div>
+
+            <x-modal name="monthly-transaction-export-modal" maxWidth="sm">
+                <div class="overflow-hidden rounded-2xl bg-white dark:bg-slate-900">
+
+                    {{-- Modal Header --}}
+                    <div class="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
+                        <div class="flex items-center justify-between gap-4">
+
+                            <div class="min-w-0">
+                                {{-- <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ce1126]">
+                                    DSWD Operations Control Hub
+                                </p> --}}
+
+                                <h2 class="text-xl font-extrabold leading-tight text-slate-800 dark:text-slate-100">
+                                    Download Report
+                                </h2>
+
+                                <p class="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                                    Choose your preferred file format.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                x-on:click="$dispatch('close-modal', 'monthly-transaction-export-modal')"
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+                                aria-label="Close modal"
+                            >
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Modal Body --}}
+                    <div class="px-6 py-6">
+                        <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+                                Report Month
+                            </p>
+
+                            <p class="mt-1 text-sm font-bold text-slate-700 dark:text-slate-200">
+                                {{ \Carbon\Carbon::parse($selectedMonth . '-01')->format('F Y') }}
+                            </p>
+                        </div>
+
+                        {{-- Excel and PDF buttons --}}
+                        <div class="flex gap-3">
+                            <a
+                                href="{{ route('admin.monthly-transaction.export', ['month' => $selectedMonth, 'format' => 'excel']) }}"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#0038a8] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#002878] focus:outline-none focus:ring-2 focus:ring-[#0038a8] focus:ring-offset-2"
+                            >
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414A1 1 0 0118 8.414V19a2 2 0 01-2 2z"
+                                    />
+                                </svg>
+
+                                <span>Excel</span>
+                            </a>
+
+                            <a
+                                href="{{ route('admin.monthly-transaction.export', ['month' => $selectedMonth, 'format' => 'pdf']) }}"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#ce1126] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#b00e1f] focus:outline-none focus:ring-2 focus:ring-[#ce1126] focus:ring-offset-2"
+                            >
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"
+                                    />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 3v5h5M9 13h6M9 17h6"
+                                    />
+                                </svg>
+
+                                <span>PDF</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Modal Footer --}}
+                    <div class="flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
+                        <x-secondary-button
+                            type="button"
+                            x-on:click="$dispatch('close-modal', 'monthly-transaction-export-modal')"
+                        >
+                            {{ __('Cancel') }}
+                        </x-secondary-button>
+                    </div>
+                </div>
+            </x-modal>
 
             {{-- Summary cards --}}
             <div class="monthly-summary-grid">

@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApprovingOfficerController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientIdAutofillController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\MovController;
 use App\Http\Controllers\ProfileController;
@@ -33,6 +34,9 @@ Route::get('/public/queue-board/data', [QueueController::class, 'liveQueueData']
 
 Route::get('/mov-capture/{client}', [MovController::class, 'showCaptureForm'])->name('mov.capture')->middleware('signed');
 Route::post('/mov-capture/{client}', [MovController::class, 'upload'])->name('mov.upload')->middleware('signed');
+Route::match(['GET', 'POST'], '/client-id-autofill/{scanSession}', [ClientIdAutofillController::class, 'capture'])
+    ->middleware(['signed', 'throttle:10,1'])
+    ->name('client-id-autofill.capture');
 
 Route::get('/apply', [PublicRegistrationController::class, 'create'])->name('public.register');
 Route::post('/apply', [PublicRegistrationController::class, 'store'])->name('public.register.store');
@@ -66,7 +70,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
         Route::get('/admin/activitylogs', 'index')->name('admin.activitylogs');
     });
 
-    Route::controller(ReportController::class)->group(function (){
+    Route::controller(ReportController::class)->group(function () {
         Route::get('/admin/daily-client', 'dailyClientReport')->name('admin.daily-client');
         Route::get('/admin/daily-client/export', 'exportDailyClientReport')->name('admin.daily-client.export');
 
@@ -96,7 +100,6 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
         Route::get('/receptionist/online-registrations/data', 'onlineRegistrationsData')->name('receptionist.online-registrations.data');
         Route::post('/receptionist/online-registrations/{queue}/confirm', 'confirmOnlineArrival')->name('receptionist.online-registrations.confirm');
 
-
     });
 
     Route::controller(ClientController::class)->group(function () {
@@ -105,6 +108,10 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
 
         Route::get('/receptionist/clients/returning', 'returningClients')->name('receptionist.clients.returning');
     });
+
+    Route::post('/receptionist/clients/id-autofill-session', [ClientIdAutofillController::class, 'createSession'])
+        ->middleware('throttle:10,1')
+        ->name('receptionist.clients.id-autofill-session');
 
     Route::controller(ValidationController::class)->group(function () {
         Route::get('/receptionist/validation', 'index')->name('receptionist.validation');
@@ -125,7 +132,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-receptionist')->group(func
     // });
 });
 
-Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(function (){
+Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(function () {
 
     Route::controller(SocialWorkerController::class)->group(function () {
         Route::get('/social-worker/dashboard', 'index')->name('social-worker.dashboard');
@@ -141,15 +148,15 @@ Route::middleware('auth', 'prevent-back', 'can:access-social-worker')->group(fun
         // Route::post('/social-worker/returned/{clientProcessing}/resume', 'resumeAssessment')->name('social-worker.returned.resume');
     });
 
-    Route::controller(DocumentController::class)->group(function (){
+    Route::controller(DocumentController::class)->group(function () {
         Route::post('/social-worker/documents', 'store')->name('social-worker.documents.store');
         Route::patch('/social-worker/documents/{document}/verify', 'verify')->name('social-worker.documents.verify');
     });
-    
+
 });
 
-Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group(function (){
-    Route::controller(ApprovingOfficerController::class)->group(function (){
+Route::middleware('auth', 'prevent-back', 'can:access-approving-officer')->group(function () {
+    Route::controller(ApprovingOfficerController::class)->group(function () {
         Route::get('/approving-officer/dashboard', 'index')->name('approving-officer.dashboard');
         Route::get('/approving-officer/dashboard-data', 'dashboardData')->name('approving-officer.dashboard.data');
         Route::get('/approving-officer/review', 'pendingReview')->name('approving-officer.review');
@@ -170,7 +177,7 @@ Route::middleware('auth', 'prevent-back', 'can:access-releasing')->group(functio
     });
 });
 
-Route::middleware('auth', 'prevent-back', 'can:access-cashier')->group(function () {
+Route::middleware('auth', 'prevent-back', 'can:access-paymaster')->group(function () {
     Route::get('/cashier/dashboard', [CashierController::class, 'index'])->name('cashier.dashboard');
 });
 

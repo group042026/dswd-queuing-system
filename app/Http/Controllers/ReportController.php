@@ -4,21 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Exports\ClientProcessingReportExport;
 use App\Exports\DailyClientReportExport;
-use App\Models\ActivityLog;
-use App\Models\Client;
-use App\Models\Report;
-use App\Models\Queue;
 use App\Exports\MonthlyTransactionReportExport;
 use App\Exports\QueuePerformanceReportExport;
+use App\Models\ActivityLog;
+use App\Models\Client;
 use App\Models\ClientProcessing;
-use Illuminate\Support\Facades\DB;
+use App\Models\Queue;
+use App\Models\Report;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
-    //CLIENT DAILY REPORTS
+    // CLIENT DAILY REPORTS
     public function dailyClientReport(Request $request)
     {
         Gate::authorize('access-admin');
@@ -40,6 +41,7 @@ class ReportController extends Controller
         Gate::authorize('access-admin');
 
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
+        $format = $request->input('format', 'excel');
         $user = auth()->user();
 
         Report::create([
@@ -51,6 +53,19 @@ class ReportController extends Controller
             'Report Generated',
             "{$user->name} generated Daily Client Report for {$selectedDate}"
         );
+
+        if ($format === 'pdf') {
+            $clients = Client::whereDate('date_registered', $selectedDate)
+                ->orderBy('date_registered', 'asc')
+                ->get();
+
+            $pdf = Pdf::loadView('admin.exports.daily-client-pdf', [
+                'selectedDate' => $selectedDate,
+                'clients' => $clients,
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download("daily-client-report-{$selectedDate}.pdf");
+        }
 
         return Excel::download(
             new DailyClientReportExport($selectedDate),
@@ -104,6 +119,7 @@ class ReportController extends Controller
         Gate::authorize('access-admin');
 
         $selectedMonth = $request->input('month', now()->format('Y-m'));
+        $format = $request->input('format', 'excel');
         $user = auth()->user();
 
         Report::create([
@@ -116,13 +132,35 @@ class ReportController extends Controller
             "{$user->name} generated Monthly Transaction Report for {$selectedMonth}"
         );
 
+        if ($format === 'pdf') {
+            [$year, $month] = explode('-', $selectedMonth);
+
+            $transactions = ClientProcessing::with('client')
+                ->where('current_step', 'Releasing')
+                ->where('current_status', 'Completed')
+                ->whereYear('end_time', $year)
+                ->whereMonth('end_time', $month)
+                ->orderBy('end_time', 'asc')
+                ->get();
+
+            $pdf = Pdf::loadView('admin.exports.monthly-transaction-pdf', [
+                'selectedMonth' => $selectedMonth,
+                'transactions' => $transactions,
+                'enteredBy' => $user->first_name.' '.$user->last_name,
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download(
+                "monthly-transaction-report-{$selectedMonth}.pdf"
+            );
+        }
+
         return Excel::download(
             new MonthlyTransactionReportExport($selectedMonth),
             "monthly-transaction-report-{$selectedMonth}.xlsx"
         );
     }
 
-    //QUEUE PROCESSING REPORT
+    // QUEUE PROCESSING REPORT
     public function queuePerformanceReport(Request $request)
     {
         Gate::authorize('access-admin');
@@ -170,8 +208,17 @@ class ReportController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
-        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+        $dateFrom = $request->input(
+            'date_from',
+            now()->startOfMonth()->format('Y-m-d')
+        );
+
+        $dateTo = $request->input(
+            'date_to',
+            now()->format('Y-m-d')
+        );
+
+        $format = $request->input('format', 'excel');
         $user = auth()->user();
 
         Report::create([
@@ -184,13 +231,31 @@ class ReportController extends Controller
             "{$user->name} generated Queue Performance Report ({$dateFrom} to {$dateTo})"
         );
 
+        if ($format === 'pdf') {
+            $queues = Queue::with(['client', 'latestProcessing'])
+                ->whereDate('date_issued', '>=', $dateFrom)
+                ->whereDate('date_issued', '<=', $dateTo)
+                ->orderBy('date_issued', 'asc')
+                ->get();
+
+            $pdf = Pdf::loadView('admin.exports.queue-performance-pdf', [
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'queues' => $queues,
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download(
+                "queue-performance-report-{$dateFrom}-to-{$dateTo}.pdf"
+            );
+        }
+
         return Excel::download(
             new QueuePerformanceReportExport($dateFrom, $dateTo),
             "queue-performance-report-{$dateFrom}-to-{$dateTo}.xlsx"
         );
     }
 
-    //CLIENT PROCESSING REPORT
+    // CLIENT PROCESSING REPORT
     public function clientProcessingReport(Request $request)
     {
         Gate::authorize('access-admin');
@@ -200,7 +265,6 @@ class ReportController extends Controller
 
         $dateFrom = $request->input('date_from', now()->format('Y-m-d'));
         $dateTo = $request->input('date_to', now()->addDay()->format('Y-m-d'));
-
 
         // Snapshot NGAYON — ilang naka-stuck sa bawat stage (hindi naka-date filter)
         $stuckPerStage = ClientProcessing::whereIn('current_status', ['Waiting', 'Processing'])
@@ -214,7 +278,7 @@ class ReportController extends Controller
             ->where('current_status', 'Completed')
             ->whereDate('end_time', '>=', $dateFrom)
             ->whereDate('end_time', '<=', $dateTo)
-            ->count();    
+            ->count();
 
         $totalStuck = $stuckPerStage->sum();
 
@@ -252,7 +316,7 @@ class ReportController extends Controller
             ->select('current_step', DB::raw('count(*) as total'))
             ->groupBy('current_step')
             ->pluck('total', 'current_step');
-            
+
         $completedToday = ClientProcessing::where('current_step', 'Releasing')
             ->where('current_status', 'Completed')
             ->whereDate('end_time', '>=', $dateFrom)
@@ -270,8 +334,17 @@ class ReportController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $dateFrom = $request->input('date_from', now()->startOfMonth()->format('Y-m-d'));
-        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+        $dateFrom = $request->input(
+            'date_from',
+            now()->startOfMonth()->format('Y-m-d')
+        );
+
+        $dateTo = $request->input(
+            'date_to',
+            now()->format('Y-m-d')
+        );
+
+        $format = $request->input('format', 'excel');
         $user = auth()->user();
 
         Report::create([
@@ -283,6 +356,28 @@ class ReportController extends Controller
             'Report Generated',
             "{$user->name} generated Client Processing Report ({$dateFrom} to {$dateTo})"
         );
+
+        if ($format === 'pdf') {
+            $processingHistory = ClientProcessing::with([
+                'client',
+                'queue',
+                'user',
+            ])
+                ->whereDate('start_time', '>=', $dateFrom)
+                ->whereDate('start_time', '<=', $dateTo)
+                ->orderBy('start_time', 'asc')
+                ->get();
+
+            $pdf = Pdf::loadView('admin.exports.client-processing-pdf', [
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'processingHistory' => $processingHistory,
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download(
+                "client-processing-report-{$dateFrom}-to-{$dateTo}.pdf"
+            );
+        }
 
         return Excel::download(
             new ClientProcessingReportExport($dateFrom, $dateTo),

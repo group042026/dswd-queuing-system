@@ -13,22 +13,14 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\DefaultValueBinder;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Cell\Cell;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class QueuePerformanceReportExport extends DefaultValueBinder implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithColumnWidths,
-    WithEvents,
-    WithCustomValueBinder
+class QueuePerformanceReportExport extends DefaultValueBinder implements FromCollection, WithColumnWidths, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping
 {
     protected string $dateFrom;
+
     protected string $dateTo;
 
     public function __construct(string $dateFrom, string $dateTo)
@@ -67,50 +59,50 @@ class QueuePerformanceReportExport extends DefaultValueBinder implements
         if ($queue->queue_status === 'Abandoned') {
             $duration = 'Abandoned';
         } elseif (
-            in_array($queue->queue_status, ['Completed', 'Cancelled'])
+            in_array($queue->queue_status, ['Completed', 'Cancelled'], true)
             && $queue->latestProcessing?->end_time
+            && $queue->date_issued
         ) {
             $duration = Carbon::parse($queue->date_issued)
-                ->diffForHumans($queue->latestProcessing->end_time, true);
+                ->diffForHumans(
+                    Carbon::parse($queue->latestProcessing->end_time),
+                    true
+                );
         }
 
+        $clientName = trim(implode(' ', array_filter([
+            $queue->client?->first_name,
+            $queue->client?->last_name,
+        ])));
+
         return [
-            $queue->queue_number,
-            "{$queue->client->first_name} {$queue->client->last_name}",
-            $queue->client->client_category,
+            $queue->queue_number ?? '—',
+            $clientName !== '' ? $clientName : '—',
+            $queue->client?->client_category ?? '—',
             $queue->priority ? 'Yes' : 'No',
-            $queue->queue_status,
+            $queue->queue_status ?? '—',
             $duration,
-            $queue->latestProcessing->current_step ?? '—',
-            $queue->date_issued ? Carbon::parse($queue->date_issued) : null,
+            $queue->latestProcessing?->current_step ?? '—',
+
+            // Gawing string muna, gaya ng stable export setup.
+            $queue->date_issued
+                ? Carbon::parse($queue->date_issued)->format('Y-m-d')
+                : '—',
         ];
     }
 
     public function columnWidths(): array
     {
         return [
-            'A' => 16, // Queue Number
-            'B' => 22, // Client Name
-            'C' => 24, // Client Category
-            'D' => 12, // Priority
-            'E' => 16, // Queue Status
-            'F' => 16, // Total Duration
-            'G' => 18, // Current Step
-            'H' => 20, // Date Issued
+            'A' => 16,
+            'B' => 22,
+            'C' => 24,
+            'D' => 12,
+            'E' => 16,
+            'F' => 16,
+            'G' => 18,
+            'H' => 20,
         ];
-    }
-
-    public function bindValue(Cell $cell, mixed $value): bool
-    {
-        if ($value instanceof \DateTimeInterface) {
-            $cell->setValueExplicit(
-                Date::PHPToExcel($value),
-                DataType::TYPE_NUMERIC
-            );
-            return true;
-        }
-
-        return parent::bindValue($cell, $value);
     }
 
     public static function afterSheet(AfterSheet $event): void
@@ -167,15 +159,17 @@ class QueuePerformanceReportExport extends DefaultValueBinder implements
             ]);
 
             $centerColumns = [
-                "A2:A{$highestRow}", // Queue Number
-                "D2:D{$highestRow}", // Priority
-                "E2:E{$highestRow}", // Queue Status
-                "F2:F{$highestRow}", // Total Duration
-                "H2:H{$highestRow}", // Date Issued
+                "A2:A{$highestRow}",
+                "D2:D{$highestRow}",
+                "E2:E{$highestRow}",
+                "F2:F{$highestRow}",
+                "H2:H{$highestRow}",
             ];
 
             foreach ($centerColumns as $range) {
-                $sheet->getStyle($range)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle($range)
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
             }
         }
 
@@ -185,12 +179,6 @@ class QueuePerformanceReportExport extends DefaultValueBinder implements
             $sheet->getRowDimension($row)->setRowHeight(20);
         }
 
-        if ($highestRow >= 2) {
-            $sheet->getStyle("H2:H{$highestRow}")->getNumberFormat()->setFormatCode('mmmm d, yyyy');
-            // $sheet->getStyle("H2:H{$highestRow}")->getNumberFormat()->setFormatCode('mmmm d, yyyy h:mm AM/PM');
-
-        }
-
         $sheet->setAutoFilter("A1:{$highestColumn}{$highestRow}");
         $sheet->freezePane('A2');
     }
@@ -198,7 +186,10 @@ class QueuePerformanceReportExport extends DefaultValueBinder implements
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => [self::class, 'afterSheet'],
+            AfterSheet::class => [
+                self::class,
+                'afterSheet',
+            ],
         ];
     }
 }

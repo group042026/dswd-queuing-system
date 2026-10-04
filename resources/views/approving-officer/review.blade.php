@@ -644,6 +644,18 @@
                                         <div class="review-detail-grid">
                                             <div class="review-detail-row">
                                                 <div class="review-detail-label">
+                                                    {{ __('Date Registered') }}
+                                                </div>
+                                                <div class="review-detail-value">
+                                                    @if($item->client->date_registered)
+                                                        {{ \Carbon\Carbon::parse($item->client->date_registered)->format('M d, Y, h:i A') }}
+                                                    @else
+                                                        —
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="review-detail-row">
+                                                <div class="review-detail-label">
                                                     {{ __('Interview Date') }}
                                                 </div>
                                                 <div class="review-detail-value">
@@ -654,7 +666,7 @@
                                                     @endif
                                                 </div>
                                             </div>
-                                            <div class="review-detail-row">
+                                            <div class="review-detail-row review-detail-grid__span-2">
                                                 <div class="review-detail-label">
                                                     {{ __('Social Worker') }}
                                                 </div>

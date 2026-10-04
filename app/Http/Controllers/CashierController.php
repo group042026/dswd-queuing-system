@@ -9,7 +9,7 @@ class CashierController extends Controller
 {
     public function index()
     {
-        Gate::authorize('access-cashier');
+        Gate::authorize('access-paymaster');
 
         $today = now()->toDateString();
 

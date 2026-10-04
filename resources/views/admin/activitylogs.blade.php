@@ -210,6 +210,12 @@
             box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.12);
         }
 
+        select.activity-filter-input {
+            min-width: 180px;
+            background-color: var(--card-bg);
+            cursor: pointer;
+        }
+
         .activity-btn-filter {
             background-color: var(--dswd-blue);
             color: var(--text-white);
@@ -533,7 +539,7 @@
 
 
             {{-- ================================================================
-                 Date Filter
+                 Filters (User, Action, Date Range)
                  ================================================================ --}}
 
             <div class="activity-filter-card">
@@ -544,21 +550,111 @@
                     class="activity-filter-form"
                 >
 
+                    {{-- User --}}
                     <div class="activity-filter-group">
 
                         <label
-                            for="date"
+                            for="user_id"
                             class="activity-filter-label"
                         >
-                            {{ __('Select Target Date') }}
+                            {{ __('User') }}
+                        </label>
+
+                        <select
+                            id="user_id"
+                            name="user_id"
+                            class="activity-filter-input"
+                        >
+                            <option value="">{{ __('All users') }}</option>
+                            <option
+                                value="system"
+                                @selected(request('user_id') === 'system')
+                            >
+                                {{ __('System') }}
+                            </option>
+
+                            @foreach($users as $user)
+                                <option
+                                    value="{{ $user->id }}"
+                                    @selected((string) request('user_id') === (string) $user->id)
+                                >
+                                    {{ $user->first_name }} {{ $user->last_name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                    </div>
+
+
+                    {{-- Action --}}
+                    <div class="activity-filter-group">
+
+                        <label
+                            for="action"
+                            class="activity-filter-label"
+                        >
+                            {{ __('Action') }}
+                        </label>
+
+                        <select
+                            id="action"
+                            name="action"
+                            class="activity-filter-input"
+                        >
+                            <option value="">{{ __('All actions') }}</option>
+
+                            @foreach($actions as $action)
+                                <option
+                                    value="{{ $action }}"
+                                    @selected(request('action') === $action)
+                                >
+                                    {{ $action }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                    </div>
+
+
+                    {{-- Date From --}}
+                    <div class="activity-filter-group">
+
+                        <label
+                            for="date_from"
+                            class="activity-filter-label"
+                        >
+                            {{ __('From') }}
                         </label>
 
                         <input
-                            id="date"
-                            name="date"
+                            id="date_from"
+                            name="date_from"
                             type="date"
                             class="activity-filter-input"
-                            value="{{ $selectedDate }}"
+                            value="{{ $dateFrom }}"
+                            max="{{ $dateTo }}"
+                        />
+
+                    </div>
+
+
+                    {{-- Date To --}}
+                    <div class="activity-filter-group">
+
+                        <label
+                            for="date_to"
+                            class="activity-filter-label"
+                        >
+                            {{ __('To') }}
+                        </label>
+
+                        <input
+                            id="date_to"
+                            name="date_to"
+                            type="date"
+                            class="activity-filter-input"
+                            value="{{ $dateTo }}"
+                            min="{{ $dateFrom }}"
                         />
 
                     </div>
@@ -572,13 +668,13 @@
                     </button>
 
 
-                    @if($selectedDate !== now()->format('Y-m-d'))
+                    @if(request()->hasAny(['user_id', 'action', 'date_from', 'date_to']))
 
                         <a
                             href="{{ route('admin.activitylogs') }}"
                             class="activity-btn-today"
                         >
-                            {{ __('Return to Today') }}
+                            {{ __('Reset Filters') }}
                         </a>
 
                     @endif
@@ -599,11 +695,26 @@
 
                 <div class="activity-card__header">
 
+                    @php
+                        $from = $dateFrom ? \Carbon\Carbon::parse($dateFrom)->format('F d, Y') : null;
+                        $to   = $dateTo   ? \Carbon\Carbon::parse($dateTo)->format('F d, Y')   : null;
+
+                        $rangeLabel = match(true) {
+                            $from && $to && $from === $to => $from,
+                            $from && $to                  => $from . ' – ' . $to,
+                            (bool) $from                  => 'From ' . $from,
+                            (bool) $to                    => 'Up to ' . $to,
+                            default                       => 'All dates',
+                        };
+                    @endphp
+
                     {{ __('Showing activity logs for:') }}
 
                     <span class="activity-card__date">
-                        {{ \Carbon\Carbon::parse($selectedDate)->format('F d, Y') }}
+                        {{ $rangeLabel }}
                     </span>
+
+                    &middot; {{ number_format($logs->total()) }} {{ Str::plural('result', $logs->total()) }}
 
                 </div>
 
@@ -747,7 +858,7 @@
                                         colspan="4"
                                         class="activity-empty"
                                     >
-                                        {{ __('No activity logs for this date.') }}
+                                        {{ __('No activity logs match the selected filters.') }}
                                     </td>
 
                                 </tr>
@@ -774,5 +885,33 @@
         </div>
 
     </div>
+
+    <script>
+        (function () {
+            const actionMap = @json($actionMap);
+            const userSelect = document.getElementById('user_id');
+            const actionSelect = document.getElementById('action');
+            const allLabel = actionSelect.options[0].text;
+
+            const allActions = [...new Set(Object.values(actionMap).flat())].sort();
+
+            function refreshActions() {
+                const userId = userSelect.value;
+                const available = userId ? (actionMap[userId] ?? []) : allActions;
+                const current = actionSelect.value;
+
+                actionSelect.innerHTML = '';
+                actionSelect.add(new Option(allLabel, ''));
+                available.forEach(function (action) {
+                    actionSelect.add(new Option(action, action));
+                });
+
+                // Panatilihin yung napiling action kung meron pa sa listahan
+                actionSelect.value = available.includes(current) ? current : '';
+            }
+
+            userSelect.addEventListener('change', refreshActions);
+        })();
+    </script>
 
 </x-admin-layout>
