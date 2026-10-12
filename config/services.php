@@ -40,4 +40,11 @@ return [
         'model' => env('GEMINI_MODEL'),
     ],
 
+    'initial_admin' => [
+        'email' => env('INITIAL_ADMIN_EMAIL'),
+        'password' => env('INITIAL_ADMIN_PASSWORD'),
+    ],
+
+    'initial_admin_setup_token' => env('INITIAL_ADMIN_SETUP_TOKEN'),
+
 ];
