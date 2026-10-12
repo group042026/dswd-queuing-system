@@ -3,8 +3,8 @@
 		@csrf
 
 		<div class="space-y-1">
-			<h1 class="text-xl font-semibold text-gray-900">Create the first admin</h1>
-			<p class="text-sm text-gray-600">This setup page closes after the first admin account is created.</p>
+			<h1 class="text-xl font-semibold text-gray-900">Create an admin account</h1>
+			<p class="text-sm text-gray-600">A valid setup key is required to create an admin account.</p>
 		</div>
 
 		<div>

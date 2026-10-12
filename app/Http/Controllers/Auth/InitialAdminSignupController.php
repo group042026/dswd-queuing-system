@@ -44,9 +44,6 @@ class InitialAdminSignupController extends Controller
 
         DB::transaction(function () use ($validated): void {
             $role = Role::firstOrCreate(['role_name' => 'admin']);
-            $role = Role::query()->whereKey($role->getKey())->lockForUpdate()->firstOrFail();
-
-            abort_if($role->users()->exists(), 404);
 
             $user = User::create([
                 'first_name' => $validated['first_name'],
@@ -71,10 +68,6 @@ class InitialAdminSignupController extends Controller
         $setupToken = config('services.initial_admin_setup_token');
 
         return is_string($setupToken)
-            && $setupToken !== ''
-            && ! Role::query()
-                ->where('role_name', 'admin')
-                ->whereHas('users')
-                ->exists();
+            && $setupToken !== '';
     }
 }
