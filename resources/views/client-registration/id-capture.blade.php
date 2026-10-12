@@ -98,6 +98,7 @@
         <p id="capture-status" class="status" aria-live="polite"></p>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
         const form = document.getElementById('id-capture-form');
         const photoInput = document.getElementById('id-photo');
@@ -109,7 +110,6 @@
 
         photoInput.addEventListener('change', () => {
             const photo = photoInput.files[0];
-
             if (!photo) return;
 
             if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -118,34 +118,152 @@
             preview.style.display = 'block';
             placeholder.style.display = 'none';
             sendButton.disabled = false;
-            statusMessage.textContent = 'Check that the text is sharp and fully visible before sending.';
-            statusMessage.className = 'status';
         });
 
-        form.addEventListener('submit', async (event) => {
+        function labeledValue(lines, labelPattern) {
+            const index = lines.findIndex(line => labelPattern.test(line));
+            if (index < 0) return null;
+
+            const sameLine = lines[index]
+                .replace(labelPattern, '')
+                .replace(/^[\s:.-]+/, '')
+                .trim();
+
+            return sameLine || lines[index + 1] || null;
+        }
+
+        function toIsoDate(value) {
+            if (!value) return null;
+
+            const iso = value.match(/\b((?:19|20)\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/);
+            if (iso) {
+                return `${iso[1]}-${iso[2].padStart(2, '0')}-${iso[3].padStart(2, '0')}`;
+            }
+
+            const numeric = value.match(/\b(\d{1,2})[/. -](\d{1,2})[/. -]((?:19|20)\d{2})\b/);
+            if (numeric) {
+                const first = Number(numeric[1]);
+                const second = Number(numeric[2]);
+
+                // Ambiguous numeric dates are left blank instead of guessed.
+                if (first <= 12 && second <= 12) return null;
+
+                const month = first > 12 ? second : first;
+                const day = first > 12 ? first : second;
+
+                return `${numeric[3]}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
+
+            const named = value.match(/\b(\d{1,2})\s+([A-Za-z]{3,9})[,. ]+((?:19|20)\d{2})\b/);
+            if (named) {
+                const parsed = new Date(`${named[2]} ${named[1]}, ${named[3]}`);
+                if (!Number.isNaN(parsed.getTime())) {
+                    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+                }
+            }
+
+            return null;
+        }
+
+        function extractFields(text, idType) {
+            const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            const joinedText = lines.join('\n');
+
+            const birthdateText = labeledValue(
+                lines,
+                /\b(?:DATE OF BIRTH|BIRTHDATE|DATE OF BIRTH)\b/i
+            );
+            const sexText = labeledValue(lines, /\bSEX\b/i);
+
+            const idPatterns = {
+                'Philippine National ID': /\b\d{12}\b/,
+                'SSS ID': /\b\d{2}[- ]\d{7}[- ]\d\b/,
+                'PhilHealth ID': /\b\d{2}[- ]\d{9}[- ]\d\b/,
+                "Driver's License": /\b[A-Z]\d{2}[- ]\d{2}[- ]\d{6}\b/i,
+                'Passport': /\b[A-Z]\d{8}\b/i,
+                'UMID ID': /\b\d{4}[- ]\d{7}[- ]\d\b/,
+            };
+
+            let idNumber = joinedText.match(idPatterns[idType] || /$^/)?.[0] || null;
+
+            if (idNumber && ['SSS ID', 'PhilHealth ID', 'UMID ID'].includes(idType)) {
+                const digits = idNumber.replace(/\D/g, '');
+                const groups = idType === 'SSS ID' ? [2, 7, 1]
+                    : idType === 'PhilHealth ID' ? [2, 9, 1] : [4, 7, 1];
+                let offset = 0;
+                idNumber = groups.map(size => {
+                    const part = digits.slice(offset, offset + size);
+                    offset += size;
+                    return part;
+                }).join('-');
+            }
+
+            if (!idNumber) {
+                idNumber = labeledValue(lines, /\b(?:ID|PASSPORT|CRN)\s*(?:NUMBER|NO\.?)\b/i);
+            }
+
+            return {
+                first_name: labeledValue(lines, /\b(?:FIRST|GIVEN)\s+NAMES?\b/i),
+                middle_name: labeledValue(lines, /\bMIDDLE\s+NAME\b/i),
+                last_name: labeledValue(lines, /\b(?:LAST|FAMILY)\s+NAME\b|\bSURNAME\b/i),
+                suffix: labeledValue(lines, /\bSUFFIX\b/i),
+                sex: sexText && /\bMALE\b/i.test(sexText) ? 'Male'
+                    : sexText && /\bFEMALE\b/i.test(sexText) ? 'Female' : null,
+                birthdate: toIsoDate(birthdateText),
+                valid_id_number: idNumber,
+                region: labeledValue(lines, /\bREGION\b/i),
+                province: labeledValue(lines, /\bPROVINCE\b/i),
+                municipality: labeledValue(lines, /\b(?:CITY|MUNICIPALITY)\b/i),
+                barangay: labeledValue(lines, /\bBARANGAY\b/i),
+            };
+        }
+
+        form.addEventListener('submit', async event => {
             event.preventDefault();
 
-            if (!photoInput.files[0]) return;
+            const photo = photoInput.files[0];
+            if (!photo) return;
 
             sendButton.disabled = true;
             sendButton.textContent = 'Reading ID...';
-            statusMessage.textContent = 'Reading the ID. Keep this page open for a moment.';
-            statusMessage.className = 'status';
+            statusMessage.textContent = 'Preparing OCR...';
 
             try {
+                const result = await Tesseract.recognize(photo, 'eng', {
+                    logger: progress => {
+                        if (progress.status === 'recognizing text') {
+                            statusMessage.textContent =
+                                `Reading ID: ${Math.round(progress.progress * 100)}%`;
+                        }
+                    },
+                });
+
+                const fields = extractFields(result.data.text, @json($validIdType));
+                const hasResult = Object.values(fields).some(value => Boolean(value));
+
+                if (!hasResult) {
+                    throw new Error('Walang malinaw na field na nabasa. Subukan ang mas malinaw na larawan.');
+                }
+
+                statusMessage.textContent = 'Sending recognized fields...';
+
                 const response = await fetch(window.location.href, {
                     method: 'POST',
-                    headers: { Accept: 'application/json' },
-                    body: new FormData(form),
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ fields }),
                 });
-                const result = await response.json();
 
+                const payload = await response.json();
                 if (!response.ok) {
-                    throw new Error(result.message || 'Could not read this photo. Try again with a clearer image.');
+                    throw new Error(payload.message || 'Hindi naipadala ang OCR results.');
                 }
 
                 form.innerHTML = '';
-                statusMessage.textContent = 'ID sent successfully. The receptionist can now review the extracted details.';
+                statusMessage.textContent = 'Naipadala na ang nabasang fields. Maaari nang suriin ng receptionist.';
                 statusMessage.className = 'status status--success';
             } catch (error) {
                 statusMessage.textContent = error.message;

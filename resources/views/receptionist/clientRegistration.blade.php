@@ -455,7 +455,6 @@
                         </div>
                     </div>
                 </div>
-                {{-- Test --}}
 
                 {{-- SECTION 4: Valid ID --}}
                 <div class="reg-card">
