@@ -15,24 +15,11 @@ class InitialAdminSignupController extends Controller
 {
     public function create(): View
     {
-        abort_unless($this->setupIsAvailable(), 404);
-
         return view('auth.hidden-signup');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($this->setupIsAvailable(), 404);
-
-        $setupToken = config('services.initial_admin_setup_token');
-
-        abort_unless(
-            is_string($setupToken)
-                && $setupToken !== ''
-                && hash_equals($setupToken, (string) $request->input('setup_token')),
-            403,
-        );
-
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
@@ -59,15 +46,7 @@ class InitialAdminSignupController extends Controller
         });
 
         return redirect()
-            ->route('login')
-            ->with('status', 'Admin account created. You can now sign in.');
-    }
-
-    private function setupIsAvailable(): bool
-    {
-        $setupToken = config('services.initial_admin_setup_token');
-
-        return is_string($setupToken)
-            && $setupToken !== '';
+            ->route('admin.users.list')
+            ->with('success', 'Admin account created successfully.');
     }
 }

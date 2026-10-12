@@ -12,12 +12,14 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('hidden-signup', [InitialAdminSignupController::class, 'create'])
-    ->name('hidden-signup');
+Route::middleware(['auth', 'can:access-admin'])->group(function () {
+    Route::get('hidden-signup', [InitialAdminSignupController::class, 'create'])
+        ->name('hidden-signup');
 
-Route::post('hidden-signup', [InitialAdminSignupController::class, 'store'])
-    ->middleware('throttle:5,1')
-    ->name('hidden-signup.store');
+    Route::post('hidden-signup', [InitialAdminSignupController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('hidden-signup.store');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])

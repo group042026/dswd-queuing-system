@@ -4,7 +4,7 @@
 
 		<div class="space-y-1">
 			<h1 class="text-xl font-semibold text-gray-900">Create an admin account</h1>
-			<p class="text-sm text-gray-600">A valid setup key is required to create an admin account.</p>
+			<p class="text-sm text-gray-600">Create an additional administrator account.</p>
 		</div>
 
 		<div>
@@ -35,12 +35,6 @@
 			<x-input-label for="username" value="Username" />
 			<x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username')" required autocomplete="username" />
 			<x-input-error :messages="$errors->get('username')" class="mt-2" />
-		</div>
-
-		<div>
-			<x-input-label for="setup_token" value="Setup key" />
-			<x-text-input id="setup_token" name="setup_token" type="password" class="mt-1 block w-full" required autocomplete="off" />
-			<x-input-error :messages="$errors->get('setup_token')" class="mt-2" />
 		</div>
 
 		<div>

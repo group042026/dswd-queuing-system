@@ -11,23 +11,22 @@ class InitialAdminSignupTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_setup_page_is_available_when_configured_even_if_an_admin_exists(): void
+    public function test_admin_can_open_setup_page_even_if_an_admin_exists(): void
     {
-        config(['services.initial_admin_setup_token' => 'one-time-test-secret']);
-        $this->createAdmin('existing-admin@example.com', 'existing-admin');
+        $admin = $this->createAdmin('existing-admin@example.com', 'existing-admin');
 
-        $this->get(route('hidden-signup'))
+        $this->actingAs($admin)
+            ->get(route('hidden-signup'))
             ->assertOk()
             ->assertSee('Create an admin account');
     }
 
-    public function test_valid_setup_secret_creates_an_additional_admin(): void
+    public function test_admin_can_create_an_additional_admin(): void
     {
-        config(['services.initial_admin_setup_token' => 'one-time-test-secret']);
-        $this->createAdmin('existing-admin@example.com', 'existing-admin');
+        $admin = $this->createAdmin('existing-admin@example.com', 'existing-admin');
 
-        $this->post(route('hidden-signup.store'), [
-            'setup_token' => 'one-time-test-secret',
+        $this->actingAs($admin)
+            ->post(route('hidden-signup.store'), [
             'first_name' => 'Admin',
             'middle_name' => '',
             'last_name' => 'User',
@@ -35,7 +34,7 @@ class InitialAdminSignupTest extends TestCase
             'username' => 'admin-user',
             'password' => 'Very-Strong-Password-123!',
             'password_confirmation' => 'Very-Strong-Password-123!',
-        ])->assertRedirect(route('login'));
+        ])->assertRedirect(route('admin.users.list'));
 
         $user = User::query()->where('email', 'admin@example.com')->firstOrFail();
         $role = Role::query()->where('role_name', 'admin')->firstOrFail();
@@ -46,41 +45,44 @@ class InitialAdminSignupTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('users', 2);
-        $this->get(route('hidden-signup'))->assertOk();
     }
 
-    public function test_signed_in_admin_can_open_the_setup_page(): void
+    public function test_guest_cannot_open_or_submit_the_admin_signup_page(): void
     {
-        config(['services.initial_admin_setup_token' => 'one-time-test-secret']);
-        $admin = $this->createAdmin('existing-admin@example.com', 'existing-admin');
+        $this->get(route('hidden-signup'))
+            ->assertRedirect(route('login'));
 
-        $this->actingAs($admin)
+        $this->post(route('hidden-signup.store'))
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_non_admin_user_cannot_open_or_submit_the_admin_signup_page(): void
+    {
+        $user = $this->createUser('user@example.com', 'ordinary-user');
+
+        $this->actingAs($user)
             ->get(route('hidden-signup'))
-            ->assertOk();
-    }
+            ->assertForbidden();
 
-    public function test_invalid_setup_secret_does_not_create_an_admin(): void
-    {
-        config(['services.initial_admin_setup_token' => 'one-time-test-secret']);
+        $this->post(route('hidden-signup.store'))
+            ->assertForbidden();
 
-        $this->post(route('hidden-signup.store'), [
-            'setup_token' => 'wrong-secret',
-        ])->assertForbidden();
-
-        $this->assertDatabaseCount('users', 0);
-    }
-
-    public function test_setup_page_is_hidden_when_no_secret_is_configured(): void
-    {
-        config(['services.initial_admin_setup_token' => null]);
-
-        $this->get(route('hidden-signup'))->assertNotFound();
+        $this->assertDatabaseCount('users', 1);
     }
 
     private function createAdmin(string $email, string $username): User
     {
         $role = Role::query()->firstOrCreate(['role_name' => 'admin']);
-        $user = User::query()->create([
+
+        $user = $this->createUser($email, $username);
+        $user->roles()->attach($role->id);
+
+        return $user;
+    }
+
+    private function createUser(string $email, string $username): User
+    {
+        return User::query()->create([
             'first_name' => 'Existing',
             'last_name' => 'Admin',
             'email' => $email,
@@ -88,9 +90,5 @@ class InitialAdminSignupTest extends TestCase
             'password' => 'Existing-Password-123!',
             'status' => 'active',
         ]);
-
-        $user->roles()->attach($role->id);
-
-        return $user;
     }
 }

@@ -45,6 +45,4 @@ return [
         'password' => env('INITIAL_ADMIN_PASSWORD'),
     ],
 
-    'initial_admin_setup_token' => env('INITIAL_ADMIN_SETUP_TOKEN'),
-
 ];
