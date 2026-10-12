@@ -746,9 +746,9 @@
                     <x-input-label for="role" :value="__('Role')" />
                     <select id="role" name="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                         <option value="">-- Select Role --</option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->id }}" {{ old('role') == $role->id ? 'selected' : '' }}>
-                                {{ $role->role_name }}
+                        @foreach ($availableRoles as $roleName)
+                            <option value="{{ $roleName }}" {{ old('role') == $roleName ? 'selected' : '' }}>
+                                {{ ucfirst($roleName) }}
                             </option>
                         @endforeach
                     </select>
@@ -859,10 +859,10 @@
                         <x-input-label for="edit_role_{{ $user->id }}" :value="__('Role')" />
                         <select id="edit_role_{{ $user->id }}" name="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                             <option value="">-- Select Role --</option>
-                            @foreach ($roles as $role)
-                                <option value="{{ $role->id }}"
-                                    {{ old('role', $user->roles->first()->id ?? '') == $role->id ? 'selected' : '' }}>
-                                    {{ $role->role_name }}
+                            @foreach ($availableRoles as $roleName)
+                                <option value="{{ $roleName }}"
+                                    {{ old('role', $user->roles->first()->role_name ?? '') == $roleName ? 'selected' : '' }}>
+                                    {{ ucfirst($roleName) }}
                                 </option>
                             @endforeach
                         </select>

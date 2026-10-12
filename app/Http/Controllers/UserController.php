@@ -11,23 +11,31 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    private const AVAILABLE_ROLES = [
+        'admin',
+        'receptionist',
+        'social worker',
+        'approving officer',
+        'paymaster',
+    ];
+
     public function userList()
     {
         Gate::authorize('access-admin');
 
         $users = User::with('roles')
-                ->where('id', '!=', auth()->id())
-                ->orderBy('first_name', 'asc')
-                ->paginate(5);
-        $roles = Role::all();
+            ->where('id', '!=', auth()->id())
+            ->orderBy('first_name', 'asc')
+            ->paginate(5);
 
-        return view('admin.userList', ["users" => $users, "roles" => $roles]);
+        return view('admin.userList', [
+            'users' => $users,
+            'availableRoles' => self::AVAILABLE_ROLES,
+        ]);
     }
 
-    
-
-
-    public function storeUser(Request $request){
+    public function storeUser(Request $request)
+    {
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['required', 'string', 'max:255'],
@@ -36,16 +44,15 @@ class UserController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'password' => ['required', 'confirmed', 'min:8'],
             'license_number' => ['required', 'string', 'alpha_num', 'min:5', 'max:20', 'unique:users,license_number'],
-            'role' => ['required', 'exists:roles,id'],
+            'role' => ['required', Rule::in(self::AVAILABLE_ROLES)],
             'contact_number' => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],
             'status' => ['required', 'in:active,inactive'],
             'profile_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,gif', 'max:20480'],
 
         ]);
 
-        
-        if($request->hasFile('profile_image')){
-                $validated['profile_image'] = $request->file('profile_image')->store('profile-images', 'public');
+        if ($request->hasFile('profile_image')) {
+            $validated['profile_image'] = $request->file('profile_image')->store('profile-images', 'public');
         }
 
         $user = User::create([
@@ -61,8 +68,8 @@ class UserController extends Controller
             'profile_image' => $validated['profile_image'] ?? null,
         ]);
 
-
-        $user->roles()->attach($validated['role']);
+        $role = Role::firstOrCreate(['role_name' => $validated['role']]);
+        $user->roles()->attach($role->id);
 
         return redirect()->route('admin.users.list')->with('success', 'User added successfully.');
     }
@@ -70,17 +77,17 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'first_name'      => ['required', 'string', 'max:255'],
-            'middle_name'     => ['required', 'string', 'max:255'],
-            'last_name'       => ['required', 'string', 'max:255'],
-            'email'           => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'username'        => ['required', Rule::unique('users')->ignore($user->id)],
-            'license_number'  => ['required', Rule::unique('users')->ignore($user->id)],
-            'contact_number'  => ['required'],
-            'status'          => ['required'],
-            'role'            => ['required', 'exists:roles,id'],
-            'profile_image'   => ['nullable', 'image'],
-            'password'        => ['nullable', 'confirmed', 'min:8'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'username' => ['required', Rule::unique('users')->ignore($user->id)],
+            'license_number' => ['required', Rule::unique('users')->ignore($user->id)],
+            'contact_number' => ['required'],
+            'status' => ['required'],
+            'role' => ['required', Rule::in(self::AVAILABLE_ROLES)],
+            'profile_image' => ['nullable', 'image'],
+            'password' => ['nullable', 'confirmed', 'min:8'],
         ]);
 
         if ($request->hasFile('profile_image')) {
@@ -89,16 +96,19 @@ class UserController extends Controller
 
             $validated['profile_image'] =
                 $request->file('profile_image')
-                        ->store('profile-images', 'public');
+                    ->store('profile-images', 'public');
         }
 
         if (empty($validated['password'])) {
             unset($validated['password']);
         }
 
+        $role = Role::firstOrCreate(['role_name' => $validated['role']]);
+        unset($validated['role']);
+
         $user->update($validated);
 
-        $user->roles()->sync([$validated['role']]);
+        $user->roles()->sync([$role->id]);
 
         return redirect()->route('admin.users.list')->with('success', 'User updated successfully.');
 
