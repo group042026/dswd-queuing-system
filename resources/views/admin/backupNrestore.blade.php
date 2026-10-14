@@ -1,7 +1,7 @@
 <x-admin-layout>
     <style>
         :root {
-            --dswd-blue: #0038a8;
+            --dswd-blue: #0038a7;
             --dswd-blue-hover: #002878;
             --dswd-blue-light: rgba(0, 56, 168, 0.06);
             --dswd-blue-border: rgba(0, 56, 168, 0.12);
