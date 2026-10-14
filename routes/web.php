@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApprovingOfficerController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientIdAutofillController;
@@ -21,7 +22,9 @@ use App\Http\Controllers\ValidationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // return view('welcome');
+    if (auth()->check()) {
+        return redirect(auth()->user()->dashboardRoute());
+    }
     return redirect()->route('login');
 });
 
@@ -85,6 +88,13 @@ Route::middleware('auth', 'prevent-back', 'can:access-admin')->group(function ()
         Route::get('/admin/client-processing/export', 'exportClientProcessingReport')->name('admin.client-processing.export');
     });
 
+    Route::controller(BackupController::class)->group(function () {
+        Route::get('/admin/backup-restore', 'index')->name('admin.backup');
+        Route::post('/admin/backup-restore', 'create')->name('admin.backup.create');
+        Route::get('/admin/backup-restore/{filename}/download', 'download')->name('admin.backup.download');
+        Route::delete('/admin/backup-restore/{filename}', 'destroy')->name('admin.backup.destroy');
+        Route::post('/admin/backup-restore/restore', 'restore')->name('admin.backup.restore');
+    });
 });
 
 Route::get('/test/qr-scan', [TestQrController::class, 'show']);

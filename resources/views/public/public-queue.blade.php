@@ -639,10 +639,17 @@
 
                     this.fetchQueueData(true);
 
-                    window.Echo.channel('public-queue-board')
-                        .listen('.dashboard.updated', () => {
-                            this.fetchQueueData(false);
-                        });
+                    if (window.Echo) {
+                        window.Echo.channel('public-queue-board')
+                            .listen('.dashboard.updated', () => {
+                                this.fetchQueueData(false);
+                            });
+                    }
+
+                    // Polling backup every 10 seconds to ensure the display board never misses an update
+                    setInterval(() => {
+                        this.fetchQueueData(false);
+                    }, 10000);
                 },
 
                 fetchQueueData(isFirstLoad = false) {

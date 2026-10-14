@@ -261,7 +261,18 @@
         </div>
 
         <!-- Bottom Footer in Sidebar -->
-        <div class="p-4 border-t border-gray-100 bg-gray-50/50">
+        <div class="p-4 border-t border-gray-100 bg-gray-50/50 space-y-1.5">
+            @if (Auth::user()->hasRole('admin'))
+                <!-- Backup & Restore -->
+                <a href="{{ route('admin.backup') }}" 
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.backup*') ? 'bg-blue-50 text-blue-700 shadow-sm font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                    <svg class="h-5 w-5 {{ request()->routeIs('admin.backup*') ? 'text-blue-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                    </svg>
+                    <span>Backup & Restore</span>
+                </a>
+            @endif
+
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" 
