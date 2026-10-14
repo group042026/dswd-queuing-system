@@ -29,13 +29,15 @@ class ProfileController extends Controller
     {
         $validated = $request->validated();
 
+        $disk = config('filesystems.default');
+
         if ($request->hasFile('profile_image')) {
-            // Tanggalin muna ang lumang image kung meron
+            // Delete old image if it exists
             if ($request->user()->profile_image) {
-                Storage::disk('public')->delete($request->user()->profile_image);
+                Storage::disk($disk)->delete($request->user()->profile_image);
             }
 
-            $validated['profile_image'] = $request->file('profile_image')->store('profile-images', 'public');
+            $validated['profile_image'] = $request->file('profile_image')->storePublicly('profile-images', $disk);
         }
 
         $request->user()->fill($validated);
@@ -59,6 +61,10 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        if ($user->profile_image) {
+            Storage::disk(config('filesystems.default'))->delete($user->profile_image);
+        }
 
         Auth::logout();
 

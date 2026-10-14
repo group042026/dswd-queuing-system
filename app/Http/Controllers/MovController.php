@@ -43,12 +43,14 @@ class MovController extends Controller
             ->where('verified', false)
             ->first();
 
+        $disk = config('filesystems.default');
+
         if ($oldMov) {
-            Storage::disk('public')->delete($oldMov->file_path);
+            Storage::disk($disk)->delete($oldMov->file_path);
             $oldMov->delete();
         }
 
-        $path = $request->file('file')->store('mov-uploads', 'public');
+        $path = $request->file('file')->storePublicly('mov-uploads', $disk);
 
         $document = Documents::create([
             'client_id' => $client->id,
