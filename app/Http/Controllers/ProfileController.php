@@ -29,7 +29,7 @@ class ProfileController extends Controller
     {
         $validated = $request->validated();
 
-        $disk = config('filesystems.default');
+        $disk = config('filesystems.default') === 'local' ? 'public' : config('filesystems.default');
 
         if ($request->hasFile('profile_image')) {
             // Delete old image if it exists
@@ -62,8 +62,10 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        $disk = config('filesystems.default') === 'local' ? 'public' : config('filesystems.default');
+
         if ($user->profile_image) {
-            Storage::disk(config('filesystems.default'))->delete($user->profile_image);
+            Storage::disk($disk)->delete($user->profile_image);
         }
 
         Auth::logout();

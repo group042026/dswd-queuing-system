@@ -591,7 +591,7 @@
                                 <tr>
                                     <td>
                                         <div class="user-identity">
-                                            <img src="{{ $user->profile_image ? asset('storage/'.$user->profile_image) : asset('storage/profile-images/defaultImage.png') }}"
+                                            <img src="{{ $user->profile_image ? Storage::url($user->profile_image) : asset('images/default-avatar.svg') }}"
                                                  class="user-identity__avatar" alt="Avatar">
                                             <div class="user-identity__info">
                                                 <span class="user-identity__name">{{ $user->first_name }} {{ $user->last_name }}</span>
@@ -767,7 +767,7 @@
                 <div class="modal-form-grid__span-2">
                     <x-input-label for="profile_image" :value="__('Profile Image')" />
                     <div class="image-preview-group">
-                        <img src="{{ asset('storage/profile-images/defaultImage.png') }}" class="image-preview-img" alt="Default Preview">
+                        <img src="{{ asset('images/default-avatar.svg') }}" class="image-preview-img" alt="Default Preview">
                         <input id="profile_image" name="profile_image" type="file" accept="image/*" class="block w-full mt-1 text-sm text-gray-700">
                     </div>
                     <x-input-error :messages="$errors->get('profile_image')" class="mt-2" />
@@ -881,7 +881,7 @@
                     <div class="modal-form-grid__span-2">
                         <x-input-label for="edit_profile_image_{{ $user->id }}" :value="__('Profile Image')" />
                         <div class="image-preview-group">
-                            <img src="{{ $user->profile_image ? asset('storage/'.$user->profile_image) : asset('storage/profile-images/defaultImage.png') }}" class="image-preview-img" alt="Current Image">
+                            <img src="{{ $user->profile_image ? Storage::url($user->profile_image) : asset('images/default-avatar.svg') }}" class="image-preview-img" alt="Current Image">
                             <input id="edit_profile_image_{{ $user->id }}" name="profile_image" type="file" accept="image/*" class="block w-full mt-1 text-sm text-gray-700">
                         </div>
                         <x-input-error :messages="$errors->get('profile_image')" class="mt-2" />
@@ -907,7 +907,7 @@
                 </h2>
 
                 <div class="user-detail-avatar-container">
-                    <img src="{{ $user->profile_image ? asset('storage/'.$user->profile_image) : asset('storage/profile-images/defaultImage.png') }}"
+                    <img src="{{ $user->profile_image ? Storage::url($user->profile_image) : asset('images/default-avatar.svg') }}"
                          class="user-detail-avatar" alt="Avatar">
                 </div>
 
@@ -1041,6 +1041,20 @@
                         : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
                 });
             }
+
+            // File input preview
+            document.querySelectorAll('input[type="file"][accept*="image"]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const container = input.closest('.image-preview-group');
+                        const img = container ? container.querySelector('.image-preview-img') : null;
+                        if (img) {
+                            img.src = URL.createObjectURL(file);
+                        }
+                    }
+                });
+            });
         });
     </script>
 </x-admin-layout>

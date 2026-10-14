@@ -43,7 +43,7 @@ class MovController extends Controller
             ->where('verified', false)
             ->first();
 
-        $disk = config('filesystems.default');
+        $disk = config('filesystems.default') === 'local' ? 'public' : config('filesystems.default');
 
         if ($oldMov) {
             Storage::disk($disk)->delete($oldMov->file_path);

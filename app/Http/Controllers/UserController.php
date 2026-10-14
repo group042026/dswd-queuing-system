@@ -51,7 +51,7 @@ class UserController extends Controller
 
         ]);
 
-        $disk = config('filesystems.default');
+        $disk = config('filesystems.default') === 'local' ? 'public' : config('filesystems.default');
 
         if ($request->hasFile('profile_image')) {
             $validated['profile_image'] = $request->file('profile_image')->storePublicly('profile-images', $disk);
@@ -92,7 +92,7 @@ class UserController extends Controller
             'password' => ['nullable', 'confirmed', 'min:8'],
         ]);
 
-        $disk = config('filesystems.default');
+        $disk = config('filesystems.default') === 'local' ? 'public' : config('filesystems.default');
 
         if ($request->hasFile('profile_image')) {
             if ($user->profile_image) {
@@ -129,7 +129,8 @@ class UserController extends Controller
         Gate::authorize('access-admin');
 
         if ($user->profile_image) {
-            Storage::disk(config('filesystems.default'))->delete($user->profile_image);
+            $disk = config('filesystems.default') === 'local' ? 'public' : config('filesystems.default');
+            Storage::disk($disk)->delete($user->profile_image);
         }
 
         $user->roles()->detach(); // tanggalin muna sa pivot table bago i-delete yung user
