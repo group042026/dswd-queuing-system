@@ -1,4 +1,10 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100 main-navigation">
+    <style>
+        .main-navigation svg { flex-shrink: 0 !important; }
+        .main-navigation svg.h-6, .main-navigation svg.w-6 { width: 1.5rem !important; height: 1.5rem !important; max-width: 1.5rem !important; max-height: 1.5rem !important; }
+        .main-navigation svg.h-4, .main-navigation svg.w-4 { width: 1rem !important; height: 1rem !important; max-width: 1rem !important; max-height: 1rem !important; }
+        .main-navigation .block.h-9, .main-navigation svg.h-9 { height: 2.25rem !important; width: auto !important; max-height: 2.25rem !important; }
+    </style>
     <div class="h-1 w-full" style="background: linear-gradient(to right, #0038a8 0%, #0038a8 33.3%, #fcd116 33.3%, #fcd116 66.6%, #ce1126 66.6%, #ce1126 100%);"></div>
 
     <div class="mx-auto px-4 sm:px-6 lg:px-8">

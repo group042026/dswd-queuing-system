@@ -1,4 +1,6 @@
 <svg
+  width="36"
+  height="39"
   {{ $attributes }}
   viewBox="0 0 177.58324 192.76212"
   version="1.1"

@@ -34,24 +34,37 @@ class SecurityHeaders
 
         // In local/development environment, allow Vite dev server and HMR WebSockets
         if (! app()->isProduction()) {
-            $devHosts = [
+            $hotFile = public_path('hot');
+            $hotOrigins = [];
+            if (file_exists($hotFile)) {
+                $hotUrl = trim((string) @file_get_contents($hotFile));
+                if ($parsed = parse_url($hotUrl)) {
+                    $scheme = $parsed['scheme'] ?? 'http';
+                    $h = $parsed['host'] ?? 'localhost';
+                    $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+                    $hotOrigins[] = "{$scheme}://{$h}{$port}";
+                    $wsScheme = $scheme === 'https' ? 'wss' : 'ws';
+                    $hotOrigins[] = "{$wsScheme}://{$h}{$port}";
+                }
+            }
+
+            $devHosts = array_merge([
                 'http://localhost:*',
                 'http://127.0.0.1:*',
                 'http://[::1]:*',
                 "http://{$host}:*",
-                'http://192.168.*:*',
-                'http://10.*:*',
-                'http://172.16.*:*',
-            ];
+                'http:',
+                'https:',
+            ], $hotOrigins);
+
             $devWs = [
+                'ws:',
+                'wss:',
                 'ws://localhost:*',
                 'ws://127.0.0.1:*',
                 'ws://[::1]:*',
                 "ws://{$host}:*",
                 "wss://{$host}:*",
-                'ws://192.168.*:*',
-                'ws://10.*:*',
-                'ws://172.16.*:*',
             ];
 
             $scriptSrc = array_merge($scriptSrc, $devHosts);

@@ -17,7 +17,8 @@
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
         class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 shadow-sm transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:sticky md:top-0 md:h-screen md:self-start">
         <style>
-            aside svg { max-width: 1.25rem; max-height: 1.25rem; flex-shrink: 0; }
+            aside svg { width: 1.25rem !important; height: 1.25rem !important; min-width: 1.25rem !important; min-height: 1.25rem !important; max-width: 1.25rem !important; max-height: 1.25rem !important; flex-shrink: 0 !important; }
+            aside svg.h-4, aside svg.w-4 { width: 1rem !important; height: 1rem !important; min-width: 1rem !important; min-height: 1rem !important; max-width: 1rem !important; max-height: 1rem !important; }
         </style>
         <!-- Active User Info / Role Badge -->
         <div class="p-4 border-b border-gray-100 bg-gray-50/50">
@@ -75,7 +76,7 @@
                 </a>
 
                 <!-- Reports -->
-                <div x-data="{ open: {{ request()->routeIs('admin.daily-client*') || request()->routeIs('admin.monthly-transaction*') ? 'true' : 'false' }} }">
+                <div x-data="{ open: {{ request()->routeIs('admin.daily-client*') || request()->routeIs('admin.monthly-transaction*') || request()->routeIs('admin.queue-performance*') || request()->routeIs('admin.client-processing*') ? 'true' : 'false' }} }">
                     <button @click="open = !open" type="button"
                         class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                         <div class="flex items-center gap-3">
@@ -89,7 +90,7 @@
                         </svg>
                     </button>
 
-                    <div x-show="open" x-collapse class="mt-1 ml-4 pl-4 border-l border-gray-200 space-y-1">
+                    <div x-show="open" x-cloak class="mt-1 ml-4 pl-4 border-l border-gray-200 space-y-1">
                         <a href="{{ route('admin.daily-client') }}"
                         class="block px-3 py-2 rounded-lg text-sm transition-all duration-200 {{ request()->routeIs('admin.daily-client') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             Daily Client Report
