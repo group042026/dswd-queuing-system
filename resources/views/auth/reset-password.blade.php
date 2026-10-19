@@ -6,10 +6,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ config('app.name', 'Laravel') }} - Reset Password</title>
 
-  <!-- Google Fonts for Modern Typography -->
+  {{-- Google Fonts for Modern Typography --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
 
   <style>
     /* ==========================================================================
@@ -421,7 +421,7 @@
 </head>
 <body>
 
-  <!-- Floating vector ornament (Left) -->
+  {{-- Floating vector ornament (Left) --}}
   <div class="vector-element vector-queuing">
     <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M20 170 C55 170, 45 110, 100 110 C155 110, 145 50, 180 50" stroke="rgba(0, 56, 168, 0.15)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 8" />
@@ -442,7 +442,7 @@
     </svg>
   </div>
 
-  <!-- Floating vector ornament (Right) -->
+  {{-- Floating vector ornament (Right) --}}
   <div class="vector-element vector-efficiency">
     <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="100" cy="100" r="75" stroke="rgba(252, 209, 22, 0.2)" stroke-width="4" stroke-dasharray="8 8" />
@@ -458,10 +458,10 @@
     </svg>
   </div>
 
-  <!-- Centered Panel Card -->
+  {{-- Centered Panel Card --}}
   <section class="login-panel" id="resetPasswordCard">
 
-    <!-- DSWD Logo -->
+    {{-- DSWD Logo --}}
     <div class="logo-container">
       <svg class="dswd-logo-svg" viewBox="0 0 177.58324 192.76212" version="1.1" id="svg8">
         <g id="layer1" transform="translate(-5.1854501,-26.571163)">
@@ -495,7 +495,7 @@
       <div class="brand-title-sys">Smart Queueing System</div>
     </div>
 
-    <!-- Tri-color Brand Stripe -->
+    {{-- Tri-color Brand Stripe --}}
     <div class="brand-divider"></div>
 
     <div class="section-header">
@@ -506,14 +506,14 @@
       Choose a strong new password for your account below.
     </p>
 
-    <!-- Reset Password Form -->
+    {{-- Reset Password Form --}}
     <form method="POST" action="{{ route('password.store') }}" id="resetPasswordForm" novalidate>
       @csrf
 
-      <!-- Hidden Token -->
+      {{-- Hidden Token --}}
       <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-      <!-- Email -->
+      {{-- Email --}}
       <div class="form-group">
         <label class="form-label" for="email">Email</label>
         <div class="input-container">
@@ -543,7 +543,7 @@
         @enderror
       </div>
 
-      <!-- New Password -->
+      {{-- New Password --}}
       <div class="form-group">
         <label class="form-label" for="password">New Password</label>
         <div class="input-container">
@@ -563,7 +563,7 @@
             </svg>
           </span>
           <button type="button" class="toggle-password" id="togglePassword" aria-label="Toggle password visibility">
-            <!-- Eye icon -->
+            {{-- Eye icon --}}
             <svg id="eyeIconPassword" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -578,7 +578,7 @@
         @enderror
       </div>
 
-      <!-- Confirm Password -->
+      {{-- Confirm Password --}}
       <div class="form-group">
         <label class="form-label" for="password_confirmation">Confirm Password</label>
         <div class="input-container">
@@ -612,7 +612,7 @@
         @enderror
       </div>
 
-      <!-- Submit Button -->
+      {{-- Submit Button --}}
       <button type="submit" class="btn-submit" id="submitBtn">
         <span>RESET PASSWORD</span>
         <div class="spinner" id="btnSpinner"></div>
@@ -620,7 +620,7 @@
 
     </form>
 
-    <!-- Back to Login -->
+    {{-- Back to Login --}}
     <div class="back-to-login">
       Remembered your password?
       <a href="{{ route('login') }}" id="backToLoginLink">Back to Login</a>

@@ -6,10 +6,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ config('app.name', 'Laravel') }} - Forgot Password</title>
 
-  <!-- Google Fonts for Modern Typography -->
+  {{-- Google Fonts for Modern Typography --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
 
   <style>
     /* ==========================================================================
@@ -449,65 +449,65 @@
 </head>
 <body>
 
-  <!-- Subtly floating vector queuing ornament (Left) -->
+  {{-- Subtly floating vector queuing ornament (Left) --}}
   <div class="vector-element vector-queuing">
     <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Flow trace dotted line -->
+      {{-- Flow trace dotted line --}}
       <path d="M20 170 C55 170, 45 110, 100 110 C155 110, 145 50, 180 50" stroke="rgba(0, 56, 168, 0.15)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 8" />
 
-      <!-- Queue Person 1 (Blue) -->
+      {{-- Queue Person 1 (Blue) --}}
       <g transform="translate(25, 125)">
         <circle cx="15" cy="15" r="9" fill="#0038a8" fill-opacity="0.8" />
         <path d="M2 38 C2 28, 28 28, 28 38 Z" fill="#0038a8" fill-opacity="0.8" />
       </g>
 
-      <!-- Queue Person 2 (Red) -->
+      {{-- Queue Person 2 (Red) --}}
       <g transform="translate(85, 65)">
         <circle cx="15" cy="15" r="9" fill="#ce1126" fill-opacity="0.85" />
         <path d="M2 38 C2 28, 28 28, 28 38 Z" fill="#ce1126" fill-opacity="0.85" />
       </g>
 
-      <!-- Queue Person 3 (Yellow) -->
+      {{-- Queue Person 3 (Yellow) --}}
       <g transform="translate(145, 5)">
         <circle cx="15" cy="15" r="9" fill="#fcd116" />
         <path d="M2 38 C2 28, 28 28, 28 38 Z" fill="#fcd116" />
       </g>
 
-      <!-- Checkmark Desk / Service point -->
+      {{-- Checkmark Desk / Service point --}}
       <circle cx="178" cy="38" r="14" fill="rgba(206, 17, 38, 0.05)" stroke="#ce1126" stroke-width="1.5" stroke-dasharray="2 2" />
       <path d="M173 38 L177 42 L183 34" stroke="#ce1126" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   </div>
 
-  <!-- Subtly floating vector efficiency ornament (Right) -->
+  {{-- Subtly floating vector efficiency ornament (Right) --}}
   <div class="vector-element vector-efficiency">
     <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Circular glowing guides -->
+      {{-- Circular glowing guides --}}
       <circle cx="100" cy="100" r="75" stroke="rgba(252, 209, 22, 0.2)" stroke-width="4" stroke-dasharray="8 8" />
       <circle cx="100" cy="100" r="60" stroke="rgba(0, 56, 168, 0.06)" stroke-width="2" />
 
-      <!-- Gear/Speed Dial Outer (Blue) -->
+      {{-- Gear/Speed Dial Outer (Blue) --}}
       <circle cx="100" cy="100" r="46" stroke="#0038a8" stroke-width="7" stroke-dasharray="14 8" stroke-opacity="0.85" />
 
-      <!-- Clock Core (White) -->
+      {{-- Clock Core (White) --}}
       <circle cx="100" cy="100" r="35" fill="white" stroke="#0038a8" stroke-width="1.5" stroke-opacity="0.85" />
 
-      <!-- Hands pointing to efficiency -->
+      {{-- Hands pointing to efficiency --}}
       <line x1="100" y1="100" x2="100" y2="76" stroke="#ce1126" stroke-width="3.5" stroke-linecap="round" />
       <line x1="100" y1="100" x2="116" y2="100" stroke="#fcd116" stroke-width="3.5" stroke-linecap="round" />
       <circle cx="100" cy="100" r="4.5" fill="#0f172a" />
 
-      <!-- Speed action dash markers -->
+      {{-- Speed action dash markers --}}
       <path d="M32 55 L16 55" stroke="#ce1126" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
       <path d="M40 35 L26 35" stroke="#fcd116" stroke-width="2.5" stroke-linecap="round" />
       <path d="M38 75 L22 75" stroke="#0038a8" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
     </svg>
   </div>
 
-  <!-- Centered Panel Card -->
+  {{-- Centered Panel Card --}}
   <section class="login-panel" id="forgotPasswordCard">
 
-    <!-- Session Status (success message after email is sent) -->
+    {{-- Session Status (success message after email is sent) --}}
     @if (session('status'))
       <div class="alert-banner" style="display: flex;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -515,9 +515,9 @@
       </div>
     @endif
 
-    <!-- Top of the Panel branding -->
+    {{-- Top of the Panel branding --}}
     <div class="logo-container">
-      <!-- Inline Official SVG DSWD Seal -->
+      {{-- Inline Official SVG DSWD Seal --}}
       <svg
          class="dswd-logo-svg"
          viewBox="0 0 177.58324 192.76212"
@@ -572,7 +572,7 @@
       <div class="brand-title-sys">Smart Queueing System</div>
     </div>
 
-    <!-- Tri-color Brand Stripe -->
+    {{-- Tri-color Brand Stripe --}}
     <div class="brand-divider"></div>
 
     <div class="section-header">
@@ -583,11 +583,11 @@
       Forgot your password? No problem. Just enter your email address below and we'll send you a password reset link.
     </p>
 
-    <!-- Forgot Password Form -->
+    {{-- Forgot Password Form --}}
     <form method="POST" action="{{ route('password.email') }}" id="forgotPasswordForm" novalidate>
       @csrf
 
-      <!-- Email Input field -->
+      {{-- Email Input field --}}
       <div class="form-group">
         <label class="form-label" for="email">Email</label>
         <div class="input-container">
@@ -603,7 +603,7 @@
             autocomplete="username"
           >
           <span class="input-icon">
-            <!-- User/Email icon SVG -->
+            {{-- User/Email icon SVG --}}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
@@ -618,7 +618,7 @@
         @enderror
       </div>
 
-      <!-- Send Reset Link Button -->
+      {{-- Send Reset Link Button --}}
       <button type="submit" class="btn-submit" id="submitBtn">
         <span>SEND RESET LINK</span>
         <div class="spinner" id="btnSpinner"></div>
@@ -626,7 +626,7 @@
 
     </form>
 
-    <!-- Back to Login -->
+    {{-- Back to Login --}}
     <div class="back-to-login">
       Remembered your password?
       <a href="{{ route('login') }}" id="backToLoginLink">Back to Login</a>

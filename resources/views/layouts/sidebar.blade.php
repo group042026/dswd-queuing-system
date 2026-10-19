@@ -16,6 +16,9 @@
     <aside 
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
         class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 shadow-sm transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:sticky md:top-0 md:h-screen md:self-start">
+        <style>
+            aside svg { max-width: 1.25rem; max-height: 1.25rem; flex-shrink: 0; }
+        </style>
         <!-- Active User Info / Role Badge -->
         <div class="p-4 border-b border-gray-100 bg-gray-50/50">
             <div class="flex items-center gap-3">
