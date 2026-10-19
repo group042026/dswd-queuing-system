@@ -1,6 +1,6 @@
 # 🏛️ DSWD Queuing System
 
-A modern, secure, and real-time Queuing and Client Transaction Management System built for the **Department of Social Welfare and Development (DSWD)**. The application handles end-to-end client queuing, role-based workflows (Admin, Receptionist, Social Worker, Approving Officer, Cashier/Paymaster), and real-time live monitor updates using **Laravel 12**, **Laravel Reverb (WebSockets)**, **Alpine.js**, and **Tailwind CSS**.
+ (Admin, Receptionist, Social Worker, Approving Officer, Cashier/Paymaster), and real-time live monitor updates using **Laravel 12**, **Laravel Reverb (WebSockets)**, **Alpine.js**, and **Tailwind CSS**.
 
 ---
 
