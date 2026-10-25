@@ -468,7 +468,17 @@
                             @forelse($queues as $queue)
                                 <tr>
                                     <td>
-                                        <span class="badge-queue-no">{{ $queue->queue_number }}</span>
+                                        @php
+                                            $isPriorityQueue = str_starts_with($queue->queue_number, 'P-') || in_array($queue->client->client_category, ['Senior Citizens', 'Men/Women in specially difficult circumstances']);
+                                        @endphp
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="badge-queue-no" style="{{ $isPriorityQueue ? 'border: 2px solid #ef4444; color: #b91c1c; background-color: #fef2f2;' : 'border: 2px solid #3b82f6; color: #1d4ed8; background-color: #eff6ff;' }}">{{ $queue->queue_number }}</span>
+                                            @if($isPriorityQueue)
+                                                <span class="px-1.5 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-700 border border-red-200">🔴 PRIORITY</span>
+                                            @else
+                                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">🔵 REGULAR</span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>{{ $queue->client->first_name }} {{ $queue->client->last_name }}</td>
                                     <td>

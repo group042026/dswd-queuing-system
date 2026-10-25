@@ -48,7 +48,7 @@ class ClientController extends Controller
             'municipality' => ['required', 'string', 'max:255'],
             'province' => ['required', 'string', 'max:255'],
             'region' => ['required', 'string', 'max:255'],
-            'contact_number' => ['required', 'string', 'min:7', 'max:15', 'regex:/^\+?[0-9\s\-]+$/'],
+            'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'returning_client_id' => ['nullable', 'integer', 'exists:clients,id'],
             'valid_id_type' => ['required', 'string'],
             'valid_id_number' => [

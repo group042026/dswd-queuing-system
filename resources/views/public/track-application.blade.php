@@ -178,13 +178,17 @@
                     required
                 >
 
-                <label for="contact_number">Contact Number</label>
+                <label for="contact_number">Contact Number (11-digit mobile: 09XXXXXXXXX)</label>
                 <input
                     id="contact_number"
                     name="contact_number"
-                    type="text"
+                    type="tel"
+                    maxlength="11"
+                    pattern="09[0-9]{9}"
                     value="{{ old('contact_number') }}"
-                    placeholder="Enter the same number used during registration"
+                    placeholder="09XXXXXXXXX"
+                    inputmode="numeric"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
                     required
                 >
 

@@ -407,8 +407,8 @@
                         </div>
 
                         <div>
-                            <x-input-label for="contact_number" :value="__('Contact Number')" class="font-semibold text-gray-700" />
-                            <x-text-input id="contact_number" name="contact_number" type="text" class="mt-1.5 block w-full" :value="old('contact_number')" />
+                            <x-input-label for="contact_number" :value="__('Contact Number (11-digit mobile: 09XXXXXXXXX)')" class="font-semibold text-gray-700" />
+                            <x-text-input id="contact_number" name="contact_number" type="tel" maxlength="11" pattern="09[0-9]{9}" placeholder="09123456789" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);" class="mt-1.5 block w-full" :value="old('contact_number')" />
                             <x-input-error :messages="$errors->get('contact_number')" class="mt-2" />
                         </div>
                     </div>
@@ -605,12 +605,6 @@
                                 <option value="Outright Cash">Outright Cash</option>
                             </select>
                             <x-input-error :messages="$errors->get('mode_of_release')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="amount" :value="__('Amount')" class="font-semibold text-gray-700" />
-                            <x-text-input id="amount" name="amount" type="number" step="0.01" class="mt-1.5 block w-full" :value="old('amount')" />
-                            <x-input-error :messages="$errors->get('amount')" class="mt-2" />
                         </div>
 
                         <div>

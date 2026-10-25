@@ -92,6 +92,35 @@
     </style>
 </head>
 <body>
+    @php
+        $logoPath = public_path('images/dswd-logo.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
+    @endphp
+
+    <table style="width: 100%; border: none; margin-bottom: 8px; border-collapse: collapse;">
+        <tr>
+            <td style="width: 75px; border: none; text-align: left; vertical-align: middle; padding: 0;">
+                @if($logoBase64)
+                    <img src="{{ $logoBase64 }}" style="height: 48px; width: auto;" alt="DSWD Logo">
+                @endif
+            </td>
+            <td style="border: none; text-align: center; vertical-align: middle; padding: 0 10px;">
+                <div style="font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #1e293b;">Republic of the Philippines</div>
+                <div style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #0038a8; margin: 1px 0;">Department of Social Welfare and Development</div>
+                <div style="font-size: 8px; font-weight: 600; color: #475569;">Crisis Intervention Section (CIS) • Assistance to Individuals in Crisis Situation (AICS)</div>
+                <div style="font-size: 7px; color: #64748b; margin-top: 1px;">Queuing Management & Appointment System • Official Audit Report</div>
+            </td>
+            <td style="width: 85px; border: none; text-align: right; vertical-align: middle; padding: 0;">
+                <div style="font-size: 7px; color: #64748b; line-height: 1.2; text-align: right;">
+                    <strong>DSWD-QMS</strong><br>
+                    <span>Generated: {{ now()->format('M d, Y') }}</span><br>
+                    <span>Time: {{ now()->format('h:i A') }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div style="border-bottom: 2px solid #0038a8; margin-bottom: 10px; width: 100%;"></div>
+
     <div class="report-header">
         <h1 class="report-title">
             Queue Performance Report

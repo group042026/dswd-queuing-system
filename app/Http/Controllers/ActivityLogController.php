@@ -26,7 +26,7 @@ class ActivityLogController extends Controller
         $dateFrom = $isFiltered ? $request->input('date_from') : now()->format('Y-m-d');
         $dateTo = $isFiltered ? $request->input('date_to') : now()->format('Y-m-d');
 
-        $logs = ActivityLog::with('user')
+        $logs = ActivityLog::with(['user.roles'])
             ->when($request->filled('user_id'), function ($query) use ($request) {
                 $request->input('user_id') === 'system'
                     ? $query->whereNull('user_id')

@@ -155,11 +155,13 @@
             border:  none;
             border-bottom-width: 4px;
             transition: var(--transition-smooth);
+            cursor: pointer;
+            text-decoration: none;
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 56, 168, 0.1), 0 0 1px rgba(0, 56, 168, 0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px -5px rgba(0, 56, 168, 0.18), 0 0 1px rgba(0, 56, 168, 0.08);
         }
 
         .stat-card--blue { border-bottom-color: var(--dswd-blue); }
@@ -869,63 +871,63 @@
                 </div>
             </div>
 
-            <!-- Stats Grid with Accent Borders & DSWD colors -->
+            <!-- Stats Grid with Accent Borders & DSWD colors (Clickable) -->
             <div class="stats-grid">
                 <!-- Total Queue Card -->
-                <div class="stat-card stat-card--blue">
+                <a href="{{ route('admin.queue.monitor') }}" class="stat-card stat-card--blue" title="View all queues in monitor">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Total Queues Today</span>
                         <div class="stat-card__value" data-stat="totalQueuesToday">{{ $totalQueuesToday }}</div>
-                        <span class="stat-card__badge stat-card__badge--blue">Active Tickets</span>
+                        <span class="stat-card__badge stat-card__badge--blue">Active Tickets →</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--blue">
                         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                         </svg>
                     </div>
-                </div>
+                </a>
 
                 <!-- Currently Serving Card -->
-                <div class="stat-card stat-card--yellow">
+                <a href="{{ route('admin.queue.monitor') }}?status=Serving" class="stat-card stat-card--yellow" title="View serving queues">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Currently Serving</span>
                         <div class="stat-card__value" data-stat="servingQueuesToday">{{ $servingQueuesToday }}</div>
-                        <span class="stat-card__badge stat-card__badge--yellow">At Counter Desk</span>
+                        <span class="stat-card__badge stat-card__badge--yellow">At Counter Desk →</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--yellow">
                         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
                         </svg>
                     </div>
-                </div>
+                </a>
 
                 <!-- Completed Services Card -->
-                <div class="stat-card stat-card--emerald">
+                <a href="{{ route('admin.queue.monitor') }}?status=Completed" class="stat-card stat-card--emerald" title="View completed queues">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Completed Today</span>
                         <div class="stat-card__value" data-stat="completedTodayCount">{{ $completedTodayCount }}</div>
-                        <span class="stat-card__badge stat-card__badge--emerald">Assessed & Closed</span>
+                        <span class="stat-card__badge stat-card__badge--emerald">Assessed & Closed →</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--emerald">
                         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
                     </div>
-                </div>
+                </a>
 
                 <!-- Cancelled Card -->
-                <div class="stat-card stat-card--red">
+                <a href="{{ route('admin.queue.monitor') }}?status=Cancelled" class="stat-card stat-card--red" title="View cancelled queues">
                     <div class="stat-card__content">
                         <span class="stat-card__label">Cancelled / No Show</span>
                         <div class="stat-card__value" data-stat="cancelledQueuesToday">{{ $cancelledQueuesToday }}</div>
-                        <span class="stat-card__badge stat-card__badge--red">Cancelled Tickets</span>
+                        <span class="stat-card__badge stat-card__badge--red">Cancelled Tickets →</span>
                     </div>
                     <div class="stat-card__icon-container stat-card__icon-container--red">
                         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
                         </svg>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Two Column Main Layout: Highlighted Queueing List on the left (2/3 width) -->
@@ -956,18 +958,31 @@
                             @else
                                 @foreach ($recentProcessings as $processing)
                                     <div class="queue-row">
+                                        @php
+                                            $isPriority = str_starts_with($processing->queue->queue_number, 'P-') || in_array($processing->client->client_category, ['Senior Citizens', 'Men/Women in specially difficult circumstances']);
+                                        @endphp
                                         <!-- Left Side: Queue Number & Client Identity -->
                                         <div class="queue-row__left">
-                                            <!-- Queue Number Badge -->
-                                            <div class="queue-row__badge">
-                                                <span class="queue-row__badge-label">Queue No</span>
-                                                <span class="queue-row__badge-number">{{ $processing->queue->queue_number }}</span>
+                                            <!-- Queue Number Badge (Red for Priority, Blue for Regular) -->
+                                            <div class="queue-row__badge" style="{{ $isPriority ? 'background-color: #fef2f2; border: 2px solid #ef4444;' : 'background-color: #eff6ff; border: 2px solid #3b82f6;' }}">
+                                                <span class="queue-row__badge-label" style="{{ $isPriority ? 'color: #dc2626; font-weight: 800;' : 'color: #2563eb; font-weight: 800;' }}">
+                                                    {{ $isPriority ? '🔴 PRIORITY' : '🔵 REGULAR' }}
+                                                </span>
+                                                <span class="queue-row__badge-number" style="{{ $isPriority ? 'color: #b91c1c;' : 'color: #1d4ed8;' }}">{{ $processing->queue->queue_number }}</span>
                                             </div>
 
                                             <div class="queue-row__identity">
-                                                <h4 class="queue-row__name">
-                                                    {{ $processing->client->first_name }} {{ $processing->client->last_name }}
-                                                </h4>
+                                                <div class="flex items-center gap-2">
+                                                    <h4 class="queue-row__name">
+                                                        {{ $processing->client->first_name }} {{ $processing->client->last_name }}
+                                                    </h4>
+                                                    @if($isPriority)
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-red-100 text-red-700 border border-red-300">
+                                                            <svg class="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+                                                            PRIORITY
+                                                        </span>
+                                                    @endif
+                                                </div>
 
                                                 <div class="queue-row__meta">
                                                     <span class="queue-row__control-number">{{ $processing->client->control_number }}</span>

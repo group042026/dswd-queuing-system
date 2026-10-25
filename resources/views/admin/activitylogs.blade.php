@@ -730,19 +730,23 @@
                             <tr>
 
                                 <th>
-                                    Date & Time
+                                    Date & Timestamp
                                 </th>
 
                                 <th>
-                                    User
+                                    Staff / Actor & Role
                                 </th>
 
                                 <th>
-                                    Action
+                                    System Module
                                 </th>
 
                                 <th>
-                                    Details
+                                    Action Event
+                                </th>
+
+                                <th>
+                                    Audit Record & Details
                                 </th>
 
                             </tr>
@@ -759,14 +763,17 @@
                                     {{-- Date & Time --}}
                                     <td>
 
-                                        <div class="activity-time">
+                                        <div class="activity-time font-bold text-slate-800">
                                             {{ $log->time_committed->format('M d, Y h:i A') }}
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5">
+                                            {{ $log->time_committed->diffForHumans() }}
                                         </div>
 
                                     </td>
 
 
-                                    {{-- User --}}
+                                    {{-- User & Role --}}
                                     <td>
 
                                         @if($log->user)
@@ -774,16 +781,17 @@
                                             <div class="activity-user">
 
                                                 <div class="activity-user__avatar">
-
                                                     {{ strtoupper(substr($log->user->first_name, 0, 1)) }}
-
                                                 </div>
 
-                                                <div class="activity-user__name">
-
-                                                    {{ $log->user->first_name }}
-                                                    {{ $log->user->last_name }}
-
+                                                <div>
+                                                    <div class="activity-user__name font-bold">
+                                                        {{ $log->user->first_name }}
+                                                        {{ $log->user->last_name }}
+                                                    </div>
+                                                    <div class="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">
+                                                        {{ $log->user->roles->first()?->role_name ?? 'Staff' }}
+                                                    </div>
                                                 </div>
 
                                             </div>
@@ -792,18 +800,43 @@
 
                                             <div class="activity-user">
 
-                                                <div class="activity-user__avatar">
+                                                <div class="activity-user__avatar" style="background-color: #64748b;">
                                                     S
                                                 </div>
 
-                                                <div class="activity-user__name">
-                                                    System
+                                                <div>
+                                                    <div class="activity-user__name font-bold">
+                                                        System
+                                                    </div>
+                                                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                                        Automated Process
+                                                    </div>
                                                 </div>
 
                                             </div>
 
                                         @endif
 
+                                    </td>
+
+
+                                    {{-- Module --}}
+                                    <td>
+                                        @php
+                                            $module = match(true) {
+                                                str_contains($log->action_type, 'User') || str_contains($log->action_type, 'Account') => 'User Management',
+                                                str_contains($log->action_type, 'Report') => 'Reports & Analytics',
+                                                str_contains($log->action_type, 'Assessment') || str_contains($log->action_type, 'Social') => 'Assessment (SW)',
+                                                str_contains($log->action_type, 'Approv') || str_contains($log->action_type, 'Review') => 'Approval Desk',
+                                                str_contains($log->action_type, 'Releas') || str_contains($log->action_type, 'Cashier') => 'Releasing / Paymaster',
+                                                str_contains($log->action_type, 'Backup') || str_contains($log->action_type, 'Restore') => 'System Backup',
+                                                str_contains($log->action_type, 'Client') || str_contains($log->action_type, 'Register') || str_contains($log->action_type, 'Document') => 'Reception / Intake',
+                                                default => 'Queue Management',
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                            {{ $module }}
+                                        </span>
                                     </td>
 
 
@@ -841,7 +874,7 @@
                                     {{-- Details --}}
                                     <td>
 
-                                        <div class="activity-details">
+                                        <div class="activity-details font-medium text-slate-700 text-xs">
                                             {{ $log->details }}
                                         </div>
 
@@ -855,7 +888,7 @@
                                 <tr>
 
                                     <td
-                                        colspan="4"
+                                        colspan="5"
                                         class="activity-empty"
                                     >
                                         {{ __('No activity logs match the selected filters.') }}

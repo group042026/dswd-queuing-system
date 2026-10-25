@@ -212,8 +212,9 @@
                         <option value="Divorced" {{ old('civil_status') === 'Divorced' ? 'selected' : '' }}>Divorced</option>
                     </select>
 
-                    <label for="contact_number">Contact Number</label>
-                    <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number') }}" required>
+                    <label for="contact_number">Contact Number (11 Digits, e.g. 09123456789)</label>
+                    <input type="tel" id="contact_number" name="contact_number" value="{{ old('contact_number') }}" maxlength="11" pattern="09[0-9]{9}" placeholder="09XXXXXXXXX" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);" required>
+                    <small style="font-size: 11px; color: #64748b; display: block; margin-top: 4px;">Format: 11 digits starting with 09 (e.g., 09123456789)</small>
                 </div>
 
                 <div class="card">

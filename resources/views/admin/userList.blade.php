@@ -686,10 +686,16 @@
                     <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                 </div>
 
-                <div class="modal-form-grid__span-2">
-                    <x-input-label for="email" :value="__('Email')" />
+                <div>
+                    <x-input-label for="email" :value="__('Email Address')" />
                     <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email')" required />
                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="email_confirmation" :value="__('Confirm Email Address')" />
+                    <x-text-input id="email_confirmation" name="email_confirmation" type="email" class="mt-1 block w-full" :value="old('email_confirmation')" required />
+                    <x-input-error :messages="$errors->get('email_confirmation')" class="mt-2" />
                 </div>
 
                 <div class="modal-form-grid__span-2">

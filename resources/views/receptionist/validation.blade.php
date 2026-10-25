@@ -428,8 +428,11 @@
                                                                 @csrf
                                                                 @method('PATCH')
                                                                 <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
-                                                                <button type="submit" class="text-yellow-600 text-xs font-extrabold hover:underline">
-                                                                    {{ __('Verify File') }}
+                                                                <button type="submit" class="text-blue-600 text-xs font-extrabold hover:underline inline-flex items-center gap-1">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                    {{ __('Confirm Uploaded') }}
                                                                 </button>
                                                             </form>
                                                         @endif
@@ -452,9 +455,18 @@
                                                     <input type="hidden" name="document_name" value="{{ $item->client->valid_id_type }}">
                                                     <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
 
-                                                    <div class="flex gap-3 items-center">
-                                                        <input type="file" name="file" accept=".jpg,.jpeg,.png" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 file:cursor-pointer hover:file:bg-blue-100" required>
-                                                        <x-secondary-button type="submit" class="text-xs py-2 px-4">{{ __('Upload') }}</x-secondary-button>
+                                                    <div class="flex flex-wrap gap-2 items-center">
+                                                        <input type="file" id="primary_id_input_{{ $item->client_id }}" name="file" accept="image/*,.jpg,.jpeg,.png" capture="environment" class="hidden" required onchange="handleDocFileChange(this, 'primary_id_name_{{ $item->client_id }}')">
+                                                        <button type="button" onclick="triggerWebcamCapture('primary_id_input_{{ $item->client_id }}', '{{ $item->client->valid_id_type }}', 'primary_id_name_{{ $item->client_id }}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                            <span>{{ __('Capture Webcam') }}</span>
+                                                        </button>
+                                                        <button type="button" onclick="document.getElementById('primary_id_input_{{ $item->client_id }}').click()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm transition">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                            <span>{{ __('Scan / Choose File') }}</span>
+                                                        </button>
+                                                        <span id="primary_id_name_{{ $item->client_id }}" class="text-xs text-slate-500 italic max-w-[180px] truncate">No file attached</span>
+                                                        <x-secondary-button type="submit" class="text-xs py-2 px-4 ml-auto">{{ __('Upload ID') }}</x-secondary-button>
                                                     </div>
                                                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
                                                 </form>
@@ -468,14 +480,27 @@
                                                     <input type="hidden" name="client_id" value="{{ $item->client_id }}">
                                                     <input type="hidden" name="reopen_id" value="{{ $item->client_id }}">
 
-                                                    <div class="grid grid-cols-2 gap-3 mb-3">
-                                                        <select name="document_name" required>
-                                                            <option value="">-- {{ __('Select') }} --</option>
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                                        <select name="document_name" class="text-xs rounded-lg border-slate-300" required>
+                                                            <option value="">-- {{ __('Select Document') }} --</option>
                                                             <option value="Barangay Certificate">Barangay Certificate</option>
                                                             <option value="Income Certificate">Income Certificate</option>
-                                                            <option value="Other">Other</option>
+                                                            <option value="Medical Certificate / Abstract">Medical Certificate / Abstract</option>
+                                                            <option value="Death Certificate / Funeral Contract">Death Certificate / Funeral Contract</option>
+                                                            <option value="Other">Other Requirement</option>
                                                         </select>
-                                                        <input type="file" name="file" accept=".jpg,.jpeg,.png" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-50 file:text-slate-700 file:cursor-pointer hover:file:bg-slate-100" required>
+                                                        <div class="flex flex-wrap items-center gap-2">
+                                                            <input type="file" id="extra_doc_input_{{ $item->client_id }}" name="file" accept="image/*,.jpg,.jpeg,.png" capture="environment" class="hidden" required onchange="handleDocFileChange(this, 'extra_doc_name_{{ $item->client_id }}')">
+                                                            <button type="button" onclick="triggerWebcamCapture('extra_doc_input_{{ $item->client_id }}', 'Document', 'extra_doc_name_{{ $item->client_id }}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white hover:bg-black shadow-sm transition">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                                <span>{{ __('Capture') }}</span>
+                                                            </button>
+                                                            <button type="button" onclick="document.getElementById('extra_doc_input_{{ $item->client_id }}').click()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm transition">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                                <span>{{ __('Scan / File') }}</span>
+                                                            </button>
+                                                            <span id="extra_doc_name_{{ $item->client_id }}" class="text-xs text-slate-500 italic max-w-[150px] truncate">No file attached</span>
+                                                        </div>
                                                     </div>
                                                     <x-input-error :messages="$errors->get('file')" class="mt-2" />
 
@@ -777,9 +802,9 @@
 
                                         <button
                                             type="submit"
-                                            class="text-yellow-600 text-xs font-extrabold hover:underline"
+                                            class="text-blue-600 text-xs font-extrabold hover:underline"
                                         >
-                                            Verify File
+                                            Confirm Uploaded
                                         </button>
                                     </form>
                                 `;
@@ -854,6 +879,138 @@
             });
         });
     });
+
+    /* ==========================================================================
+       Webcam Capture & File Helpers for Receptionist
+       ========================================================================== */
+    let currentWebcamStream = null;
+    let targetInputForCapture = null;
+    let targetPreviewForCapture = null;
+    let targetDocTypeForCapture = 'Document';
+
+    function handleDocFileChange(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (preview && input.files && input.files[0]) {
+            preview.textContent = '📎 ' + input.files[0].name;
+            preview.classList.remove('text-slate-500', 'italic');
+            preview.classList.add('text-green-700', 'font-bold');
+        }
+    }
+
+    async function triggerWebcamCapture(inputId, docType, previewId) {
+        targetInputForCapture = document.getElementById(inputId);
+        targetPreviewForCapture = document.getElementById(previewId);
+        targetDocTypeForCapture = docType;
+
+        const modal = document.getElementById('webcamModal');
+        const video = document.getElementById('webcamVideo');
+        const title = document.getElementById('webcamModalTitle');
+
+        if (title) title.textContent = `Capture ${docType} via Webcam`;
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('Webcam is not supported on this browser. Opening file / scanner chooser.');
+            if (targetInputForCapture) targetInputForCapture.click();
+            return;
+        }
+
+        try {
+            currentWebcamStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            video.srcObject = currentWebcamStream;
+            modal.classList.remove('hidden');
+        } catch (err) {
+            console.warn('Webcam access error / no webcam detected:', err);
+            alert('Webcam is not available or permission was denied. Falling back to scanner / file chooser.');
+            if (targetInputForCapture) targetInputForCapture.click();
+        }
+    }
+
+    function closeWebcamModal() {
+        const modal = document.getElementById('webcamModal');
+        if (modal) modal.classList.add('hidden');
+
+        if (currentWebcamStream) {
+            currentWebcamStream.getTracks().forEach(track => track.stop());
+            currentWebcamStream = null;
+        }
+    }
+
+    function snapWebcamPhoto() {
+        const video = document.getElementById('webcamVideo');
+        const canvas = document.getElementById('webcamCanvas');
+
+        if (!video || !canvas || !targetInputForCapture) {
+            closeWebcamModal();
+            return;
+        }
+
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                alert('Could not capture photo. Please try again.');
+                return;
+            }
+
+            const fileName = `${targetDocTypeForCapture.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}.jpg`;
+            const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+            // Assign file to input element using DataTransfer
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            targetInputForCapture.files = dataTransfer.files;
+
+            if (targetPreviewForCapture) {
+                targetPreviewForCapture.textContent = '📷 ' + fileName;
+                targetPreviewForCapture.classList.remove('text-slate-500', 'italic');
+                targetPreviewForCapture.classList.add('text-green-700', 'font-bold');
+            }
+
+            closeWebcamModal();
+        }, 'image/jpeg', 0.92);
+    }
 </script>
+
+{{-- Live Webcam Capture Modal --}}
+<div id="webcamModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 mx-4 border border-slate-100 flex flex-col items-center">
+        <div class="flex items-center justify-between w-full pb-3 border-b border-slate-100 mb-4">
+            <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span id="webcamModalTitle">Webcam Document Capture</span>
+            </h3>
+            <button type="button" onclick="closeWebcamModal()" class="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden mb-4 border border-slate-200 shadow-inner flex items-center justify-center">
+            <video id="webcamVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+            <div id="webcamScanningOverlay" class="absolute inset-0 pointer-events-none border-2 border-dashed border-blue-400/60 m-4 rounded-lg flex items-center justify-center">
+                <span class="text-[11px] text-white/80 bg-black/40 px-2 py-1 rounded backdrop-blur">Align ID / Document inside frame</span>
+            </div>
+            <canvas id="webcamCanvas" class="hidden"></canvas>
+        </div>
+
+        <div class="flex items-center justify-between w-full gap-3">
+            <button type="button" onclick="closeWebcamModal()" class="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition">Cancel</button>
+            <button type="button" id="snapPhotoBtn" onclick="snapWebcamPhoto()" class="px-5 py-2.5 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md hover:shadow-lg transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+                <span>Snap & Attach Photo</span>
+            </button>
+        </div>
+    </div>
+</div>
 @endpush
 </x-receptionist-layout>

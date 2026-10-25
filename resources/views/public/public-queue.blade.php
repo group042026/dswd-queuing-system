@@ -314,28 +314,28 @@
                         <div
                             class="flex flex-col min-w-0"
                             :class="laneKey === 'priority'
-                                ? 'border-l border-slate-200 bg-red-50/20'
-                                : 'bg-white'"
+                                ? 'border-l-4 border-red-500 bg-red-50/30 shadow-[inset_3px_0_8px_rgba(206,17,38,0.06)]'
+                                : 'border-r border-slate-200/70 bg-blue-50/10'"
                         >
 
                             {{-- LANE HEADER --}}
                             <div
-                                class="px-4 py-3 border-b border-slate-100"
+                                class="px-4 py-3 border-b"
                                 :class="laneKey === 'priority'
-                                    ? 'bg-red-50'
-                                    : 'bg-slate-50'"
+                                    ? 'bg-red-100/70 border-red-200'
+                                    : 'bg-blue-50 border-blue-200'"
                             >
 
                                 <div class="flex items-center justify-center gap-2">
 
                                     <span
-                                        class="w-2 h-2 rounded-full"
+                                        class="w-2.5 h-2.5 rounded-full"
                                         :class="laneKey === 'priority'
-                                            ? 'bg-red-600'
-                                            : 'bg-slate-500'"
+                                            ? 'bg-red-600 animate-pulse'
+                                            : 'bg-blue-600'"
                                     ></span>
 
-                                    <span class="text-[10px] font-black uppercase tracking-widest" :class="laneKey === 'priority' ? 'text-red-700' : 'text-slate-600'" x-text="laneKey === 'priority' ? t('priority') : t('regular')"></span>
+                                    <span class="text-[11px] font-black uppercase tracking-wider" :class="laneKey === 'priority' ? 'text-red-700' : 'text-blue-700'" x-text="laneKey === 'priority' ? t('priority_lane') : t('regular_lane')"></span>
 
                                 </div>
 
@@ -353,13 +353,13 @@
                                         <div class="flex items-center justify-center gap-1.5 mb-2">
 
                                             <span
-                                                class="w-2 h-2 rounded-full animate-ping"
+                                                class="w-2.5 h-2.5 rounded-full animate-ping"
                                                 :class="laneKey === 'priority'
                                                     ? 'bg-red-600'
-                                                    : 'bg-slate-500'"
+                                                    : 'bg-blue-600'"
                                             ></span>
 
-                                            <span class="text-[9px] font-black tracking-widest uppercase" :class="laneKey === 'priority' ? 'text-red-600' : 'text-slate-600'" x-text="t('now_serving')"></span>
+                                            <span class="text-[9px] font-black tracking-widest uppercase" :class="laneKey === 'priority' ? 'text-red-600' : 'text-blue-700'" x-text="t('now_serving')"></span>
 
                                         </div>
 
@@ -368,7 +368,7 @@
 
                                             <div>
 
-                                                <div class="text-3xl lg:text-4xl xl:text-5xl font-black tracking-tight text-slate-900 font-mono select-none">
+                                                <div class="text-3xl lg:text-4xl xl:text-5xl font-black tracking-tight font-mono select-none" :class="laneKey === 'priority' ? 'text-red-700' : 'text-blue-900'">
                                                     <span x-text="getLane(deskKey, laneKey).serving[0].queue_number"></span>
                                                 </div>
 
@@ -386,7 +386,7 @@
                                                                   x-text="t('returnee')"></span>
                                                         </template>
 
-                                                        <span class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide" :class="laneKey === 'priority' ? 'border border-red-200 bg-red-100 text-red-700' : 'border border-slate-200 bg-slate-100 text-slate-600'" x-text="laneKey === 'priority' ? t('priority') : t('regular')"></span>
+                                                        <span class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide" :class="laneKey === 'priority' ? 'border-2 border-red-300 bg-red-100 text-red-700' : 'border-2 border-blue-300 bg-blue-100 text-blue-700'" x-text="laneKey === 'priority' ? '🔴 ' + t('priority') : '🔵 ' + t('regular')"></span>
 
                                                     </div>
 
@@ -416,13 +416,13 @@
                                         <div class="flex items-center justify-center gap-1.5 mb-2">
 
                                             <span
-                                                class="w-2 h-2 rounded-full animate-pulse"
+                                                class="w-2.5 h-2.5 rounded-full animate-pulse"
                                                 :class="laneKey === 'priority'
-                                                    ? 'bg-red-500'
-                                                    : 'bg-amber-500'"
+                                                    ? 'bg-red-600'
+                                                    : 'bg-blue-600'"
                                             ></span>
 
-                                            <span class="text-[9px] font-black tracking-widest uppercase" :class="laneKey === 'priority' ? 'text-red-600' : 'text-amber-600'" x-text="t('next_in_line')"></span>
+                                            <span class="text-[9px] font-black tracking-widest uppercase" :class="laneKey === 'priority' ? 'text-red-600' : 'text-blue-700'" x-text="t('next_in_line')"></span>
 
                                         </div>
 
@@ -431,7 +431,7 @@
 
                                             <div>
 
-                                                <div class="text-4xl md:text-5xl font-black tracking-tight text-slate-700 font-mono select-none">
+                                                <div class="text-4xl md:text-5xl font-black tracking-tight font-mono select-none" :class="laneKey === 'priority' ? 'text-red-700' : 'text-blue-900'">
                                                     <span x-text="getLane(deskKey, laneKey).upNext[0].queue_number"></span>
                                                 </div>
 
@@ -443,7 +443,7 @@
                                                         x-text="getLane(deskKey, laneKey).upNext[0].client_category"
                                                     ></span>
 
-                                                    <span class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide" :class="laneKey === 'priority' ? 'border border-red-200 bg-red-100 text-red-700' : 'border border-slate-200 bg-slate-100 text-slate-600'" x-text="laneKey === 'priority' ? t('priority') : t('regular')"></span>
+                                                    <span class="rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide" :class="laneKey === 'priority' ? 'border-2 border-red-300 bg-red-100 text-red-700' : 'border-2 border-blue-300 bg-blue-100 text-blue-700'" x-text="laneKey === 'priority' ? '🔴 ' + t('priority') : '🔵 ' + t('regular')"></span>
 
                                                 </div>
 
@@ -472,7 +472,7 @@
 
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider" x-text="t('waiting')"></p>
 
-                                    <span class="text-[8px] font-black uppercase tracking-wider" :class="laneKey === 'priority' ? 'text-red-400' : 'text-slate-400'" x-text="laneKey === 'priority' ? t('priority_lane') : t('regular_lane')"></span>
+                                    <span class="text-[8px] font-black uppercase tracking-wider" :class="laneKey === 'priority' ? 'text-red-600 font-bold' : 'text-blue-600 font-bold'" x-text="laneKey === 'priority' ? '🔴 ' + t('priority_lane') : '🔵 ' + t('regular_lane')"></span>
 
                                 </div>
 
@@ -487,8 +487,8 @@
                                         :class="item.is_on_hold
                                             ? 'bg-amber-50 border-amber-200'
                                             : laneKey === 'priority'
-                                                ? 'bg-red-50/50 border-red-100'
-                                                : 'bg-slate-50 border-slate-200/60'"
+                                                ? 'bg-red-50/70 border-red-200 shadow-sm'
+                                                : 'bg-blue-50/30 border-blue-200/70 shadow-sm'"
                                     >
 
                                         <div class="flex items-center gap-1.5 min-w-0">
